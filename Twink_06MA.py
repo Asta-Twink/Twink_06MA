@@ -12,7 +12,7 @@ sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") 
 
 mycursor.execute('Use Twink_06ma')
 mydb.commit()
-
+ms.theme('Topanga')
 #--- Base Menu Declaration
 MenuDef = [
            ['Navigate',   ['Home','Register','Master User']],
@@ -24,7 +24,7 @@ BaseLayout=[[ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
             [ms.Sizer(swi/2-200,0) ,ms.Text("SUNIL INDUSTRIES LIMITED",font=("Courier New",18),justification='center')],
             [ms.Sizer(0,150)],
             [ms.Sizer(600,500),ms.Frame(layout=[
-                [ms.Text('Date',font=fstyle,size=(20,1)),ms.Text(todatenf,font=fstyle,size=(10,1))],
+                [ms.Text('Date',font=fstyle,size=(20,1)),ms.Input(todatenf,font=fstyle,size=(10,1),key="SW_date",enable_events=True)],
                 [ms.Text('No. of Employees',font=fstyle,size=(20,1)),ms.Text(empcount,font=fstyle,size=(10,1))],
                 [ms.Text('Attendance Status',font=fstyle,size=(20,1)),ms.Text(atstat,font=fstyle,size=(15,1))],
                 [ms.Sizer(150,0),ms.Button("Mail",disabled= False if atstat == "created" else True,font=fstyle,key='mailreport')]
@@ -33,12 +33,12 @@ BaseLayout=[[ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
 
 layout=[[ms.Menu    (MenuDef, key='MENU',font=fstyle)],
         [
-        ms.Column  (BaseLayout,key="base",visible=True,size=(swi,shi),element_justification='center'),
+        ms.Column  (BaseLayout,key="base",visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Register.RegsiterLay(),key='register',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Master_User.Master_User_GUI(),key='mumneu',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Attendance_Push.AttendancePushLay(),key='atnpush',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Attendance_View.AttendanceViewLay(),key='atnview',visible=False,size=(swi,shi),element_justification='center'),
-        ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=False,size=(swi,shi),element_justification='center'),
+        ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=True,size=(swi,shi),element_justification='center'),
         ms.Column  (Cleaning_Crew.crew_att_gui(),key='cc_att',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (CC_Attendence_View.CC_View_GUI(),key='c_view',visible=False,size=(swi,shi)),
         ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=False,size=(swi,shi),element_justification='center'),
@@ -57,7 +57,6 @@ while True:
         if event == ms.WIN_CLOSED:
             Menu.close()
             break
-
         if event == "Home" or  event[:6] == 'Escape':
             mycursor.execute(
                 "select `%s` from %s_%s where empcode = 'counter'" % (tempdate[0], tempdate[1], tempdate[2]))
@@ -72,6 +71,10 @@ while True:
             Menu['register'].update(visible=True)
 
         if event == 'Create' or event[:2] == 'F2':
+            Menu['SW_date'].block_focus(block=True)
+            Menu['atpdate'].block_focus(block=True)
+            Menu['atpers'].block_focus(block=True)
+
             for i in MenuList:
                 Menu[i].update(visible=False)
             Menu['atnpush'].update(visible=True)
@@ -91,7 +94,6 @@ while True:
             else:
                 ms.popup_auto_close("Please try again",font=fstyle, no_titlebar=True, auto_close_duration=2)
 
-
         if event == 'CC_Attendence':
             for i in MenuList:
                 Menu[i].update(visible=False)
@@ -102,7 +104,6 @@ while True:
                 Menu[i].update(visible=False)
             Menu['c_view'].update(visible=True)
 
-
         if event == 'Wages' or event[:2] == 'F4':
             for i in MenuList:
                 Menu[i].update(visible=False)
@@ -112,7 +113,6 @@ while True:
             for i in MenuList:
                 Menu[i].update(visible=False)
             Menu['advopt'].update(visible=True)
-
 
         Register.RegisterFn(Menu,event,values)
         Attendance_Push.AttendancePushFn(Menu,event,values)
@@ -125,15 +125,27 @@ while True:
         if event == 'mailreport':
             chk=ms.popup_ok("Please confrim to send mail",font=fstyle,no_titlebar=True)
             if chk == "OK":
-                mailreport(todatenf)
+                mailreport(values['SW_date'])
+
+        if event == 'SW_date':
+            tempMdate = values['SW_date'].split("-")
+            try:
+                print("x")
+                mycursor.execute(
+                    "select `%s` from %s_%s where empcode = 'counter'" % (tempMdate[0], tempMdate[1], tempMdate[2]))
+                atstat = "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
+            except:
+                atstat = "To be Created"
+            if atstat == "created":
+                Menu['mailreport'].update(disabled=False)
+            else:
+                Menu['mailreport'].update(disabled=True)
 
     except Exception as e:
         tb = traceback.format_exc()
         ms.popup_animated(None)
         ms.popup_error(f'AN EXCEPTION OCCURRED!', e, tb)
 
-
 sys.stdout.close()
-
 
 #v6.0

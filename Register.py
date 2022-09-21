@@ -13,7 +13,7 @@ def RegsiterLay():
               [ms.Frame("Employee Data",
                         [[ms.Table(values=EmpdataFetch("PF"),
                                    headings=["Employee Code", "Name", "Father/Spouse Name", "Gender", "Phone No.",
-                                             "Base Salary"],
+                                             "Team"],
                                    justification='centre', enable_events=True, auto_size_columns=False, row_height=30,
                                    col_widths=[15, 40, 40, 10, 20, 15],
                                    right_click_selects=True,
@@ -57,8 +57,8 @@ def RegisterFn(Menu, event, values):
              ms.Input("", size=(30, 1), enable_events=True,do_not_clear=True, key='e1', font=fstyle)],
             [ms.Text("Emp Code:", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(Emp_code_Gen("PF"), size=(30, 1),disabled=True, enable_events=True,do_not_clear=True, key='e2', font=fstyle)],
-            [ms.Text("Designation:", justification='left', size=(20, 1), font=fstyle, ),
-             ms.Combo(("Worker","Supervisor","Manager"),enable_events=True, size=(29, 1), key='e3', font=fstyle)],
+            [ms.Text("Designation/Dept.:", justification='left', size=(20, 1), font=fstyle, ),
+             ms.Combo(deplistfetch(),enable_events=True, size=(29, 1), key='e3', font=fstyle)],
             [ms.Text("ESIC NO:", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input("", size=(30, 1), enable_events=True,do_not_clear=True, key='e4', font=fstyle)],
             [ms.Text("UAN NO:", justification='left', size=(20, 1), font=fstyle, ),
@@ -248,11 +248,11 @@ def RegisterFn(Menu, event, values):
              ms.Radio("Yes","sw",default=s_val[0], size=(5, 1),enable_events=True, key='yes', font=fstyle),
              ms.Radio("No","sw",default=s_val[1], size=(5, 1),enable_events=True, key='no', font=fstyle)],
             [ms.Text("Base salary:", justification='left', size=(20, 1), font=fstyle, ),
-             ms.Input(ep_data[13], size=(30, 1),disabled=True, enable_events=True,do_not_clear=True, key='u10', font=fstyle)],
+             ms.Input(ep_data[13], size=(30, 1),disabled=False, enable_events=True,do_not_clear=True, key='u10', font=fstyle)],
             [ms.Text("Shift  salary:", justification='left', size=(20, 1), font=fstyle, ),
-             ms.Input(ep_data[14], size=(9, 1),tooltip="shift 1 salary",disabled=True, enable_events=True,do_not_clear=True, key='u11', font=fstyle),
-             ms.Input(ep_data[15], size=(9, 1),tooltip="shift 2 salary",disabled=True, enable_events=True,do_not_clear=True, key='u12', font=fstyle),
-             ms.Input(ep_data[16], size=(9, 1),tooltip="shift 3 salary",disabled=True, enable_events=True,do_not_clear=True, key='u13', font=fstyle)],
+             ms.Input(ep_data[14], size=(9, 1),tooltip="shift 1 salary",disabled=False, enable_events=True,do_not_clear=True, key='u11', font=fstyle),
+             ms.Input(ep_data[15], size=(9, 1),tooltip="shift 2 salary",disabled=False, enable_events=True,do_not_clear=True, key='u12', font=fstyle),
+             ms.Input(ep_data[16], size=(9, 1),tooltip="shift 3 salary",disabled=False, enable_events=True,do_not_clear=True, key='u13', font=fstyle)],
             [ms.Text("Phone No:", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(ep_data[17], size=(30, 1), enable_events=True,do_not_clear=True, key='u14', font=fstyle)],
             [ms.Text("Blood Group:", justification='left', size=(20, 1), font=fstyle, ),
@@ -720,77 +720,85 @@ def RegisterFn(Menu, event, values):
         #print(crow)
 
     if event =="Update Employee":
-        a=crow[0][0]
-        uMenu = ms.Window("Update Employee",[[ms.Column( Employee_update_GUI(a),
-                                                          scrollable=True, size=(800, 700),
-                                                          element_justification='centre')]])
-        while True:
-            event, values = uMenu.read()
-            #print(event)
-            if event == ms.WIN_CLOSED:
-                uMenu.close()
-                break
-            if event == 'updateemp':
-                Update_Employee(event, values)
-            if event == "load pimg":
-                filename = values["u22"]
-                if os.path.exists(filename):
-                    image = Image.open(values["u22"])
-                    image.thumbnail((300, 300))
-                    bio = io.BytesIO()
-                    # Actually store the image in memory in binary
-                    image.save(bio, format="PNG")
-                    # Use that image data in order to
-                    uMenu["-IMAGE-"].update(data=bio.getvalue())
+        chk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
+                                keep_on_top=True)
+        if chk == MasterPass:
+            a=crow[0][0]
+            uMenu = ms.Window("Update Employee",[[ms.Column( Employee_update_GUI(a),
+                                                              scrollable=True, size=(800, 700),
+                                                              element_justification='centre')]])
+            while True:
+                event, values = uMenu.read()
+                #print(event)
+                if event == ms.WIN_CLOSED:
+                    uMenu.close()
+                    break
+                if event == 'updateemp':
+                    Update_Employee(event, values)
+                if event == "load pimg":
+                    filename = values["u22"]
+                    if os.path.exists(filename):
+                        image = Image.open(values["u22"])
+                        image.thumbnail((300, 300))
+                        bio = io.BytesIO()
+                        # Actually store the image in memory in binary
+                        image.save(bio, format="PNG")
+                        # Use that image data in order to
+                        uMenu["-IMAGE-"].update(data=bio.getvalue())
 
-            if event == "load simg":
-                filename = values["u23"]
-                if os.path.exists(filename):
-                    image = Image.open(values["u23"])
-                    image.thumbnail((300, 300))
-                    bio = io.BytesIO()
-                    # Actually store the image in memory in binary
-                    image.save(bio, format="PNG")
-                    # Use that image data in order to
-                    uMenu["-IMAGE2-"].update(data=bio.getvalue())
-            if event == "load nimg":
-                filename = values["u26"]
-                if os.path.exists(filename):
-                    image = Image.open(values["u26"])
-                    image.thumbnail((300, 300))
-                    bio = io.BytesIO()
-                    # Actually store the image in memory in binary
-                    image.save(bio, format="PNG")
-                    # Use that image data in order to
-                    uMenu["-IMAGE3-"].update(data=bio.getvalue())
-            if event == "PF":
-                uMenu["u2"].update(values=Emp_code_Gen("PF"))
-            if event == "Non PF":
-                uMenu["u2"].update(values=Emp_code_Gen("Non PF"))
-            if event == "yes":
-                uMenu["u10"].update(disabled=False)
-                uMenu["u11"].update(disabled=False)
-                uMenu["u12"].update(disabled=False)
-                uMenu["u9"].update(disabled=True, value=0.00)
-            if event == "no":
-                uMenu["u10"].update(disabled=True, value=0.00)
-                uMenu["u11"].update(disabled=True, value=0.00)
-                uMenu["u12"].update(disabled=True, value=0.00)
-                uMenu["u9"].update(disabled=False)
-            if event=="u25":
-                if values["u25"]=="N":
-                    uMenu["u26"].update(disabled=False)
-                    uMenu["date3"].update(disabled=False)
-                if values["u25"] == "y":
-                    uMenu["u26"].update(disabled=True)
-                    uMenu["date3"].update(disabled=True)
+                if event == "load simg":
+                    filename = values["u23"]
+                    if os.path.exists(filename):
+                        image = Image.open(values["u23"])
+                        image.thumbnail((300, 300))
+                        bio = io.BytesIO()
+                        # Actually store the image in memory in binary
+                        image.save(bio, format="PNG")
+                        # Use that image data in order to
+                        uMenu["-IMAGE2-"].update(data=bio.getvalue())
+                if event == "load nimg":
+                    filename = values["u26"]
+                    if os.path.exists(filename):
+                        image = Image.open(values["u26"])
+                        image.thumbnail((300, 300))
+                        bio = io.BytesIO()
+                        # Actually store the image in memory in binary
+                        image.save(bio, format="PNG")
+                        # Use that image data in order to
+                        uMenu["-IMAGE3-"].update(data=bio.getvalue())
+                if event == "PF":
+                    uMenu["u2"].update(values=Emp_code_Gen("PF"))
+                if event == "Non PF":
+                    uMenu["u2"].update(values=Emp_code_Gen("Non PF"))
+                if event == "yes":
+                    print('X')
+                    uMenu["u11"].update(disabled=False)
+                    uMenu["u12"].update(disabled=False)
+                    uMenu["u13"].update(disabled=False)
+                    uMenu["u10"].update(disabled=True, value=0.00)
+                if event == "no":
+                    print('Y')
+                    uMenu["u13"].update(disabled=True, value=0.00)
+                    uMenu["u11"].update(disabled=True, value=0.00)
+                    uMenu["u12"].update(disabled=True, value=0.00)
+                    uMenu["u10"].update(disabled=False)
+                if event=="u25":
+                    if values["u25"]=="N":
+                        uMenu["u26"].update(disabled=False)
+                        uMenu["date3"].update(disabled=False)
+                    if values["u25"] == "y":
+                        uMenu["u26"].update(disabled=True)
+                        uMenu["date3"].update(disabled=True)
 
     if event == "Remove":
-        chk = ms.popup_ok("Please Confirm to Delete", font=fstyle)
-        if chk == "OK":
-            mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
-            mydb.commit()
-            Menu['emp_data'].update(values=EmpdataFetch("PF"))
+        pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
+                                keep_on_top=True)
+        if pwchk == MasterPass:
+            chk = ms.popup_ok("Please Confirm to Delete", font=fstyle)
+            if chk == "OK":
+                mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
+                mydb.commit()
+                Menu['emp_data'].update(values=EmpdataFetch("PF"))
 
     if event == "empexp":
         mycursor.execute("select emp_code, employee_name, designation, esic_no, uan_no, "
@@ -856,4 +864,3 @@ def RegisterFn(Menu, event, values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
-

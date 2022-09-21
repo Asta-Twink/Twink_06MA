@@ -20,6 +20,7 @@ from email.mime.base import MIMEBase
 from email import encoders
 import traceback
 import sys
+from prettytable import PrettyTable
 
 
 
@@ -49,6 +50,7 @@ with open("load.png", "rb") as image_file:
 with open("logo.png", "rb") as image_file:
  logo = base64.b64encode(image_file.read())
 
+atvar=None
 
 todate=datetime.today()
 todatestr=todate.strftime("%Y-%m-%d")
@@ -79,21 +81,21 @@ def CCWFetch():
 
 def EmpdataFetch(type):
     if type=="PF":
-        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,base_salary "
+        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
                          "from register where active_status = 'Y' and ET ='PF' and shift_work = 'No' order by employee_name")
         S1=[list(x) for x in mycursor.fetchall()]
         mycursor.execute('select Emp_code, employee_name,f_sp_name,Gender,Phone_no,'
-                         'concat(shift_1_salary,",",shift_2_salary,",",shift_3_salary) from register '
+                         'team from register '
                          'where active_status = "Y" and ET ="PF" and shift_work = "Yes" order by employee_name')
         S2 = [list(x) for x in mycursor.fetchall()]
         #print(S1+S2)
         return S1+S2
     if type=="Non PF":
-        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,base_salary "
+        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
                          "from register where active_status = 'Y' and ET ='Non PF' and shift_work = 'No' order by employee_name")
         S1=[list(x) for x in mycursor.fetchall()]
         mycursor.execute('select Emp_code, employee_name,f_sp_name,Gender,Phone_no,'
-                         'concat(shift_1_salary,",",shift_2_salary,",",shift_3_salary) from register '
+                         'team from register '
                          'where active_status = "Y" and ET ="Non PF" and shift_work = "Yes" order by employee_name')
         S2 = [list(x) for x in mycursor.fetchall()]
         #print(S1 + S2)
@@ -124,7 +126,7 @@ def DB_Creation(inp):
     except:
         pass
 
-#DB_Creation("01-09-2022")
+#DB_Creation("01-10-2022")
 
 def datasplit(data,filter):
 
@@ -181,12 +183,45 @@ def datasplit(data,filter):
                     pass
     return data
 
-def attendance_fetch(inp):
+def attendance_Wfetch(inp,chk):
 
+    form = list(inp.split("-"))
+    if chk == 0:
+        try:
+            mycursor.execute("select register.employee_name,register.f_sp_name,register.team,register.office_staff, %s_%s.* "
+                             "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
+                             form[0], form[1], form[0], form[1], form[0], form[1]))
+            db_data = [list(x) for x in mycursor.fetchall()]
+
+            for i in range(len(db_data)):
+                db_data[i].insert(0, db_data[i][4])
+                del db_data[i][5]
+            print(db_data)
+        except:
+            db_data=[[]]
+    else:
+        try:
+            mycursor.execute("select register.employee_name,register.f_sp_name,register.team,register.office_staff, %s_%s.* "
+                             "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' "
+                             "and team = 'Odisha' order by register.emp_code" % (
+                             form[0], form[1], form[0], form[1], form[0], form[1]))
+            db_data = [list(x) for x in mycursor.fetchall()]
+            #print(db_data)
+            for i in range(len(db_data)):
+                db_data[i].insert(0, db_data[i][4])
+                del db_data[i][5]
+                del db_data[i][-19:]
+
+        except:
+            db_data=[[]]
+
+    return db_data
+
+def attendance_fetch(inp):
     form = list(inp.split("-"))
     try:
         mycursor.execute("select register.employee_name,register.f_sp_name,register.office_staff, %s_%s.* "
-                         "from register inner join %s_%s on register.emp_code = %s_%s.empcode order by register.emp_code" % (
+                         "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
                          form[0], form[1], form[0], form[1], form[0], form[1]))
         db_data = [list(x) for x in mycursor.fetchall()]
         for i in range(len(db_data)):
@@ -265,7 +300,6 @@ try:
     atstat= "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
 except:
     atstat = "To be Created"
-
 #atstat="created"
 def mailreport(inp):
     mycursor.execute("select UID,Description from dep_list")
@@ -275,27 +309,39 @@ def mailreport(inp):
     mycursor.execute("select `%s` from %s_%s" % (dateform[0], dateform[1], dateform[2]))
     db_data = list(sum(mycursor.fetchall(), ()))
     db_data.pop(0)
-    #print(db_data)
+    db_data_Fn=[]
     for i in range(len(db_data)):
         if db_data[i] != None:
             temp = list(db_data[i].split(","))
-            try:
-                db_data[i] = dplist.get(int(temp[3]))
-            except:
+            #print(temp)
+            if temp[0] in ['1','2','3','P']:
+                try:
+                    db_data[i] = dplist.get(int(temp[3]))
+                except:
+                    db_data[i] = str(temp[0]) + "Wander"
+                db_data_Fn.append(db_data[i])
+            else:
                 pass
         else:
             pass
-    #print(db_data)
-    worklist = set(db_data)
-    #print(worklist)
-    worklog = {}
-    worklog.update({"Count": "Department"})
+    print(db_data_Fn)
+    worklist = set(db_data_Fn)
+    worklog = []
+    EmpCount_Total=0
+    tabular_table = PrettyTable()
+    tabular_table.field_names =  ["<   Department   >"," Count "]
     for i in worklist:
-        worklog.update({db_data.count(i): i})
-
+        worklog.append([i,db_data_Fn.count(i)])
+        EmpCount_Total+=db_data_Fn.count(i)
+    worklog.append([" ", " "])
+    worklog.append(["Total   ",EmpCount_Total])
+    for i in worklog:
+        tabular_table.add_row(i)
+    ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),)
     maillist = popup_select(mailid_fetch(False, ""), select_multiple=True)
+    if maillist == None:
+        return
     for i in maillist:
-        mail_content = "\n".join("{}\t           {}".format(k, v) for k, v in worklog.items())
         sender_address = 'asta.sunilindustries@gmail.com'
         sender_pass = 'uxzgkfvkdzuxwpad'
         # Setup the MIME
@@ -304,7 +350,7 @@ def mailreport(inp):
         message['From'] = sender_address
         message['To'] = receiver_address
         message['Subject'] = "Daily Attendance Mail - %s"%inp
-        message.attach(MIMEText(mail_content, 'plain'))
+        message.attach(MIMEText(tabular_table.get_html_string(), 'html'))
         # Create SMTP session for sending the mail
         session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
         session.starttls()  # enable security
@@ -360,4 +406,9 @@ def mailid_fetch(x,inp):
         mycursor.execute("select mail_id from mail_list where name_='%s'"%inp)
         return mycursor.fetchall()[0][0]
 
+def deplistfetch():
+    mycursor.execute("select description from dep_list")
+    return list(sum(mycursor.fetchall(),()))
+
+atpatmt = 'N'
 #v6.0
