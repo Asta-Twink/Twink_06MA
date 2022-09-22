@@ -2,16 +2,18 @@ import copy
 
 from Env import *
 
-
+a=5
 def AttendanceViewLay():
-    head=['Emp.Code','Name','F/S Name']
+
+    head=['Emp.Code','Team','Name']
     headwidth=[15,30,30]
     #----
     for i in range (1,32):
-        head.append(str(i).zfill(2))
+        head.append(str(i).zfill(3))
         headwidth.append(7)
     #print(todatemy)
     globals()['atnvwdata']=attendance_fetch(todatemy)
+
     data=copy.deepcopy(globals()['atnvwdata'])
     TL=ms.Table(values=datasplit(data,"Attendance"), headings=head,
                 justification='centre', enable_events=True,
@@ -47,6 +49,7 @@ def AdvanceoptLay():
                       justification='centre',
                       auto_size_columns=False,
                       col_widths=[15,15,30,15],
+
                       row_height=20,
                       num_rows=20,
                       font=fstyle,

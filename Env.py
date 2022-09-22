@@ -104,6 +104,7 @@ def EmpdataFetch(type):
 def DB_Creation(inp):
     date_split=list(inp.split("-"))
     mycursor.execute('CREATE TABLE IF NOT EXISTS %s_%s (empcode varchar(50), primary key (empcode))'%(date_split[1],date_split[2]))
+    print(inp)
     mydb.commit()
     try:
         for i in range (1,calendar.monthrange(int(date_split[2]),int(date_split[1]))[1]+1):
@@ -219,14 +220,20 @@ def attendance_Wfetch(inp,chk):
 
 def attendance_fetch(inp):
     form = list(inp.split("-"))
+    print(form)
     try:
-        mycursor.execute("select register.employee_name,register.f_sp_name,register.office_staff, %s_%s.* "
+        mycursor.execute("select register.team,register.employee_name,register.office_staff, %s_%s.* "
                          "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
                          form[0], form[1], form[0], form[1], form[0], form[1]))
+
         db_data = [list(x) for x in mycursor.fetchall()]
+        print(db_data)
         for i in range(len(db_data)):
             db_data[i].insert(0, db_data[i][3])
             del db_data[i][4]
+            #del db_data[i][3]
+        print(db_data)
+
     except:
         db_data=[[]]
     return db_data
