@@ -18,10 +18,11 @@ def WageCalcLay():
         [ms.Input(todatemy,font=fstyle,size=(10,1),key='wcdateinp'),ms.CalendarButton(" ",image_data=chse,target='wcdateinp',format="%m-%Y"),
          ms.Checkbox("15 Days ODI", font=fstyle, key='15d'),
          ms.Button("Generate",key='wcgen',font=fstyle),ms.Sizer(300,0), ms.Text("Wages Report Generation",font=fstylehd ),
-         ms.Sizer(300,0),
+         ms.Sizer(250,0),
          ms.Button("Export",key='wcexp',font=fstyle,disabled=True),
          ms.Button("Mail", key='wcmail', font=fstyle, disabled=True),
-         ms.Button("DB Push", key='wcdbpush', font=fstyle, disabled=False)
+         ms.Button("DB Push", key='wcdbpush', font=fstyle, disabled=False),
+         ms.Button("Forward", key='forw', font=fstyle, disabled=False)
          ],
        [ ms.Frame("Output",layout=[[ms.Column(TL_WCEXP,scrollable=True,size=(swi-50,shi-80),)]],font=fstyle,size=(swi-50,shi-80))
     ]
@@ -29,6 +30,97 @@ def WageCalcLay():
     return layout
 
 def WageCalcFn(Menu,event,values):
+
+    if event=='forw':
+        xl = openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
+        xl.active = xl['Wage_Calc']
+        xlc = xl.active
+        rowc = 2
+        colc = 1
+        wagedetails = {}
+        pfemp = []
+        nonpfemp = []
+        for step in wage_proc_data:
+            wagedetails.update({step[0]: step[16]})
+            colc = 1
+            for i in step:
+                xlc.cell(row=rowc, column=colc).value = i
+                colc += 1
+            rowc += 1
+            if "SILTEMP" in step[0]:
+                nonpfemp.append(step)
+            else:
+                pfemp.append(step)
+        nonpfempwage = []
+        for step in nonpfemp:
+            mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
+                             "ifsc_code,branch from register where emp_code ='%s'" % step[0])
+            db_data = list(sum(mycursor.fetchall(), ()))
+            db_data.append(step[16])
+            nonpfempwage.append(db_data)
+        pfempwage = []
+        for step in pfemp:
+            mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
+                             "ifsc_code,branch from register where emp_code ='%s'" % step[0])
+            db_data = list(sum(mycursor.fetchall(), ()))
+            db_data.append(step[16])
+            pfempwage.append(db_data)
+
+        # (pfempwage,nonpfempwage)
+        xl.active = xl['PF']
+        xlc = xl.active
+        rowc = 2
+        colc = 1
+        for step in pfempwage:
+            colc = 1
+            for i in step:
+                xlc.cell(row=rowc, column=colc).value = i
+                colc += 1
+            rowc += 1
+
+        xl.active = xl['NonPF']
+        xlc = xl.active
+        rowc = 2
+        colc = 1
+        for step in nonpfempwage:
+            colc = 1
+            for i in step:
+                xlc.cell(row=rowc, column=colc).value = i
+                colc += 1
+            rowc += 1
+        xl.save(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
+        os.system(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
+
+        maillist = ['selvag.1999@gmail.com','karthikanandan007@gmail.com']
+        for i in maillist:
+            mail_content = "PFA"
+            sender_address = 'asta.sunilindustries@gmail.com'
+            sender_pass = 'uxzgkfvkdzuxwpad'
+            # Setup the MIME
+            receiver_address = i
+            message = MIMEMultipart()
+            message['From'] = sender_address
+            message['To'] = receiver_address
+            message['Subject'] = "Wage Calculation_Output"
+            message.attach(MIMEText(mail_content, 'plain'))
+            attach_file_name = r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx"
+            attach_file = open(attach_file_name, 'rb')  # Open the file as binary mode
+            payload = MIMEBase('application', 'octate-stream')
+            payload.set_payload((attach_file).read())
+            encoders.encode_base64(payload)  # encode the attachment
+            # add payload header with filename
+            payload.add_header('Content-Disposition ', 'attachment',
+                               filename='Wage_Calc_Output.xlsx')
+            message.attach(payload)
+            # Create SMTP session for sending the mail
+            session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
+            session.starttls()  # enable security
+            session.login(sender_address, sender_pass)
+            text = message.as_string()
+            session.sendmail(sender_address, receiver_address, text)
+            session.quit()
+            # print('Mail Sent')
+        ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
 
     if event == 'wcdbpush':
 
