@@ -9,7 +9,7 @@ def AttendanceViewLay():
     headwidth=[15,30,30]
     #----
     for i in range (1,32):
-        head.append(str(i).zfill(3))
+        head.append(str(i).zfill(2))
         headwidth.append(7)
     #print(todatemy)
     globals()['atnvwdata']=attendance_fetch(todatemy)
@@ -27,15 +27,16 @@ def AttendanceViewLay():
     #print(data)
     #print(atnvwdata)
     layout=[[ms.Sizer(swi-1500),ms.Text("Attendance View",font=fstylehd,justification='center')],
-            [ms.Combo(['Attendance','OT','Expenses','Atn+ot',],default_value="Attendance",
+            [ms.Combo(['Attendance','OT','Expenses','Atn+ot','DP_List'],default_value="Attendance",
                       enable_events=True, key='atnvwfltr',size=(15,4),font=fstyle),ms.Sizer(swi -500),
              ms.Text("Date",font=fstyle,size=(7,1)),ms.Input(todatemy,disabled= True,enable_events=True,
                                                              disabled_readonly_background_color=ms.theme_background_color(),
                                                              size=(8,2),font=fstyle,key='atvwdate'),
              ms.CalendarButton(" ",target='atvwdate',format="%m-%Y")],
             [ms.Frame("Output",layout=[[TL],
-                                        [ms.Button("Export",key='wcxlexp',font=fstyle),
-                                         ms.Button("Mail", key='wcxlmail', font=fstyle)
+                                        [ms.Button("Export",key='avxlexp',font=fstyle),
+                                         ms.Button("Mail", key='avxlmail', font=fstyle),
+                                         ms.Button("XL Fetch", key='avxlfetch', font=fstyle)
                                          ],
                                        ],size=(swi-70,shi-100),font=fstyle,element_justification='center')]
             ]
@@ -79,10 +80,10 @@ def AttendaceViewFn(Menu,event,values):
     if event == 'atvwdate':
         globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
         Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr']))
-    if event == 'wcxlexp':
+    if event == 'avxlexp':
         data=attendance_fetch(values['atvwdate'])
         xl=openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_Exp.xlsx')
-        for step in ['Attendance','OT','Expenses']:
+        for step in ['Attendance','OT','Expenses',"DP_List"]:
             xl.active=xl[step]
             xlc=xl.active
             atndata=datasplit(copy.deepcopy(data),step)
@@ -126,15 +127,12 @@ def AttendaceViewFn(Menu,event,values):
                 Menu['TL_AdvView'].update(values=advancefetch(todatenf))
             else:
                 ms.popup_ok("Wrong Pasword", font=fstyle)
-
-
     if event == 'advdateinp':
         try:
             Menu['TL_AdvView'].update(values=(advancefetch(values['advdateinp'])))
         except:
             pass
-
-    if event == 'wcxlmail':
+    if event == 'avxlmail':
         data=attendance_fetch(values['atvwdate'])
         xl=openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_Exp.xlsx')
         for step in ['Attendance','OT','Expenses']:
@@ -181,5 +179,59 @@ def AttendaceViewFn(Menu,event,values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
+    if event == 'avxlfetch':
+        pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
+                                keep_on_top=True)
+        if pwchk == MasterPass:
+            chk = ms.popup_ok("Please Confirm to Delete", font=fstyle)
+            if chk == "OK":
+                xl = openpyxl.load_workbook(filename=r"C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx")
+                xlc1 = xl['Attendance']
+                xlc2 = xl['OT']
+                xlc3 = xl['Expenses']
+                xlc4 = xl['DP_List']
+                Data = []
+                for i in range(int(xlc1.max_row)-1):
+                    temp = []
+                    cursor = xlc1.cell(row=i + 2, column=1)
+                    temp.append(cursor.value)
+                    for j in range(31):
+                        c1 = xlc1.cell(row=i + 2, column=j + 4)
+                        if c1.value == None:
+                            temp.append("")
+                            break
+                        c2 = xlc2.cell(row=i + 2, column=j + 4)
+                        c3 = xlc3.cell(row=i + 2, column=j + 4)
+                        c4 = xlc4.cell(row=i + 2, column=j + 4)
+                        temp.append(str(c1.value) + "," + str(c2.value) + "," + str(c3.value) + "," + str(c4.value))
+                    Data.append(temp)
 
-#v6.0
+                OPXL = openpyxl.Workbook()
+                XLC = OPXL.active
+                pushdate = list(values['atvwdate'].split("-"))
+                rowc = 1
+                colc = 1
+                for step in Data:
+                    colc = 1
+                    for i in step:
+                        XLC.cell(row=rowc, column=colc).value = i
+                        colc += 1
+                    rowc += 1
+
+                for step in Data:
+                    for i in range(len(step)-1):
+                        try:
+                            sql = "update %s_%s set `%s` = '%s' where empcode = '%s'" % \
+                                  (pushdate[0], pushdate[1],str(i+1).zfill(2) , step[i+1], step[0])
+                            #print(sql)
+                            mycursor.execute(sql)
+                        except Exception as e:
+                            ms.popup(e,font=fstyle)
+                            break
+                mydb.commit()
+                OPXL.save(r'C:\Twink_06MA\Logs\ATXLFETCH\%s_%s.xlsx'%(todate.strftime("%d-%m-%Y-%H-%M"),values['atvwdate']))
+                globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
+                Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr']))
+
+
+#v6.1

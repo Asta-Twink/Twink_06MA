@@ -53,6 +53,7 @@ with open("logo.png", "rb") as image_file:
 atvar=None
 
 todate=datetime.today()
+print(todate)
 todatestr=todate.strftime("%Y-%m-%d")
 todatenf=todate.strftime("%d-%m-%Y")
 todatemy=todate.strftime("%m-%Y")
@@ -104,7 +105,7 @@ def EmpdataFetch(type):
 def DB_Creation(inp):
     date_split=list(inp.split("-"))
     mycursor.execute('CREATE TABLE IF NOT EXISTS %s_%s (empcode varchar(50), primary key (empcode))'%(date_split[1],date_split[2]))
-    print(inp)
+    #print(inp)
     mydb.commit()
     try:
         for i in range (1,calendar.monthrange(int(date_split[2]),int(date_split[1]))[1]+1):
@@ -130,16 +131,16 @@ def DB_Creation(inp):
 #DB_Creation("01-10-2022")
 
 def datasplit(data,filter):
-
+    #print(data)
     if filter == 'Attendance':
         try:
             for part in data:
                 part.pop(3)
                 for i in range(3,len(part)):
-                    if part[i]!=None:
+                    try:
                         temp=list(part[i].split(","))
                         part[i]=temp[0]
-                    else:
+                    except:
                         pass
         except:
             pass
@@ -147,28 +148,30 @@ def datasplit(data,filter):
         for part in data:
             part.pop(3)
             for i in range(3,len(part)):
-                if part[i]!=None:
+                #print(part[i])
+                try:
                     temp=list(part[i].split(","))
                     part[i]=temp[1]
-                else:
+                except:
                     pass
+
     elif filter == 'Expenses':
         for part in data:
             part.pop(3)
             for i in range(3,len(part)):
-                if part[i]!=None:
+                try:
                     temp=list(part[i].split(","))
                     part[i]=temp[2]
-                else:
+                except:
                     pass
     elif filter == 'Atn+ot':
         for part in data:
             part.pop(3)
             for i in range(3,len(part)):
-                if part[i]!=None:
+                try:
                     temp=list(part[i].split(","))
                     part[i]=str(temp[0])+";",str(temp[1])
-                else:
+                except:
                     pass
     elif filter == 'DP_List':
         mycursor.execute("select UID,Description from dep_list")
@@ -176,11 +179,12 @@ def datasplit(data,filter):
         dplist = {int(x[0]): (x[1]) for x in db_data}
         #print(dplist)
         for part in data:
-            for i in range(4,len(part)):
-                if part[i]!=None:
+            part.pop(3)
+            for i in range(3,len(part)):
+                try:
                     temp=list(part[i].split(","))
-                    part[i]=dplist.get(int(temp[3]))[:2]
-                else:
+                    part[i]=temp[3]
+                except:
                     pass
     return data
 
@@ -197,7 +201,7 @@ def attendance_Wfetch(inp,chk):
             for i in range(len(db_data)):
                 db_data[i].insert(0, db_data[i][4])
                 del db_data[i][5]
-            print(db_data)
+            #print(db_data)
         except:
             db_data=[[]]
     else:
@@ -211,8 +215,8 @@ def attendance_Wfetch(inp,chk):
             for i in range(len(db_data)):
                 db_data[i].insert(0, db_data[i][4])
                 del db_data[i][5]
-                del db_data[i][-19:]
-
+                del db_data[i][-15:]
+            #print(db_data)
         except:
             db_data=[[]]
 
@@ -220,19 +224,19 @@ def attendance_Wfetch(inp,chk):
 
 def attendance_fetch(inp):
     form = list(inp.split("-"))
-    print(form)
+    #print(form)
     try:
         mycursor.execute("select register.team,register.employee_name,register.office_staff, %s_%s.* "
                          "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
                          form[0], form[1], form[0], form[1], form[0], form[1]))
 
         db_data = [list(x) for x in mycursor.fetchall()]
-        print(db_data)
+        #print(db_data)
         for i in range(len(db_data)):
             db_data[i].insert(0, db_data[i][3])
             del db_data[i][4]
             #del db_data[i][3]
-        print(db_data)
+        #print(db_data)
 
     except:
         db_data=[[]]
@@ -313,37 +317,54 @@ def mailreport(inp):
     db_data = mycursor.fetchall()
     dplist = {int(x[0]): (x[1]) for x in db_data}
     dateform = inp.split("-")
-    mycursor.execute("select `%s` from %s_%s" % (dateform[0], dateform[1], dateform[2]))
-    db_data = list(sum(mycursor.fetchall(), ()))
-    db_data.pop(0)
-    db_data_Fn=[]
-    for i in range(len(db_data)):
-        if db_data[i] != None:
-            temp = list(db_data[i].split(","))
-            #print(temp)
-            if temp[0] in ['1','2','3','P']:
+    mycursor.execute(
+        "select empcode,`%s` from %s_%s where empcode !='counter'" % (dateform[0], dateform[1], dateform[2]))
+    db_data = [list(x) for x in mycursor.fetchall()]
+
+    db_data_Fn = []
+    wage_data = wage_fetch()
+
+    for i in db_data:
+        if i[1] != None:
+            temp = list(i[1].split(","))
+
+            if temp[0] in ['1', '2', '3', 'P']:
                 try:
-                    db_data[i] = dplist.get(int(temp[3]))
+                    i[1] = dplist.get(int(temp[3]))
                 except:
-                    db_data[i] = str(temp[0]) + "Wander"
-                db_data_Fn.append(db_data[i])
-            else:
-                pass
+                    i[1] = "Wander"
+                wage = wage_data.get(i[0])
+                i[0] = wage
+                if type(i[0]) == list:
+                    i[0] = wage[int(temp[0]) - 1]
+                else:
+                    i[0]
+            db_data_Fn.append(i)
+
         else:
             pass
-    print(db_data_Fn)
-    worklist = set(db_data_Fn)
-    worklog = []
-    EmpCount_Total=0
+    mycursor.execute("select Description from dep_list order by Description")
+    dep_data = list(sum(mycursor.fetchall(), ()))
+    output = []
+    for i in dep_data:
+        count = 0
+        wage = 0
+        for j in db_data_Fn:
+            if j[1] == i:
+                count += 1
+                wage += round(j[0],2)
+        output.append([i, count, wage])
+
+    #print(output)
+    ctot,wtot=0,0.0
     tabular_table = PrettyTable()
-    tabular_table.field_names =  ["<   Department   >"," Count "]
-    for i in worklist:
-        worklog.append([i,db_data_Fn.count(i)])
-        EmpCount_Total+=db_data_Fn.count(i)
-    worklog.append([" ", " "])
-    worklog.append(["Total   ",EmpCount_Total])
-    for i in worklog:
+    tabular_table.field_names =  ["<   Department   >","<  Count  > ","Net Wage"]
+    for i in output:
         tabular_table.add_row(i)
+        ctot+=i[1]
+        wtot+=i[2]
+    tabular_table.add_row(["-------------", "----", "-------"])
+    tabular_table.add_row(["Total",ctot,round(wtot,0)])
     ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),)
     maillist = popup_select(mailid_fetch(False, ""), select_multiple=True)
     if maillist == None:
@@ -418,4 +439,4 @@ def deplistfetch():
     return list(sum(mycursor.fetchall(),()))
 
 atpatmt = 'N'
-#v6.0
+#v6.1

@@ -1,8 +1,6 @@
 import base64
 import os
-
 from Env import *
-
 
 def RegsiterLay():
     layout = [[ms.Text("Employee Register", font=fstylehd)],
@@ -222,9 +220,9 @@ def RegisterFn(Menu, event, values):
             [ms.Text("Employee Name:", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(ep_data[1], size=(30, 1), enable_events=True,do_not_clear=True, key='u1', font=fstyle)],
             [ms.Text("Emp Code:", justification='left', size=(20, 1), font=fstyle, ),
-             ms.Input(ep_data[2], size=(30, 1),disabled=True, enable_events=True,do_not_clear=True, key='u2', font=fstyle)],
+             ms.Input(ep_data[2], size=(30, 1),disabled=True, enable_events=True,do_not_clear=True, key='u2', font=fstyle,disabled_readonly_background_color=ms.theme_background_color())],
             [ms.Text("Designation:", justification='left', size=(20, 1), font=fstyle, ),
-             ms.Combo(("Worker","Supervisor","Manager"),default_value= ep_data[3],enable_events=True, size=(29, 1), key='u3', font=fstyle)],
+             ms.Combo(dep_list,default_value= ep_data[3],enable_events=True, size=(29, 1), key='u3', font=fstyle)],
             [ms.Text("ESIC NO:", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(ep_data[4], size=(30, 1), enable_events=True,do_not_clear=True, key='u4', font=fstyle)],
             [ms.Text("UAN NO:", justification='left', size=(20, 1), font=fstyle, ),
@@ -351,7 +349,6 @@ def RegisterFn(Menu, event, values):
             if values['u' + str(i)] == "":
                 chk = False
                 break
-        #print(chk)
         if chk == True:
             if values['u22']!="":
                 try:
@@ -364,7 +361,7 @@ def RegisterFn(Menu, event, values):
                     pass
             if values['u23']!="":
                 try:
-                    os.remove(r"C:\Twink_06MA\Image_Data\%s_nimg.jpg"%values['u2'])
+                    os.remove(r"C:\Twink_06MA\Image_Data\%s_simg.jpg"%values['u2'])
 
                 except:
                     pass
@@ -375,11 +372,11 @@ def RegisterFn(Menu, event, values):
 
             if values['u26']!="":
                 try:
-                    os.remove(r"C:\Twink_06MA\Image_Data\%s_simg.jpg"%values['u2'])
+                    os.remove(r"C:\Twink_06MA\Image_Data\%s_nimg.jpg"%values['u2'])
                 except:
                     pass
                 try:
-                    shutil.copy(values['u26'], r"C:\Twink_06MA\Image_Data\%s_simg.jpg" % values['u2'])
+                    shutil.copy(values['u26'], r"C:\Twink_06MA\Image_Data\%s_nimg.jpg" % values['u2'])
                 except:
                     pass
             dict = {'employee_name': values['u1'],'designation':values['u3'],'esic_no':values['u4'],'uan_no':values['u5'],
@@ -771,13 +768,13 @@ def RegisterFn(Menu, event, values):
                 if event == "Non PF":
                     uMenu["u2"].update(values=Emp_code_Gen("Non PF"))
                 if event == "yes":
-                    print('X')
+                    #print('X')
                     uMenu["u11"].update(disabled=False)
                     uMenu["u12"].update(disabled=False)
                     uMenu["u13"].update(disabled=False)
                     uMenu["u10"].update(disabled=True, value=0.00)
                 if event == "no":
-                    print('Y')
+                    #print('Y')
                     uMenu["u13"].update(disabled=True, value=0.00)
                     uMenu["u11"].update(disabled=True, value=0.00)
                     uMenu["u12"].update(disabled=True, value=0.00)
@@ -794,7 +791,7 @@ def RegisterFn(Menu, event, values):
         pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
                                 keep_on_top=True)
         if pwchk == MasterPass:
-            chk = ms.popup_ok("Please Confirm to Delete", font=fstyle)
+            chk = ms.popup_ok("Please Confirm to Update Attendance through Excel", font=fstyle)
             if chk == "OK":
                 mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
                 mydb.commit()
@@ -864,3 +861,4 @@ def RegisterFn(Menu, event, values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
+#v6.1

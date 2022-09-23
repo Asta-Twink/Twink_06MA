@@ -8,7 +8,7 @@ import Master_User
 import Cleaning_Crew
 import CC_Attendence_View
 #---Custom DB Declaration
-#sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
+sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
 
 mycursor.execute('Use Twink_06ma')
 mydb.commit()
@@ -146,6 +146,6 @@ while True:
         ms.popup_animated(None)
         ms.popup_error(f'AN EXCEPTION OCCURRED!', e, tb)
 
-#sys.stdout.close()
+sys.stdout.close()
 
-#v6.0
+#v6.1

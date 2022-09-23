@@ -1,4 +1,5 @@
 from Env import *
+
 def WageCalcLay():
     head=['Emp Code','Name','F/S Name','Team','Days Present','S1','S2','S3','PD Wage','Wage','OT','OT Wages','Incentive','Gross Wages','PF','ESI','Adv.','Canteen','Net Wages']
     headwidth=[12,25,25,10,5,5,5,5,20,10,5,10,10,15,10,10,10,10,20]
@@ -17,12 +18,12 @@ def WageCalcLay():
     layout=[
         [ms.Input(todatemy,font=fstyle,size=(10,1),key='wcdateinp'),ms.CalendarButton(" ",image_data=chse,target='wcdateinp',format="%m-%Y"),
          ms.Checkbox("15 Days ODI", font=fstyle, key='15d'),
-         ms.Button("Generate",key='wcgen',font=fstyle),ms.Sizer(300,0), ms.Text("Wages Report Generation",font=fstylehd ),
-         ms.Sizer(250,0),
+         ms.Button("Generate",key='wcgen',font=fstyle),ms.Sizer(250,0), ms.Text("Wages Report Generation",font=fstylehd ),
+         ms.Sizer(225,0),
          ms.Button("Export",key='wcexp',font=fstyle,disabled=True),
          ms.Button("Mail", key='wcmail', font=fstyle, disabled=True),
-         ms.Button("DB Push", key='wcdbpush', font=fstyle, disabled=False),
-         ms.Button("Forward", key='forw', font=fstyle, disabled=False)
+         ms.Button("DB Push", key='wcdbpush', font=fstyle, disabled=True),
+         ms.Button("Forward", key='wc_forw', font=fstyle, disabled=True)
          ],
        [ ms.Frame("Output",layout=[[ms.Column(TL_WCEXP,scrollable=True,size=(swi-50,shi-80),)]],font=fstyle,size=(swi-50,shi-80))
     ]
@@ -31,7 +32,7 @@ def WageCalcLay():
 
 def WageCalcFn(Menu,event,values):
 
-    if event=='forw':
+    if event=='wc_forw':
         xl = openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
         xl.active = xl['Wage_Calc']
         xlc = xl.active
@@ -123,23 +124,18 @@ def WageCalcFn(Menu,event,values):
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
 
     if event == 'wcdbpush':
-
         Wage_push = Menu['TL_WC'].get()
         for i in Wage_push:
             if values['15d'] != True:
                 i.insert(0,"30d")
-
             else:
                 i.insert(0,"15d")
             i.insert(1, todatestr)
             i.insert(2, values['wcdateinp'])
-            print(i)
-            print(len(i))
             sql = 'insert into wage_db_push values ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s",' \
                   '"%s","%s","%s","%s","%s","%s","%s","%s","%s")'%(tuple(i))
-            print(sql)
             mycursor.execute(sql)
-            mydb.commit()
+        mydb.commit()
 
     if event == 'wcgen':
         if values['15d'] != False:
@@ -147,7 +143,7 @@ def WageCalcFn(Menu,event,values):
             data = attendance_Wfetch(values['wcdateinp'],1)
             wagedata = wage_fetch()
             globals()['wage_proc_data']=[]
-            print(data)
+            #print(data)
             for step in data:
                 try:
                     #print(step)
@@ -168,7 +164,7 @@ def WageCalcFn(Menu,event,values):
                             try:
                                 i=list(step[i].split(","))
                             except:
-                                break
+                                continue
                             if i[0] == '1':
                                 S1+=1
                                 OT1 += int(i[1])  # OT Addition
@@ -178,15 +174,19 @@ def WageCalcFn(Menu,event,values):
                             if i[0] == '3':
                                 S3+=1
                                 OT3 += int(i[1])  # OT Addition
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
+                            OT=OT1+OT2+OT3
                             CE+=float(i[2]) # CE Addition
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
                         temp.append(str(wagetemp[0])+","+str(wagetemp[1])+","+str(wagetemp[2]))
-                        wage = (S1*wagetemp[0])+(S2*wagetemp[1])+(S3*wagetemp[2]) # Wage Calc
+                        wage = round((S1*wagetemp[0])+(S2*wagetemp[1])+(S3*wagetemp[2]),2) # Wage Calc
                         temp.append(wage)
                         # OT Calc
-                        ot_wage = (OT1 / 8 * wagetemp[0]) +(OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2])
+                        ot_wage = round((OT1 / 8 * wagetemp[0]) +(OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2]),2)
                         if step[4] == "yes":
                             incentive = 0.0
                         elif S1 + S2 + S3 in [25,26]:
@@ -206,19 +206,24 @@ def WageCalcFn(Menu,event,values):
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] == 'P':
                                 DP+=1
-                            OT+=int(i[1]) # OT Addition
+                                OT += int(i[1])  # OT Addition
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"]+=int(i[1][2])
                             CE+=float(i[2]) # CE Addition
                         temp.append(DP)
                         temp.append("0.0")
                         temp.append("0.0")
                         temp.append("0.0")
                         temp.append(wagetemp)
-                        wage = DP*wagetemp
+                        wage = round(DP*wagetemp,2)
                         temp.append(wage)
                         #print(OT,wagetemp)
-                        ot_wage = (OT / 8 * wagetemp)
+                        ot_wage = round((OT / 8 * wagetemp),2)
                         if step[4] == "yes":
                             incentive = 0.0
                         elif DP in [25,26]:
@@ -269,7 +274,7 @@ def WageCalcFn(Menu,event,values):
                     temp = []
                     for i in range(4):  # EMP Details addition
                         temp.append(step[i])
-                    print(step)
+                    #print(step)
                     chk = shiftcheck(step[0])
                     # print(chk)
                     if chk == True:  # if Emp is Shift resource
@@ -283,7 +288,10 @@ def WageCalcFn(Menu,event,values):
                             try:
                                 i = list(step[i].split(","))
                             except:
-                                break
+                                continue
+                            if len(i) !=4:
+                                continue
+                            #print(i)
                             if i[0] == '1':
                                 S1 += 1
                                 OT1 += int(i[1])  # OT Addition
@@ -293,16 +301,20 @@ def WageCalcFn(Menu,event,values):
                             if i[0] == '3':
                                 S3 += 1
                                 OT3 += int(i[1])  # OT Addition
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
                             CE += float(i[2])  # CE Addition
+
                             OT=OT1+OT2+OT3
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
                         temp.append(str(wagetemp[0]) + "," + str(wagetemp[1]) + "," + str(wagetemp[2]))
-                        wage = (S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2])  # Wage Calc
+                        wage = round((S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2]),2)  # Wage Calc
                         temp.append(wage)
                         # OT Calc
-                        ot_wage = (OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2])
+                        ot_wage = round((OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2]),2)
                         if step[4] == "yes":
                             incentive = 0.0
                         elif S1 + S2 + S3 in [25, 26]:
@@ -322,19 +334,25 @@ def WageCalcFn(Menu,event,values):
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] == 'P':
                                 DP += 1
-                            OT += int(i[1])  # OT Addition
+                                OT += int(i[1])
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"]+=int(i[1][2])
+                              # OT Addition
                             CE += float(i[2])  # CE Addition
                         temp.append(DP)
                         temp.append("NA")
                         temp.append("NA")
                         temp.append("NA")
                         temp.append(wagetemp)
-                        wage = DP * wagetemp
+                        wage = round(DP * wagetemp,2)
                         temp.append(wage)
                         # print(OT,wagetemp)
-                        ot_wage = (OT / 8 * wagetemp)
+                        ot_wage = round((OT / 8 * wagetemp),2)
                         if step[4] == "yes":
                             incentive = 0.0
                         elif DP in [25, 26]:
@@ -349,7 +367,7 @@ def WageCalcFn(Menu,event,values):
                     temp = []
                     for i in range(4):  # EMP Details addition
                         temp.append(step[i])
-                    print(step)
+                    #print(step)
                     chk = shiftcheck(step[0])
                     # print(chk)
                     if chk == True:  # if Emp is Shift resource
@@ -364,6 +382,8 @@ def WageCalcFn(Menu,event,values):
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] == '1':
                                 S1 += 1
                                 OT1 += int(i[1])  # OT Addition
@@ -373,25 +393,31 @@ def WageCalcFn(Menu,event,values):
                             if i[0] == '3':
                                 S3 += 1
                                 OT3 += int(i[1])  # OT Addition
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
+                            OT=OT1+OT2+OT3
+
                             CE += float(i[2])  # CE Addition
                             OT=OT1+OT2+OT3
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
                         temp.append(str(wagetemp[0]) + "," + str(wagetemp[1]) + "," + str(wagetemp[2]))
-                        wage = (S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2])  # Wage Calc
+                        wage = round((S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2]),2)  # Wage Calc
                         temp.append(wage)
                         # OT Calc
-                        ot_wage = (OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2])
+                        ot_wage = round((OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2]),2)
                         DP=0
                         for i in range(5, len(step)):  # Custom Shift Calc
                             try:
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] in ["1","2","3"]:
                                 DP+=1
-
                         if step[4] == "yes":
                             incentive = 0.0
                         elif DP in [25, 26]:
@@ -412,8 +438,13 @@ def WageCalcFn(Menu,event,values):
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] == 'P':
                                 DP += 1
+                            if i[0] == "A":
+                                if "/" in i[1]:
+                                    locals()["OT"]+=int(i[1][2])
                             OT += int(i[1])  # OT Addition
                             CE += float(i[2])  # CE Addition
                         temp.append(DP)
@@ -421,16 +452,18 @@ def WageCalcFn(Menu,event,values):
                         temp.append("NA")
                         temp.append("NA")
                         temp.append(wagetemp)
-                        wage = DP * wagetemp
+                        wage = round(DP * wagetemp,2)
                         temp.append(wage)
                         # print(OT,wagetemp)
-                        ot_wage = (OT / 8 * wagetemp)
+                        ot_wage = round((OT / 8 * wagetemp),2)
                         DP=0
                         for i in range(5, len(step)):  # DP Calc
                             try:
                                 i = list(step[i].split(","))
                             except:
                                 break
+                            if len(i) !=4:
+                                continue
                             if i[0] == 'P':
                                 DP += 1
                         if step[4] == "yes":
@@ -443,13 +476,11 @@ def WageCalcFn(Menu,event,values):
                             incentive = float(incentive_amnt_list[2]) * DP
                         else:
                             incentive = 0.0
-
-
                 temp.append(OT)
                 temp.append(ot_wage)
                 temp.append(incentive)
-                print(incentive)
-                gross_wage = wage + ot_wage + incentive
+                #print(incentive)
+                gross_wage = round(wage + ot_wage + incentive,2)
                 temp.append(gross_wage)
                 PFS1 = 0.0 if "SILTEMP" in step[0] else round(gross_wage * 12 / 100, 0)  # PF Calculation
                 PF = 1800.0 if PFS1 > 1800.0 else PFS1
@@ -460,10 +491,9 @@ def WageCalcFn(Menu,event,values):
                 ADV = wageadvfetch(step[0], values['wcdateinp'])
                 temp.append(ADV)
                 temp.append(CE)  # Canteen Expense Addition
-                netwage = gross_wage - PF - ESI - ADV - CE
+                netwage = round(gross_wage - PF - ESI - ADV - CE,2)
                 temp.append(netwage)
                 wage_proc_data.append(temp)
-
             # except Exception as e:
             # print(e)
             # print(wage_proc_data)
@@ -496,14 +526,14 @@ def WageCalcFn(Menu,event,values):
             mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
                              "ifsc_code,branch from register where emp_code ='%s'"%step[0])
             db_data=list(sum(mycursor.fetchall(),()))
-            db_data.append(step[16])
+            db_data.append(step[18])
             nonpfempwage.append(db_data)
         pfempwage=[]
         for step in pfemp:
             mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
                              "ifsc_code,branch from register where emp_code ='%s'"%step[0])
             db_data=list(sum(mycursor.fetchall(),()))
-            db_data.append(step[16])
+            db_data.append(step[18])
             pfempwage.append(db_data)
 
         #(pfempwage,nonpfempwage)
@@ -563,4 +593,4 @@ def WageCalcFn(Menu,event,values):
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
 
-#v6.0
+#v6.1

@@ -292,6 +292,10 @@ def AttendancePushFn(Menu,event,values):
                    else:
                        indata = 'e'
                    indata += ","
+                   if "/" in str(values['atpotsy' + str(i)]):
+                       if values['atpassy' + str(i)] == False:
+                           ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecsy' + str(i)],font=fstyle)
+                           return
                    indata += str(values['atpotsy' + str(i)])
                    indata += ","
                    indata += str(values['atpxpsy' + str(i)])
@@ -309,6 +313,10 @@ def AttendancePushFn(Menu,event,values):
                    else:
                        indata = 'e'
                    indata += ","
+                   if "/" in str(values['atpotsn' + str(i)]):
+                       if values['atp2ssn' + str(i)] == False:
+                           ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecsn' + str(i)],font=fstyle)
+                           return
                    indata += str(values['atpotsn' + str(i)])
                    indata += ","
                    indata += str(values['atpxpsn' + str(i)])
@@ -330,6 +338,10 @@ def AttendancePushFn(Menu,event,values):
                    else:
                        indata = 'e'
                    indata += ","
+                   if "/" in str(values['atpotnsy' + str(i)]):
+                       if values['atpasnsy' + str(i)] == False:
+                           ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecnsy' + str(i)],font=fstyle)
+                           return
                    indata += str(values['atpotnsy' + str(i)])
                    indata += ","
                    indata += str(values['atpxpnsy' + str(i)])
@@ -347,6 +359,10 @@ def AttendancePushFn(Menu,event,values):
                    else:
                        indata = 'e'
                    indata += ","
+                   if "/" in str(values['atpotnsn' + str(i)]):
+                       if values['atp2snsn' + str(i)] == False:
+                           ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecnsn' + str(i)],font=fstyle)
+                           return
                    indata += str(values['atpotnsn' + str(i)])
                    indata += ","
                    indata += str(values['atpxpnsn' + str(i)])
@@ -449,4 +465,4 @@ def AttendancePushFn(Menu,event,values):
 
 
 
-#v6.0
+#v6.1
