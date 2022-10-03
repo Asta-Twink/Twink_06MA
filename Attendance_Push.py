@@ -31,7 +31,7 @@ def AttendancePushLay():
               ms.Radio("1", font=fstyle, key='atp1ssy' + str(i), group_id='atpsdsy' + str(i)),
               ms.Radio("2",font=fstyle,key='atp2ssy'+str(i),group_id='atpsdsy'+str(i)),
               ms.Radio("3",font=fstyle,key='atp3ssy'+str(i),group_id='atpsdsy'+str(i)),
-              ms.Radio("A", font=fstyle, key='atpassy' + str(i), group_id='atpsdsy' + str(i)),
+              ms.Radio("A", font=fstyle, key='atp0ssy' + str(i), group_id='atpsdsy' + str(i)),
               ms.Sizer(25,0),
               ms.Spin(values=[0, 1, 2, 3, 4, 5, 6, 7, 8],initial_value=0,font=fstyle,size=(4,1),key='atpotsy'+str(i),),ms.Sizer(7,0),
               ms.Input("0.0",font=fstyle,key='atpxpsy'+str(i),size=(8,1)),ms.Sizer(7,0),
@@ -79,7 +79,7 @@ def AttendancePushLay():
                            ms.Radio("1", font=fstyle, key='atp1snsy' + str(i), group_id='atpsdnsy' + str(i)),
                            ms.Radio("2", font=fstyle, key='atp2snsy' + str(i), group_id='atpsdnsy' + str(i)),
                            ms.Radio("3", font=fstyle, key='atp3snsy' + str(i), group_id='atpsdnsy' + str(i)),
-                           ms.Radio("A", font=fstyle, key='atpasnsy' + str(i), group_id='atpsdnsy' + str(i)),
+                           ms.Radio("A", font=fstyle, key='atp0snsy' + str(i), group_id='atpsdnsy' + str(i)),
                            ms.Sizer(25, 0),
                            ms.Spin(values=[0, 1, 2, 3, 4, 5, 6, 7, 8], initial_value=0, font=fstyle, size=(4, 1),
                                    key='atpotnsy' + str(i), ), ms.Sizer(7, 0),
@@ -152,6 +152,7 @@ def AttendancePushFn(Menu,event,values):
     if event == 'atpupdate':
        #print(values['atpers'])
        #print("ckecking", user_pass(values['atpers'])[0][0])
+       echk=[]
        if values['atppw']==user_pass(values['atpers'])[0][0]:
            pushdate = list(values['atpdate'].split("-"))
            DB_Creation(values['atpdate'])
@@ -274,7 +275,7 @@ def AttendancePushFn(Menu,event,values):
                    mydb.commit()
 
                else:
-                   ms.popup_auto_close("Wrong Password", auto_close_duration=1)
+                   ms.popup_auto_close("Please Try Again", auto_close_duration=1)
                    return
            else:
                atndata = []
@@ -291,6 +292,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = 'A'
                    else:
                        indata = 'e'
+                       echk.append(values['atpecsy' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotsy' + str(i)]):
                        if values['atpassy' + str(i)] == False:
@@ -312,6 +314,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = 'A'
                    else:
                        indata = 'e'
+                       echk.append(values['atpecsn' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotsn' + str(i)]):
                        if values['atp2ssn' + str(i)] == False:
@@ -337,6 +340,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = 'A'
                    else:
                        indata = 'e'
+                       echk.append(values['atpecnsy' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotnsy' + str(i)]):
                        if values['atpasnsy' + str(i)] == False:
@@ -358,6 +362,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = 'A'
                    else:
                        indata = 'e'
+                       echk.append(values['atpecnsn' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotnsn' + str(i)]):
                        if values['atp2snsn' + str(i)] == False:
@@ -371,17 +376,27 @@ def AttendancePushFn(Menu,event,values):
                    data.append(indata)
                    atndata.append(data)
                #print(pushdate, atndata)
-               for x in range(len(atndata)):
-                   sql = "update %s_%s set `%s` = '%s' where empcode = '%s'" % \
-                         (pushdate[1], pushdate[2], pushdate[0], atndata[x][1], atndata[x][0])
-                   #print(sql)
+               if len(echk)>10:
+                   chkpass=ms.popup_ok("More than 10 Employees are not provided with attendance..!\n"
+                               "Please Click OK to Proceed with error inputs",font=fstyle,title="InComplete Attendance")
+               else:
+                   chkpass = ms.popup_ok("The following EmpCodes are not provided with Attendance..!,\nPlease recheck or "
+                                         "Click OK to Proceed with error inputs \n---\n%s\n---\n"%("\n".join(echk)),
+                                         font=fstyle,title="InComplete Attendance")
+               if chkpass == "OK":
+                   for x in range(len(atndata)):
+                       sql = "update %s_%s set `%s` = '%s' where empcode = '%s'" % \
+                             (pushdate[1], pushdate[2], pushdate[0], atndata[x][1], atndata[x][0])
+                       #print(sql)
+                       mycursor.execute(sql)
+                   sql = "update %s_%s set `%s` = 'v' where empcode = 'counter'" % \
+                         (pushdate[1], pushdate[2], pushdate[0],)
                    mycursor.execute(sql)
+                   mydb.commit()
+                   ms.popup_auto_close("Attendance Updated Sucessfully", font=fstyle, auto_close_duration=1)
+               else:
+                   return
 
-               sql = "update %s_%s set `%s` = 'v' where empcode = 'counter'" % \
-                     (pushdate[1], pushdate[2], pushdate[0],)
-               mycursor.execute(sql)
-               mydb.commit()
-           ms.popup_auto_close("Attendance Updated Sucessfully",font=fstyle, auto_close_duration=1)
            globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
            Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(atnvwdata), values['atnvwfltr']))
        else:
@@ -393,32 +408,27 @@ def AttendancePushFn(Menu,event,values):
 
     if globals()['atpatmt'] == 'OK':
         print(globals()['atpatmt'])
-
         if event[:3]=='atp':
             Menu['atpdate'].block_focus(block=True)
             Menu['atpers'].block_focus(block=True)
-
         for i in range(len(emplistpy)):
             if event == 'atpfssy'+str(i):
                 for j in range(len(emplistpy)):
                     Menu['atpfssy' + str(j)].update(text_color=ms.theme_text_color())
                 Menu['atpfssy'+str(i)].update(text_color='White')
                 globals()['atvar']= "ssy"+str(i)
-
         for i in range(len(emplistny)):
             if event == 'atpfsnsy'+str(i):
                 for j in range(len(emplistny)):
                     Menu['atpfsnsy' + str(j)].update(text_color=ms.theme_text_color())
                 Menu['atpfsnsy'+str(i)].update(text_color='White')
                 globals()['atvar']= "snsy"+str(i)
-
-        if event in ['1','2','3','a']:
+        if event in ['1','2','3','0']:
             try:
                 if atvar[:3] == "ssy" or atvar[:4] == "snsy":
                     Menu['atp'+event+atvar].update(value=True)
             except:
                 pass
-
         for i in range(len(emplistpn)):
             if event == 'atpfssn' + str(i):
                 for j in range(len(emplistpn)):

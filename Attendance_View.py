@@ -233,5 +233,4 @@ def AttendaceViewFn(Menu,event,values):
                 globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
                 Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr']))
 
-
 #v6.1
