@@ -391,9 +391,6 @@ def AttendancePushFn(Menu,event,values):
         globals()['atpatmt'] = "N" if globals()['atpatmt'] == 'OK' else "OK"
         Menu['atpatmtkey'].update(visible=True if globals()['atpatmt'] == 'OK' else False)
 
-
-
-
     if globals()['atpatmt'] == 'OK':
         print(globals()['atpatmt'])
 

@@ -31,7 +31,6 @@ def WageCalcLay():
     return layout
 
 def WageCalcFn(Menu,event,values):
-
     if event=='wc_forw':
         xl = openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
         xl.active = xl['Wage_Calc']
@@ -138,8 +137,7 @@ def WageCalcFn(Menu,event,values):
         mydb.commit()
 
     if event == 'wcgen':
-        if values['15d'] != False:
-
+        if values['15d'] != False: #15 days
             data = attendance_Wfetch(values['wcdateinp'],1)
             wagedata = wage_fetch()
             globals()['wage_proc_data']=[]
@@ -150,7 +148,7 @@ def WageCalcFn(Menu,event,values):
                     temp=[]
                     for i in range (4):#EMP Details addition
                         temp.append(step[i])
-                    print(step)
+                    #print(step)
                     chk = shiftcheck(step[0])
                     #print(chk)
                     if chk == True:# if Emp is Shift resource
@@ -176,9 +174,14 @@ def WageCalcFn(Menu,event,values):
                                 OT3 += int(i[1])  # OT Addition
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
-                            OT=OT1+OT2+OT3
+                                    if i[1][0]=='1':
+                                        OT1+=int(i[1][2])
+                                    if i[1][0]=='2':
+                                        OT2+=int(i[1][2])
+                                    if i[1][0]=='3':
+                                        OT3+=int(i[1][2])
                             CE+=float(i[2]) # CE Addition
+                        OT = OT1 + OT2 + OT3
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
@@ -213,7 +216,7 @@ def WageCalcFn(Menu,event,values):
                                 OT += int(i[1])  # OT Addition
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"]+=int(i[1][2])
+                                    OT+=int(i[1][2])
                             CE+=float(i[2]) # CE Addition
                         temp.append(DP)
                         temp.append("0.0")
@@ -294,7 +297,7 @@ def WageCalcFn(Menu,event,values):
                             #print(i)
                             if i[0] == '1':
                                 S1 += 1
-                                OT1 += int(i[1])  # OT Addition
+                                OT1 += int(i[1])   # OT Addition
                             if i[0] == '2':
                                 S2 += 1
                                 OT2 += int(i[1])  # OT Addition
@@ -303,10 +306,16 @@ def WageCalcFn(Menu,event,values):
                                 OT3 += int(i[1])  # OT Addition
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
-                            CE += float(i[2])  # CE Addition
-
-                            OT=OT1+OT2+OT3
+                                    if i[1][0]=='1':
+                                        OT1+=int(i[1][2])
+                                    if i[1][0]=='2':
+                                        OT2+=int(i[1][2])
+                                    if i[1][0]=='3':
+                                        OT3+=int(i[1][2])
+                            if step[0] == "SILTEMP065":
+                                print(OT1, OT2, OT3)
+                            CE += float(i[2])  # CE Addition)
+                        OT=OT1+OT2+OT3
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
@@ -341,7 +350,7 @@ def WageCalcFn(Menu,event,values):
                                 OT += int(i[1])
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"]+=int(i[1][2])
+                                    OT+=int(i[1][2])
                               # OT Addition
                             CE += float(i[2])  # CE Addition
                         temp.append(DP)
@@ -363,6 +372,7 @@ def WageCalcFn(Menu,event,values):
                             incentive = float(incentive_amnt_list[2]) * DP
                         else:
                             incentive = 0.0
+
                 else:
                     temp = []
                     for i in range(4):  # EMP Details addition
@@ -395,11 +405,16 @@ def WageCalcFn(Menu,event,values):
                                 OT3 += int(i[1])  # OT Addition
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"+str(i[1][0])]+=int(i[1][2])
-                            OT=OT1+OT2+OT3
+                                    if i[1][0] == '1':
+                                        OT1 += int(i[1][2])
+                                    if i[1][0] == '2':
+                                        OT2 += int(i[1][2])
+                                    if i[1][0] == '3':
+                                        OT3 += int(i[1][2])
 
                             CE += float(i[2])  # CE Addition
-                            OT=OT1+OT2+OT3
+
+                        OT=OT1+OT2+OT3
                         temp.append(S1)
                         temp.append(S2)
                         temp.append(S3)
@@ -429,7 +444,6 @@ def WageCalcFn(Menu,event,values):
                         else:
                             incentive = 0.0
                     else:
-
                         wagetemp = wagedata.get(step[0])
                         DP, OT = 0, 0
                         CE = 0.0
@@ -442,10 +456,11 @@ def WageCalcFn(Menu,event,values):
                                 continue
                             if i[0] == 'P':
                                 DP += 1
+                                OT += int(i[1])
                             if i[0] == "A":
                                 if "/" in i[1]:
-                                    locals()["OT"]+=int(i[1][2])
-                            OT += int(i[1])  # OT Addition
+                                    OT+=int(i[1][2])
+                              # OT Addition
                             CE += float(i[2])  # CE Addition
                         temp.append(DP)
                         temp.append("NA")
@@ -502,67 +517,109 @@ def WageCalcFn(Menu,event,values):
             Menu['wcmail'].update(disabled=False)
 
     if event == 'wcexp':
-        xl=openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
-        xl.active=xl['Wage_Calc']
-        xlc=xl.active
-        rowc=2
-        colc=1
-        wagedetails={}
-        pfemp=[]
-        nonpfemp=[]
-        for step in wage_proc_data:
-            wagedetails.update({step[0]:step[16]})
+        exptype = ms.popup_get_text("Enter the report code to generate\n01 : Wage Export\n02 : Days Present Export",font =fstyle)
+        if exptype == '01':
+            xl=openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
+            xl.active=xl['Wage_Calc']
+            xlc=xl.active
+            rowc=2
             colc=1
-            for i in step:
-                xlc.cell(row=rowc,column=colc).value=i
-                colc+=1
-            rowc+=1
-            if "SILTEMP" in step[0]:
-                nonpfemp.append(step)
-            else:
-                pfemp.append(step)
-        nonpfempwage=[]
-        for step in nonpfemp:
-            mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
-                             "ifsc_code,branch from register where emp_code ='%s'"%step[0])
-            db_data=list(sum(mycursor.fetchall(),()))
-            db_data.append(step[18])
-            nonpfempwage.append(db_data)
-        pfempwage=[]
-        for step in pfemp:
-            mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
-                             "ifsc_code,branch from register where emp_code ='%s'"%step[0])
-            db_data=list(sum(mycursor.fetchall(),()))
-            db_data.append(step[18])
-            pfempwage.append(db_data)
+            wagedetails={}
+            pfemp=[]
+            nonpfemp=[]
+            for step in wage_proc_data:
+                wagedetails.update({step[0]:step[16]})
+                colc=1
+                for i in step:
+                    xlc.cell(row=rowc,column=colc).value=i
+                    colc+=1
+                rowc+=1
+                if "SILTEMP" in step[0]:
+                    nonpfemp.append(step)
+                else:
+                    pfemp.append(step)
+            nonpfempwage=[]
+            for step in nonpfemp:
+                mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
+                                 "ifsc_code,branch from register where emp_code ='%s'"%step[0])
+                db_data=list(sum(mycursor.fetchall(),()))
+                db_data.append(step[18])
+                nonpfempwage.append(db_data)
+            pfempwage=[]
+            for step in pfemp:
+                mycursor.execute("select emp_code,employee_name,designation,bank_account_no,bank_name,"
+                                 "ifsc_code,branch from register where emp_code ='%s'"%step[0])
+                db_data=list(sum(mycursor.fetchall(),()))
+                db_data.append(step[18])
+                pfempwage.append(db_data)
 
-        #(pfempwage,nonpfempwage)
-        xl.active=xl['PF']
-        xlc=xl.active
-        rowc=2
-        colc=1
-        for step in pfempwage:
+            #(pfempwage,nonpfempwage)
+            xl.active=xl['PF']
+            xlc=xl.active
+            rowc=2
             colc=1
-            for i in step:
-                xlc.cell(row=rowc, column=colc).value = i
-                colc += 1
-            rowc += 1
+            for step in pfempwage:
+                colc=1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
 
-        xl.active = xl['NonPF']
-        xlc = xl.active
-        rowc = 2
-        colc = 1
-        for step in nonpfempwage:
+            xl.active = xl['NonPF']
+            xlc = xl.active
+            rowc = 2
             colc = 1
-            for i in step:
-                xlc.cell(row=rowc, column=colc).value = i
-                colc += 1
-            rowc += 1
-        xl.save(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
-        os.system(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
+            for step in nonpfempwage:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+            xl.save(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
+            os.system(r"C:\Twink_06MA\Master_Files\Wage_Exp_01.xlsx")
+        if exptype == '02':
+            xl=openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\DaysPresent_Exp.xlsx")
+            pfemp = []
+            nonpfemp = []
+            for step in wage_proc_data:
+                if "SILTEMP" in step[0]:
+                    nonpfemp.append(step)
+                else:
+                    pfemp.append(step)
+            xl.active=xl['Export_PF']
+            xlc = xl.active
+            xlc.cell(row=1, column=1).value= "Sunil Industries Limited %s Attendance Ouptut"%values['wcdateinp']
+            rowc=3
+            colc=1
+            for step in pfemp:
+                colc=1
+                for i in range(8):
+                    xlc.cell(row=rowc, column=colc).value = step[i]
+                    if i >3:
+                        xlc.cell(row=rowc, column=colc).alignment=Alignment(horizontal="center")
+                    colc += 1
+                xlc.cell(row=rowc, column=colc).value = step[10]
+                rowc += 1
+            xl.active = xl['Export_NPF']
+            xlc = xl.active
+            xlc.cell(row=1, column=1).value = "Sunil Industries Limited %s Attendance Ouptut" % values['wcdateinp']
+            xlc = xl.active
+            rowc = 3
+            colc = 1
+            for step in nonpfemp:
+                colc = 1
+                for i in range(8):
+                    xlc.cell(row=rowc, column=colc).value = step[i]
+                    if i > 3:
+                        xlc.cell(row=rowc, column=colc).alignment = Alignment(horizontal="center")
+                    colc += 1
+                xlc.cell(row=rowc, column=colc).value = step[10]
+                rowc += 1
+            xl.save(r"C:\Twink_06MA\Master_Files\DaysPresent_Exp_01.xlsx")
+            os.system(r"C:\Twink_06MA\Master_Files\DaysPresent_Exp_01.xlsx")
 
     if event == 'wcmail':
-        maillist=popup_select(mailid_fetch(False,""), select_multiple=True)
+        maillist=popup_select(mailid_fetch(False,""))
         for i in maillist:
             mail_content = "PFA"
             sender_address = 'asta.sunilindustries@gmail.com'

@@ -2,7 +2,6 @@ import copy
 
 from Env import *
 
-a=5
 def AttendanceViewLay():
 
     head=['Emp.Code','Team','Name']
@@ -149,7 +148,7 @@ def AttendaceViewFn(Menu,event,values):
                 ccol = 1
 
         xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
-        maillist = popup_select(mailid_fetch(False,""), select_multiple=True)
+        maillist = popup_select(mailid_fetch(False,""))
         for i in maillist:
             mail_content = "PFA"
             sender_address = 'asta.sunilindustries@gmail.com'
@@ -183,7 +182,7 @@ def AttendaceViewFn(Menu,event,values):
         pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
                                 keep_on_top=True)
         if pwchk == MasterPass:
-            chk = ms.popup_ok("Please Confirm to Delete", font=fstyle)
+            chk = ms.popup_ok("Please Confirm to Fetch", font=fstyle)
             if chk == "OK":
                 xl = openpyxl.load_workbook(filename=r"C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx")
                 xlc1 = xl['Attendance']
@@ -191,11 +190,12 @@ def AttendaceViewFn(Menu,event,values):
                 xlc3 = xl['Expenses']
                 xlc4 = xl['DP_List']
                 Data = []
+                pushdate = list(values['atvwdate'].split("-"))
                 for i in range(int(xlc1.max_row)-1):
                     temp = []
                     cursor = xlc1.cell(row=i + 2, column=1)
                     temp.append(cursor.value)
-                    for j in range(31):
+                    for j in range(calendar.monthrange(int(pushdate[1]),int(pushdate[0]))[1]):
                         c1 = xlc1.cell(row=i + 2, column=j + 4)
                         if c1.value == None:
                             temp.append("")
@@ -217,7 +217,7 @@ def AttendaceViewFn(Menu,event,values):
                         XLC.cell(row=rowc, column=colc).value = i
                         colc += 1
                     rowc += 1
-
+                print(step)
                 for step in Data:
                     for i in range(len(step)-1):
                         try:

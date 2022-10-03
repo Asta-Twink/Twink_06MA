@@ -21,8 +21,7 @@ from email import encoders
 import traceback
 import sys
 from prettytable import PrettyTable
-
-
+from openpyxl.styles.alignment import Alignment
 
 mydb = mysql.connector.connect( host='localhost', user="root", passwd="MSeGa@1109",)
 mycursor = mydb.cursor()
@@ -366,7 +365,15 @@ def mailreport(inp):
     tabular_table.add_row(["-------------", "----", "-------"])
     tabular_table.add_row(["Total",ctot,round(wtot,0)])
     ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),)
-    maillist = popup_select(mailid_fetch(False, ""), select_multiple=True)
+    maillist = popup_select(mailid_fetch(False, ""))
+    sys.stdout.close()
+    DS1 = todate.strftime("%Y-%m-%d-%H-%M")
+    sys.stdout = open('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1, 'w')
+    print(tabular_table)
+    sys.stdout.close()
+    os.system('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1)
+    sys.stdout = open('C:\Twink_06MA\Logs\%s.txt' % todate.strftime("%Y-%m-%d-%H-%M"), 'w')
+
     if maillist == None:
         return
     for i in maillist:
@@ -415,16 +422,14 @@ def shiftcheck(inp):
     chk=mycursor.fetchall()[0][0]
     return True if chk=="Yes" else False
 
-def popup_select(the_list,select_multiple=False):
-    layout = [[ms.Listbox(the_list,key='_LIST_',size=(45,5),select_mode='extended' if select_multiple else 'single',bind_return_key=True),ms.OK()]]
+def popup_select(the_list):
+    layout = [[ms.Listbox(the_list,key='_LIST_',size=(45,5),select_mode=ms.LISTBOX_SELECT_MODE_MULTIPLE,bind_return_key=True),ms.OK()]]
     window = ms.Window('Select the mail id to send',layout=layout)
     event, values = window.read()
     window.close()
     del window
-    if select_multiple or values['_LIST_'] is None:
-        return values['_LIST_']
-    else:
-        return values['_LIST_'][0]
+
+    return values['_LIST_']
 
 def mailid_fetch(x,inp):
     if x == False:

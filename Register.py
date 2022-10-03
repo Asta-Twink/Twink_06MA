@@ -265,10 +265,10 @@ def RegisterFn(Menu, event, values):
              ms.Input(ep_data[22], size=(30, 1), enable_events=True,do_not_clear=True, key='u19', font=fstyle)],
             [ms.Text("Date of Birth :", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(ep_data[23], size=(26, 1), enable_events=True,do_not_clear=True, key='u20', font=fstyle),ms.Sizer(4, 0),
-             ms.CalendarButton('Choose',image_data=chse, format='%d-%m-%y', target='e20', font=fstyle, size=(6, 1), key='date1'), ],
+             ms.CalendarButton('Choose',image_data=chse, format='%Y-%m-%d', target='u20', font=fstyle, size=(6, 1), key='date1'), ],
             [ms.Text("Date of Joining :", justification='left', size=(20, 1), font=fstyle, ),
              ms.Input(ep_data[24], size=(26, 1), enable_events=True,do_not_clear=True, key='u21', font=fstyle),ms.Sizer(4, 0),
-             ms.CalendarButton('Choose',image_data=chse, format='%d-%m-%y', font=fstyle, target='u21', size=(6, 1), key='date1'), ],
+             ms.CalendarButton('Choose',image_data=chse, format='%Y-%m-%d', font=fstyle, target='u21', size=(6, 1), key='date1'), ],
             [ms.Text("photo:", justification='left', size=(20, 1), font=fstyle),
              ms.Input("", size=(19, 1), enable_events=True,do_not_clear=True, key='u22', font=fstyle),
              ms.FileBrowse(file_types=file_types,size=(6,1),enable_events=True, target="u22",key="b1", font=fstyle),
@@ -380,7 +380,8 @@ def RegisterFn(Menu, event, values):
                 except:
                     pass
             dict = {'employee_name': values['u1'],'designation':values['u3'],'esic_no':values['u4'],'uan_no':values['u5'],
-                    'aadhar_no': values['u6'],'address': values['u7'],'marriage_status':'Yes' if values["m_yes"]==True else "No", 'f_sp_name': values['u9'],
+                    'pan_no':values['u6'],
+                    'aadhar_no': values['u7'],'address': values['u8'],'marriage_status':'Yes' if values["m_yes"]==True else "No", 'f_sp_name': values['u9'],
                     'gender':"M" if values['m']==True else "F" if values['f']==True else "O" ,
                     'shift_work':'Yes' if values["yes"]==True else "No",'base_salary': values['u10'],
                     'shift_1_salary': values['u11'],'shift_2_salary': values['u12'],'shift_3_salary': values['u13'],
@@ -831,7 +832,7 @@ def RegisterFn(Menu, event, values):
                 colc+=1
             rowc+=1
         xl.save(r'C:\Twink_06MA\Master_Files\Emp_Exp01.xlsx')
-        maillist = popup_select(mailid_fetch(False,""), select_multiple=True)
+        maillist = popup_select(mailid_fetch(False,""))
         for i in maillist:
             mail_content = "PFA"
             sender_address = 'asta.sunilindustries@gmail.com'
