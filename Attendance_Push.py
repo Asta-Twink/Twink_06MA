@@ -130,7 +130,6 @@ def AttendancePushLay():
         [ms.Button("Update",font=fstyle,key='atpupdate',tooltip="Please enter the Password to proceed .!")
          ]]
     return layout
-
 '''
 TestMenu = ms.Window("Attendance Push",layout,location=(0,0),size=(swi,shi),element_justification='center')
 while True:
@@ -139,7 +138,6 @@ while True:
         TestMenu.close()
         break
 '''
-
 def AttendancePushFn(Menu,event,values):
     if event == 'atpswap':
         if Menu['atpswap'].get() == False:
@@ -469,7 +467,5 @@ def AttendancePushFn(Menu,event,values):
                     Menu['atpf' + globals()['atvar']].update(text_color='White')
             except:
                 pass
-
-
 
 #v6.1

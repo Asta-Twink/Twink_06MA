@@ -391,7 +391,7 @@ def WageCalcFn(Menu,event,values):
                             try:
                                 i = list(step[i].split(","))
                             except:
-                                break
+                                continue
                             if len(i) !=4:
                                 continue
                             if i[0] == '1':
@@ -411,9 +411,7 @@ def WageCalcFn(Menu,event,values):
                                         OT2 += int(i[1][2])
                                     if i[1][0] == '3':
                                         OT3 += int(i[1][2])
-
                             CE += float(i[2])  # CE Addition
-
                         OT=OT1+OT2+OT3
                         temp.append(S1)
                         temp.append(S2)
@@ -436,11 +434,11 @@ def WageCalcFn(Menu,event,values):
                         if step[4] == "yes":
                             incentive = 0.0
                         elif DP in [25, 26]:
-                            incentive = float(incentive_amnt_list[0]) * (S1 + S2 + S3)
+                            incentive = float(incentive_amnt_list[0]) * (DP)
                         elif DP in [27, 28, 29]:
-                            incentive = float(incentive_amnt_list[1]) * (S1 + S2 + S3)
+                            incentive = float(incentive_amnt_list[1]) * (DP)
                         elif DP in [30, 31]:
-                            incentive = float(incentive_amnt_list[2]) * (S1 + S2 + S3)
+                            incentive = float(incentive_amnt_list[2]) * (DP)
                         else:
                             incentive = 0.0
                     else:
@@ -491,6 +489,8 @@ def WageCalcFn(Menu,event,values):
                             incentive = float(incentive_amnt_list[2]) * DP
                         else:
                             incentive = 0.0
+
+#----------------------
                 temp.append(OT)
                 temp.append(ot_wage)
                 temp.append(incentive)

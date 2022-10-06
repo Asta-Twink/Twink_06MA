@@ -50,7 +50,7 @@ with open("logo.png", "rb") as image_file:
  logo = base64.b64encode(image_file.read())
 
 atvar=None
-
+avxlop=None
 todate=datetime.today()
 print(todate)
 todatestr=todate.strftime("%Y-%m-%d")
@@ -153,7 +153,6 @@ def datasplit(data,filter):
                     part[i]=temp[1]
                 except:
                     pass
-
     elif filter == 'Expenses':
         for part in data:
             part.pop(3)
@@ -185,7 +184,15 @@ def datasplit(data,filter):
                     part[i]=temp[3]
                 except:
                     pass
-    return data
+    if  avxlop == True:
+        globals()['avxlop'] = False
+        return data
+    dataT1=[]
+    dataT2=[]
+    for step in data:
+        dataT1.append(step[:3])
+        dataT2.append(step[3:])
+    return [dataT1,dataT2]
 
 def attendance_Wfetch(inp,chk):
 
@@ -236,7 +243,6 @@ def attendance_fetch(inp):
             del db_data[i][4]
             #del db_data[i][3]
         #print(db_data)
-
     except:
         db_data=[[]]
     return db_data

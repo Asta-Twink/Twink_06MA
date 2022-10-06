@@ -1,28 +1,44 @@
-import copy
-
 from Env import *
+import Env
 
 def AttendanceViewLay():
 
-    head=['Emp.Code','Team','Name']
-    headwidth=[15,30,30]
+    head1=['Emp.Code','Team','Name']
+    headwidth1=[15,30,30]
+    head2=[]
+    headwidth2=[]
     #----
     for i in range (1,32):
-        head.append(str(i).zfill(2))
-        headwidth.append(7)
+        head2.append(str(i).zfill(2))
+        headwidth2.append(7)
     #print(todatemy)
     globals()['atnvwdata']=attendance_fetch(todatemy)
-
-    data=copy.deepcopy(globals()['atnvwdata'])
-    TL=ms.Table(values=datasplit(data,"Attendance"), headings=head,
+    globals()['fltrdata']=datasplit(copy.deepcopy(globals()['atnvwdata']),"Attendance")
+    globals()['avfind']=0
+    TL1=ms.Table(values=fltrdata[0][:((avfind+1)*25)], headings=head1,
                 justification='centre', enable_events=True,
                 auto_size_columns=False,
                 row_height=20,
-                col_widths=headwidth,
-                num_rows=28,
+                col_widths=headwidth1,
+                num_rows=26,
+                font=fstyle,
+                #alternating_row_color=ms.theme_button_color_background(),
+                 vertical_scroll_only=False,
+                 hide_vertical_scroll=True,
+                key="TL1_Atview")
+    TL2=ms.Table(values=fltrdata[1][:((avfind+1)*25)], headings=head2,
+                justification='centre', enable_events=True,
+                auto_size_columns=False,
+                row_height=20,
+                col_widths=headwidth2,
+                size=(100,500),
+                num_rows=26,
                 font=fstyle,
                 vertical_scroll_only=False,
-                enable_click_events=True, key="TL_Atview")
+                hide_vertical_scroll=True,
+                #alternating_row_color=ms.theme_button_color_background(),
+                key="TL2_Atview",
+                 pad=(0,0))
     #print(data)
     #print(atnvwdata)
     layout=[[ms.Sizer(swi-1500),ms.Text("Attendance View",font=fstylehd,justification='center')],
@@ -32,14 +48,15 @@ def AttendanceViewLay():
                                                              disabled_readonly_background_color=ms.theme_background_color(),
                                                              size=(8,2),font=fstyle,key='atvwdate'),
              ms.CalendarButton(" ",target='atvwdate',format="%m-%Y")],
-            [ms.Frame("Output",layout=[[TL],
-                                        [ms.Button("Export",key='avxlexp',font=fstyle),
+            [ms.Frame("Output",layout=[[ms.Column([[ms.Column([[TL1]],size=(770,shi-200),pad=(0,0)),TL2]])],
+                                        [ms.Sizer(0,20)],
+                                        [ms.Button("<",key='avlswap',font=fstyle), ms.Button("Export",key='avxlexp',font=fstyle),
                                          ms.Button("Mail", key='avxlmail', font=fstyle),
-                                         ms.Button("XL Fetch", key='avxlfetch', font=fstyle)
+                                         ms.Button("XL Fetch", key='avxlfetch', font=fstyle),
+                                         ms.Button(">", key='avrswap', font=fstyle)
                                          ],
                                        ],size=(swi-70,shi-100),font=fstyle,element_justification='center')]
             ]
-
     return layout
 
 def AdvanceoptLay():
@@ -75,26 +92,33 @@ while True:
 '''
 def AttendaceViewFn(Menu,event,values):
     if event == 'atnvwfltr':
-        Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']),values['atnvwfltr']))
+        globals()['fltrdata'] = datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr'])
+        globals()['avfind'] = 0
+        Menu['TL1_Atview'].update(values=fltrdata[0][:((avfind+1)*25)])
+        Menu['TL2_Atview'].update(values=fltrdata[1][:((avfind+1)*25)])
     if event == 'atvwdate':
         globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
-        Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr']))
+        globals()['fltrdata'] = datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr'])
+        globals()['avfind'] = 0
+        Menu['TL1_Atview'].update(values=fltrdata[0][:((avfind+1)*25)])
+        Menu['TL2_Atview'].update(values=fltrdata[1][:((avfind+1)*25)])
     if event == 'avxlexp':
-        data=attendance_fetch(values['atvwdate'])
         xl=openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_Exp.xlsx')
         for step in ['Attendance','OT','Expenses',"DP_List"]:
             xl.active=xl[step]
             xlc=xl.active
+            Env.avxlop = True
+            data = attendance_fetch(values['atvwdate'])
             atndata=datasplit(copy.deepcopy(data),step)
             crow=2
             ccol=1
             for part in atndata:
+                #print(part)
                 for i in range(len(part)):
                     xlc.cell(row=crow,column=ccol).value=part[i]
                     ccol+=1
                 crow+=1
                 ccol = 1
-
         xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
         os.system(r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
     if event == 'adv_empid':
@@ -198,14 +222,18 @@ def AttendaceViewFn(Menu,event,values):
                     for j in range(calendar.monthrange(int(pushdate[1]),int(pushdate[0]))[1]):
                         c1 = xlc1.cell(row=i + 2, column=j + 4)
                         if c1.value == None:
-                            temp.append("")
-                            break
+                            temp.append("A")
                         c2 = xlc2.cell(row=i + 2, column=j + 4)
+                        if c2.value == None:
+                            temp.append("0")
                         c3 = xlc3.cell(row=i + 2, column=j + 4)
+                        if c3.value == None:
+                            temp.append("0.0")
                         c4 = xlc4.cell(row=i + 2, column=j + 4)
+                        if c4.value == None:
+                            temp.append("28")
                         temp.append(str(c1.value) + "," + str(c2.value) + "," + str(c3.value) + "," + str(c4.value))
                     Data.append(temp)
-
                 OPXL = openpyxl.Workbook()
                 XLC = OPXL.active
                 pushdate = list(values['atvwdate'].split("-"))
@@ -230,7 +258,17 @@ def AttendaceViewFn(Menu,event,values):
                             break
                 mydb.commit()
                 OPXL.save(r'C:\Twink_06MA\Logs\ATXLFETCH\%s_%s.xlsx'%(todate.strftime("%d-%m-%Y-%H-%M"),values['atvwdate']))
-                globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
-                Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr']))
-
+                globals()['fltrdata'] = datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr'])
+                globals()['avfind'] = 0
+                Menu['TL1_Atview'].update(values=fltrdata[0][:((avfind + 1) * 25)])
+                Menu['TL2_Atview'].update(values=fltrdata[1][:((avfind + 1) * 25)])
+                ms.popup_auto_close("Updated Successfully",font=fstyle)
+    if event == 'avrswap':
+        globals()['avfind'] += 1
+        Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+    if event == 'avlswap':
+        globals()['avfind'] -= 1
+        Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
 #v6.1
