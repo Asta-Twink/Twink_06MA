@@ -126,6 +126,8 @@ def RegisterFn(Menu, event, values):
              ms.Radio("PF","etype", size=(5, 1),enable_events=True, key='pf', font=fstyle),
              ms.Radio("Non PF","etype", size=(6, 1),enable_events=True, key='non pf', font=fstyle),ms.Sizer(10,0),
              ms.Checkbox("Office Staff",key="o_staff",font=fstyle)],
+            [ms.Text("Team:", justification='left', size=(20, 1), font=fstyle, ),
+             ms.Combo(team_list, enable_events=True, size=(29, 1), key='e27', font=fstyle)],
         ]
         Employee_Image = [[ms.Image(key="-IMAGE-")]]
         Signature_Image = [[ms.Image(key="-IMAGE2-")]]
@@ -169,7 +171,8 @@ def RegisterFn(Menu, event, values):
                         'ifsc_code': values['e18'],'branch': values['e19'],'date_of_birth': values['e20'],
                         'date_of_join': values['e21'],
                         'nominee_name': values['e24'],'nominee_phone_no': values['e25'],
-                        'ET':"PF" if values['pf']==True else "Non PF",'office_staff':'yes'if values["o_staff"]==True else 'no'}
+                        'ET':"PF" if values['pf']==True else "Non PF",'office_staff':'yes'if values["o_staff"]==True else 'no',
+                        'team':values['e27']}
 
                 placeholders = ', '.join(['%s'] * len(dict))
                 columns = ', '.join(dict.keys())
@@ -293,6 +296,8 @@ def RegisterFn(Menu, event, values):
              ms.Radio("Non PF","etype",default=et_val[1], size=(6, 1),enable_events=True, key='non pf', font=fstyle),
              ms.Checkbox("Office Staff",default=o_f, key="o_staffu", font=fstyle)
              ],
+            [ms.Text("Team:", justification='left', size=(20, 1), font=fstyle, ),
+             ms.Combo(team_list, ep_data[34],enable_events=True, size=(29, 1), key='u27', font=fstyle)],
         ]
         try:
             filename = r"C:\Twink_06MA\Image_Data\%s_img.jpg"%epc
@@ -334,7 +339,8 @@ def RegisterFn(Menu, event, values):
             ms.Column([
                 [ms.Frame("Employee Photo", Employee_Image ,size=(200, 240), font=fstyle)],
                 [ms.Frame("Signature",  Signature_Image,size=(200, 100), font=fstyle)],
-                [ms.Frame(" Nominee Photo", Nominee_Image, size=(200, 240), font=fstyle)]])],
+                [ms.Frame(" Nominee Photo", Nominee_Image, size=(200, 240), font=fstyle)],
+            [ms.Button("Remove",key="remove_employee", font=fstyle)]])],
             [ms.Button("Update",key="updateemp", font=fstyle)]]
         return Employee_Update_GUI
 
@@ -389,16 +395,14 @@ def RegisterFn(Menu, event, values):
                     'ifsc_code': values['u18'],'branch': values['u19'],'date_of_birth': values['u20'],
                     'date_of_join': values['u21'],
                     'nominee_name': values['u24'],'nominee_phone_no': values['u25'],
-                    'ET':"PF" if values['pf']==True else "Non PF",'office_staff':"yes" if values['o_staffu']==True else"no"}
+                    'ET':"PF" if values['pf']==True else "Non PF",'office_staff':"yes" if values['o_staffu']==True else"no",'team':values['u27']}
 
             c_name=[key for key in dict]
             c_data=[dict[i] for i in dict]
             for i in range(len(c_name)):
                 sql='UPDATE `twink_06ma`.`register` SET `%s` = "%s" WHERE (`emp_code` = "%s");' %(c_name[i],c_data[i],values['u2'] )
                 mycursor.execute(sql)
-
             mydb.commit()
-
             ms.PopupTimed("Successfully updated",
                           title='Employee Added',
                           button_type=0,
@@ -792,9 +796,11 @@ def RegisterFn(Menu, event, values):
         pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
                                 keep_on_top=True)
         if pwchk == MasterPass:
-            chk = ms.popup_ok("Please Confirm to Update Attendance through Excel", font=fstyle)
+            chk = ms.popup_ok("Please Confirm to Remove Employee", font=fstyle)
             if chk == "OK":
+                reason = ms.popup_get_text("Enter reason to remove Employee ", size=(20, 1), font=fstyle, keep_on_top=True)
                 mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
+                mycursor.execute("UPDATE `register` SET `date_of_exit` = '%s' WHERE (`emp_code` = '%s')" % todate)
                 mydb.commit()
                 Menu['emp_data'].update(values=EmpdataFetch("PF"))
 

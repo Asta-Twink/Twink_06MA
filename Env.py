@@ -57,6 +57,7 @@ todatestr=todate.strftime("%Y-%m-%d")
 todatenf=todate.strftime("%d-%m-%Y")
 todatemy=todate.strftime("%m-%Y")
 file_types = [("JPEG (*.jpg)", "*.jpg"),("All files (*.*)", "*.*")]
+team_list=["PF Native","Jharkand","Assam","Odisha","NPF Native",]
 def border(element, color, width=3):
     if color is None:
         color = ms.theme_background_color()
