@@ -15,7 +15,7 @@ def RegsiterLay():
                                    justification='centre', enable_events=True, auto_size_columns=False, row_height=30,
                                    col_widths=[15, 40, 40, 10, 20, 15],
                                    right_click_selects=True,
-                                   right_click_menu=[[], ["Update Employee", "Remove"]],
+                                   right_click_menu=[[], ["Update Employee", "Remove","Revert"]],
                                    enable_click_events=True, size=(swi - 70, shi - 120), key="emp_data", font=fstyle)]],
                         font=fstyle, size=(swi - 50, shi - 180), element_justification='center')],
               [ms.Button("Cleaning Crew", font=fstyle, key='ccwin'),ms.Sizer(swi-300,0),ms.Checkbox("Non PF",key="etcnge",enable_events=True,default=False,)]]
@@ -23,6 +23,7 @@ def RegsiterLay():
     return layout
 
 def RegisterFn(Menu, event, values):
+
 
     def Cleaning_Crew_GUI():
         layout = [[ms.Text("Cleaning Crew Register", font=fstylehd)],
@@ -48,6 +49,35 @@ def RegisterFn(Menu, event, values):
                                             ms.Input("", size=(20, 1), do_not_clear=False,key='c_bkac.no', font=fstyle),
                                             ms.Button("Add",font=fstyle,key="add_crow")]],visible=False,key="add_frame")]]
         return layout
+
+    def Employee_Revert_GUI():
+        Layout=[[ms.Table(values=Emp_Revert_Fetch(),
+                                   headings=["Employee Code", "Name",  "Phone No.","Date of Birth","Date of Exit",
+                                             "Reason"],
+                                   justification='centre', enable_events=True, auto_size_columns=False, row_height=30,
+                                   col_widths=[15, 40, 20, 20, 20, 25],
+                                   right_click_selects=True,
+                                   right_click_menu=[[], ["Revert "]],
+                                   num_rows=20,
+                                   enable_click_events=True, key="empr_data", font=fstyle)]]
+        return Layout
+
+    def Revert_Emp(event,values,Menu):
+        if event == "empr_data":
+            data = Menu['empr_data'].get()
+            globals()['empr'] = [data[row] for row in values[event]]
+        if event=="Revert ":
+            chk = ms.popup_ok("Please Confirm to Revert Employee", font=fstyle)
+            if chk == "OK":
+                mycursor.execute("UPDATE `register` SET `active_status` = 'Y' WHERE (`emp_code` = '%s')" % empr[0][0])
+                mydb.commit()
+                Menu['empr_data'].update(values=Emp_Revert_Fetch())
+                ms.PopupTimed("Successfully Reverted",
+                              title='Employee Reverted',
+                              button_type=0,
+                              auto_close=True,
+                              auto_close_duration=1)
+                DB_Creation(todatenf)
 
     def Employee_Add_GUI():
         Employee_Details = [
@@ -792,6 +822,17 @@ def RegisterFn(Menu, event, values):
                         uMenu["u26"].update(disabled=True)
                         uMenu["date3"].update(disabled=True)
 
+    if event=="Revert":
+        rMenu = ms.Window("Revert Employee", [
+            [ms.Column(Employee_Revert_GUI(),  element_justification='centre')]],
+                          finalize=True)
+        while True:
+            event, values = rMenu.read()
+            if event == ms.WIN_CLOSED:
+                rMenu.close()
+                break
+            Revert_Emp(event, values, rMenu)
+
     if event == "Remove":
         pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
                                 keep_on_top=True)
@@ -799,8 +840,9 @@ def RegisterFn(Menu, event, values):
             chk = ms.popup_ok("Please Confirm to Remove Employee", font=fstyle)
             if chk == "OK":
                 reason = ms.popup_get_text("Enter reason to remove Employee ", size=(20, 1), font=fstyle, keep_on_top=True)
+                doe=ms.popup_get_text("Enter date of exiting",default_text=todatestr, size=(20, 1), font=fstyle, keep_on_top=True)
                 mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
-                mycursor.execute("UPDATE `register` SET `date_of_exit` = '%s' WHERE (`emp_code` = '%s')" % todate)
+                mycursor.execute("UPDATE `register` SET `date_of_exit` = '%s' WHERE (`emp_code` = '%s')" % (doe,crow[0][0]))
                 mydb.commit()
                 Menu['emp_data'].update(values=EmpdataFetch("PF"))
 

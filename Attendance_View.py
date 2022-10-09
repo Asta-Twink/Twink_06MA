@@ -271,4 +271,7 @@ def AttendaceViewFn(Menu,event,values):
         globals()['avfind'] -= 1
         Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
         Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+    if event =="TL1_Atview":
+        print(values[event][0])
+        Menu["TL2_Atview"].update(select_rows=values[event])
 #v6.1

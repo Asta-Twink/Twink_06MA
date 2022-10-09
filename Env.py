@@ -449,6 +449,8 @@ def mailid_fetch(x,inp):
 def deplistfetch():
     mycursor.execute("select description from dep_list")
     return list(sum(mycursor.fetchall(),()))
-
+def Emp_Revert_Fetch():
+    mycursor.execute("select emp_code, employee_name,Phone_no,date_of_birth,date_of_exit,reason from register where active_status = 'N' order by employee_name")
+    return [list(x) for x in mycursor.fetchall()]
 atpatmt = 'N'
 #v6.1
