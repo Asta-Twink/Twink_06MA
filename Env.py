@@ -326,7 +326,6 @@ def mailreport(inp):
     mycursor.execute(
         "select empcode,`%s` from %s_%s where empcode !='counter'" % (dateform[0], dateform[1], dateform[2]))
     db_data = [list(x) for x in mycursor.fetchall()]
-
     db_data_Fn = []
     wage_data = wage_fetch()
 
@@ -343,8 +342,10 @@ def mailreport(inp):
                 i[0] = wage
                 if type(i[0]) == list:
                     i[0] = wage[int(temp[0]) - 1]
+                    i.append(temp[0])
                 else:
                     i[0]
+                    i.append(temp[0])
             db_data_Fn.append(i)
 
         else:
@@ -353,25 +354,39 @@ def mailreport(inp):
     dep_data = list(sum(mycursor.fetchall(), ()))
     output = []
     for i in dep_data:
-        count = 0
+        s1=0
+        s2=0
+        s3=0
+        general = 0
         wage = 0
         for j in db_data_Fn:
             if j[1] == i:
-                count += 1
+                if j[2]=="1":
+                    s1+=1
+                if j[2]=="2":
+                    s2+=1
+                if j[2]=="3":
+                    s3+=1
+                if j[2]=="P":
+                    general+=1
                 wage += round(j[0],2)
-        output.append([i, count, wage])
 
+        output.append([i,s1,s2,s3,general,s1+s2+s3+general, wage])
     #print(output)
-    ctot,wtot=0,0.0
+    s1tot,s2tot,s3tot,gtot,wtot=0,0,0,0,0.0
     tabular_table = PrettyTable()
-    tabular_table.field_names =  ["<   Department   >","<  Count  > ","Net Wage"]
+    tabular_table.field_names =  ["<   Department   >"," S1 "," S2 "," S3 "," General "," Total ","Net Wage"]
     for i in output:
         tabular_table.add_row(i)
-        ctot+=i[1]
-        wtot+=i[2]
-    tabular_table.add_row(["-------------", "----", "-------"])
-    tabular_table.add_row(["Total",ctot,round(wtot,0)])
-    ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),)
+        s1tot+=i[1]
+        s2tot += i[2]
+        s3tot += i[3]
+        gtot += i[4]
+        wtot+=i[6]
+    tabular_table.add_row(["-------------", "----","----","----","----","----", "-------"])
+    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot,round(wtot,0)])
+    print(tabular_table)
+    ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),location=(100,100),line_width=500)
     maillist = popup_select(mailid_fetch(False, ""))
     sys.stdout.close()
     DS1 = todate.strftime("%Y-%m-%d-%H-%M")
