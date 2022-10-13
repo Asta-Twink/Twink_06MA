@@ -30,6 +30,30 @@ def WageCalcLay():
     ]
     return layout
 
+def CategorySplitWage():
+    head=['Resource Category','Amount Spent (Rs)','Percentage(%)']
+    headwidth=[30,20,15]
+    TL_CWS_EXP=[[
+    ms.Table(values=[], headings=head,
+                justification='centre', enable_events=True,
+                auto_size_columns=False,
+                row_height=20,
+                col_widths=headwidth,
+                font=fstyle,
+                enable_click_events=True, key="TL_CWS_EXP",
+                hide_vertical_scroll=True
+             )
+    ]]
+    layout=[
+        [ms.Input(todatemy,font=fstyle,size=(10,1),key='cwsdateinp'),ms.CalendarButton(" ",image_data=chse,target='cwsdateinp',format="%m-%Y"),
+         ms.Button("Calculate",key='cws_exp',font=fstyle),ms.Sizer(450,0), ms.Text("Category Wage Split",font=fstylehd ),ms.Sizer(550,0),
+
+         ],
+       [ ms.Frame("Output",layout=[[ms.Column(TL_CWS_EXP,scrollable=True,size=(swi-50,shi-80),element_justification= 'center')]],element_justification= 'center',font=fstyle,size=(swi-50,shi-80))
+    ]
+    ]
+    return layout
+
 def WageCalcFn(Menu,event,values):
     if event=='wc_forw':
         xl = openpyxl.load_workbook(r"C:\Twink_06MA\Master_Files\Wage_Exp.xlsx")
@@ -312,8 +336,6 @@ def WageCalcFn(Menu,event,values):
                                         OT2+=int(i[1][2])
                                     if i[1][0]=='3':
                                         OT3+=int(i[1][2])
-                            if step[0] == "SILTEMP065":
-                                print(OT1, OT2, OT3)
                             CE += float(i[2])  # CE Addition)
                         OT=OT1+OT2+OT3
                         temp.append(S1)
@@ -646,5 +668,271 @@ def WageCalcFn(Menu,event,values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
+
+    if event == 'cws_exp':
+        incentive_amnt_list=[10,25,35]
+        data = attendance_Wfetch(values['cwsdateinp'], 0)
+        wagedata = wage_fetch()
+        cws_data=[]
+        # print(data)
+        for step in data:
+            if step[3] != "Odisha":
+                temp = []
+                for i in range(4):  # EMP Details addition
+                    temp.append(step[i])
+                # print(step)
+                chk = shiftcheck(step[0])
+                # print(chk)
+                if chk == True:  # if Emp is Shift resource
+                    # print(step)
+                    wagetemp = wagedata.get(step[0])
+                    # print(wagetemp)
+                    temp.append("NA")
+                    S1, S2, S3, OT1, OT2, OT3 = 0, 0, 0, 0, 0, 0
+                    CE = 0.0
+                    for i in range(5, len(step)):  # Custom Shift Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            continue
+                        if len(i) != 4:
+                            continue
+                        # print(i)
+                        if i[0] == '1':
+                            S1 += 1
+                            OT1 += int(i[1])  # OT Addition
+                        if i[0] == '2':
+                            S2 += 1
+                            OT2 += int(i[1])  # OT Addition
+                        if i[0] == '3':
+                            S3 += 1
+                            OT3 += int(i[1])  # OT Addition
+                        if i[0] == "A":
+                            if "/" in i[1]:
+                                if i[1][0] == '1':
+                                    OT1 += int(i[1][2])
+                                if i[1][0] == '2':
+                                    OT2 += int(i[1][2])
+                                if i[1][0] == '3':
+                                    OT3 += int(i[1][2])
+
+                        CE += float(i[2])  # CE Addition)
+                    OT = OT1 + OT2 + OT3
+                    temp.append(S1)
+                    temp.append(S2)
+                    temp.append(S3)
+                    temp.append(str(wagetemp[0]) + "," + str(wagetemp[1]) + "," + str(wagetemp[2]))
+                    wage = round((S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2]), 2)  # Wage Calc
+                    temp.append(wage)
+                    # OT Calc
+                    ot_wage = round((OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2]), 2)
+                    if step[4] == "yes":
+                        incentive = 0.0
+                    elif S1 + S2 + S3 in [25, 26]:
+                        incentive = float(incentive_amnt_list[0]) * (S1 + S2 + S3)
+                    elif S1 + S2 + S3 in [27, 28, 29]:
+                        incentive = float(incentive_amnt_list[1]) * (S1 + S2 + S3)
+                    elif S1 + S2 + S3 in [30, 31]:
+                        incentive = float(incentive_amnt_list[2]) * (S1 + S2 + S3)
+                    else:
+                        incentive = 0.0
+                else:
+                    wagetemp = wagedata.get(step[0])
+                    DP, OT = 0, 0
+                    CE = 0.0
+                    for i in range(5, len(step)):  # DP Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            break
+                        if len(i) != 4:
+                            continue
+                        if i[0] == 'P':
+                            DP += 1
+                            OT += int(i[1])
+                        if i[0] == "A":
+                            if "/" in i[1]:
+                                OT += int(i[1][2])
+                        # OT Addition
+                        CE += float(i[2])  # CE Addition
+                    temp.append(DP)
+                    temp.append("NA")
+                    temp.append("NA")
+                    temp.append("NA")
+                    temp.append(wagetemp)
+                    wage = round(DP * wagetemp, 2)
+                    temp.append(wage)
+                    # print(OT,wagetemp)
+                    ot_wage = round((OT / 8 * wagetemp), 2)
+                    if step[4] == "yes":
+                        incentive = 0.0
+                    elif DP in [25, 26]:
+                        incentive = float(incentive_amnt_list[0]) * DP
+                    elif DP in [27, 28]:
+                        incentive = float(incentive_amnt_list[1]) * DP
+                    elif DP in [29, 30, 31]:
+                        incentive = float(incentive_amnt_list[2]) * DP
+                    else:
+                        incentive = 0.0
+            else:
+                temp = []
+                for i in range(4):  # EMP Details addition
+                    temp.append(step[i])
+                # print(step)
+                chk = shiftcheck(step[0])
+                # print(chk)
+                if chk == True:  # if Emp is Shift resource
+                    # print(step)
+                    wagetemp = wagedata.get(step[0])
+                    # print(wagetemp)
+                    temp.append("NA")
+                    S1, S2, S3, OT1, OT2, OT3 = 0, 0, 0, 0, 0, 0
+                    CE = 0.0
+                    for i in range(20, len(step)):  # Custom Shift Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            continue
+                        if len(i) != 4:
+                            continue
+                        if i[0] == '1':
+                            S1 += 1
+                            OT1 += int(i[1])  # OT Addition
+                        if i[0] == '2':
+                            S2 += 1
+                            OT2 += int(i[1])  # OT Addition
+                        if i[0] == '3':
+                            S3 += 1
+                            OT3 += int(i[1])  # OT Addition
+                        if i[0] == "A":
+                            if "/" in i[1]:
+                                if i[1][0] == '1':
+                                    OT1 += int(i[1][2])
+                                if i[1][0] == '2':
+                                    OT2 += int(i[1][2])
+                                if i[1][0] == '3':
+                                    OT3 += int(i[1][2])
+                        CE += float(i[2])  # CE Addition
+                    OT = OT1 + OT2 + OT3
+                    temp.append(S1)
+                    temp.append(S2)
+                    temp.append(S3)
+                    temp.append(str(wagetemp[0]) + "," + str(wagetemp[1]) + "," + str(wagetemp[2]))
+                    wage = round((S1 * wagetemp[0]) + (S2 * wagetemp[1]) + (S3 * wagetemp[2]), 2)  # Wage Calc
+                    temp.append(wage)
+                    # OT Calc
+                    ot_wage = round((OT1 / 8 * wagetemp[0]) + (OT2 / 8 * wagetemp[1]) + (OT3 / 8 * wagetemp[2]), 2)
+                    DP = 0
+                    for i in range(5, len(step)):  # Custom Shift Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            break
+                        if len(i) != 4:
+                            continue
+                        if i[0] in ["1", "2", "3"]:
+                            DP += 1
+                    if step[4] == "yes":
+                        incentive = 0.0
+                    elif DP in [25, 26]:
+                        incentive = float(incentive_amnt_list[0]) * (DP)
+                    elif DP in [27, 28]:
+                        incentive = float(incentive_amnt_list[1]) * (DP)
+                    elif DP in [29, 30, 31]:
+                        incentive = float(incentive_amnt_list[2]) * (DP)
+                    else:
+                        incentive = 0.0
+                else:
+                    wagetemp = wagedata.get(step[0])
+                    DP, OT = 0, 0
+                    CE = 0.0
+                    for i in range(20, len(step)):  # DP Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            break
+                        if len(i) != 4:
+                            continue
+                        if i[0] == 'P':
+                            DP += 1
+                            OT += int(i[1])
+                        if i[0] == "A":
+                            if "/" in i[1]:
+                                OT += int(i[1][2])
+                        # OT Addition
+                        CE += float(i[2])  # CE Addition
+                    temp.append(DP)
+                    temp.append("NA")
+                    temp.append("NA")
+                    temp.append("NA")
+                    temp.append(wagetemp)
+                    wage = round(DP * wagetemp, 2)
+                    temp.append(wage)
+                    # print(OT,wagetemp)
+                    ot_wage = round((OT / 8 * wagetemp), 2)
+                    DP = 0
+                    for i in range(5, len(step)):  # DP Calc
+                        try:
+                            i = list(step[i].split(","))
+                        except:
+                            break
+                        if len(i) != 4:
+                            continue
+                        if i[0] == 'P':
+                            DP += 1
+                    if step[4] == "yes":
+                        incentive = 0.0
+                    elif DP in [25, 26]:
+                        incentive = float(incentive_amnt_list[0]) * DP
+                    elif DP in [27, 28]:
+                        incentive = float(incentive_amnt_list[1]) * DP
+                    elif DP in [29, 30, 31]:
+                        incentive = float(incentive_amnt_list[2]) * DP
+                    else:
+                        incentive = 0.0
+            # ----------------------
+            temp.append(OT)
+            temp.append(ot_wage)
+            temp.append(incentive)
+            # print(incentive)
+            gross_wage = round(wage + ot_wage + incentive, 2)
+            temp.append(gross_wage)
+            PFS1 = 0.0 if "SILTEMP" in step[0] else round(gross_wage * 12 / 100, 0)  # PF Calculation
+            PF = 1800.0 if PFS1 > 1800.0 else PFS1
+            temp.append(PF)
+            ESIS1 = 0.0 if "SILTEMP" in step[0] else round(gross_wage * 0.75 / 100, 0)  # ESI Calculation
+            ESI = 0.0 if gross_wage > 21000.0 else ESIS1
+            temp.append(ESI)
+            ADV = wageadvfetch(step[0], values['wcdateinp'])
+            temp.append(ADV)
+            temp.append(CE)  # Canteen Expense Addition
+            netwage = round(gross_wage - PF - ESI - ADV - CE, 2)
+            temp.append(netwage)
+            #print(temp)
+            cws_data.append([temp[0],temp[len(temp)-1]])
+        #print(cws_data)
+        mycursor.execute("select register.emp_code,dep_list.UID from register inner join dep_list on register.designation =  dep_list.description ")
+        dep_dat_dic={}
+        db_data= [dep_dat_dic.update({x[0]:x[1]}) for x in mycursor.fetchall()]
+        mng_staff=0.0
+        workers=0.0
+        misc=0.0
+        for step in cws_data:
+            if dep_dat_dic.get(step[0]) in [4,5,9,15,16,18,19,21,23,24,25,26,27,29,30,31]:
+                mng_staff+=step[1]
+            if dep_dat_dic.get(step[0]) in [1,2,3,6,7,8,10,11,17,22]:
+                workers+=step[1]
+            if dep_dat_dic.get(step[0]) in [12,13,14,20,32,33,34]:
+                misc+=step[1]
+        Net=mng_staff+workers+misc
+        #print(mng_staff,workers,misc)
+        tbl_dat=[["Management/Support Staff",f'\u20B9{mng_staff:,.2f}',round((mng_staff/Net)*100,2)],["Labor Resources",f'\u20B9{workers:,.2f}',round((workers/Net)*100,2)],
+                ["Miscellaneous",f'\u20B9{misc:,.2f}',round((misc/Net)*100,2)]]
+        Menu['TL_CWS_EXP'].update(tbl_dat)
+
+
+
+
+
 
 #v6.1

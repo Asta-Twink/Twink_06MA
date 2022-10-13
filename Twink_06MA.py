@@ -37,16 +37,17 @@ layout=[[ms.Menu    (MenuDef, key='MENU',font=fstyle)],
         ms.Column  (Register.RegsiterLay(),key='register',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Master_User.Master_User_GUI(),key='mumneu',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Attendance_Push.AttendancePushLay(),key='atnpush',visible=False,size=(swi,shi),element_justification='center'),
-        ms.Column  (Attendance_View.AttendanceViewLay(),key='atnview',visible=True,size=(swi,shi),element_justification='center'),
+        ms.Column  (Attendance_View.AttendanceViewLay(),key='atnview',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Cleaning_Crew.crew_att_gui(),key='cc_att',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (CC_Attendence_View.CC_View_GUI(),key='c_view',visible=False,size=(swi,shi)),
         ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=False,size=(swi,shi),element_justification='center'),
-        ms.Column  (Attendance_View.AdvanceoptLay(), key='advopt', visible=False, size=(swi, shi),element_justification='center')
+        ms.Column  (Attendance_View.AdvanceoptLay(), key='advopt', visible=False, size=(swi, shi),element_justification='center'),
+        ms.Column  (Wage_Calc.CategorySplitWage(), key='cwsvw', visible=True, size=(swi, shi),element_justification='center')
 
         ]]
 
-MenuList=["base","register",'atnpush','atnview','wagecalc','mumneu','c_view','cc_att','advopt']
+MenuList=["base","register",'atnpush','atnview','wagecalc','mumneu','c_view','cc_att','advopt','cwsvw']
 
 Menu = ms.Window("Twink_Attendance",layout,location=(0,0),size=(swi,shi),element_justification='center',return_keyboard_events=True)
 
@@ -143,6 +144,12 @@ while True:
                 Menu['mailreport'].update(disabled=False)
             else:
                 Menu['mailreport'].update(disabled=True)
+
+        if event == 'Wages_Category Split':
+            for i in MenuList:
+                Menu[i].update(visible=False)
+            Menu['cwsvw'].update(visible=True)
+
 
     except Exception as e:
         tb = traceback.format_exc()
