@@ -19,7 +19,7 @@ def AttendancePushLay():
               ]]
 
     mycursor.execute('select UID,emp_code,team,employee_name,designation from register where active_status = "Y" and '
-                     'ET = "PF" and shift_work = "Yes" order by team')
+                     'ET = "PF" and shift_work = "Yes" order by def_shift,team,employee_name')
     globals()['emplistpy']=[list(x) for x in mycursor.fetchall()]
 
     for i in range (len(emplistpy)):
@@ -40,7 +40,7 @@ def AttendancePushLay():
         datalist.append([sub1])
 
     mycursor.execute('select UID,emp_code,team,employee_name,designation from register where active_status = "Y" '
-                     'and ET = "PF" and shift_work = "No" order by team')
+                     'and ET = "PF" and shift_work = "No" order by def_shift,team,employee_name')
     globals()['emplistpn']=[list(x) for x in mycursor.fetchall()]
 
     for i in range (len(emplistpn)):
@@ -63,7 +63,7 @@ def AttendancePushLay():
 
     mycursor.execute(
         'select UID,emp_code,team,employee_name,designation from register where active_status = "Y" and ET = "NON PF" '
-        'and shift_work = "Yes" order by team')
+        'and shift_work = "Yes" order by team,def_shift,employee_name')
     globals()['emplistny'] = [list(x) for x in mycursor.fetchall()]
 
     for i in range(len(emplistny)):
@@ -90,7 +90,7 @@ def AttendancePushLay():
 
     mycursor.execute(
         'select UID,emp_code,team,employee_name,designation  from register where active_status = "Y" and ET = "NON PF" '
-        'and shift_work = "No" order by team')
+        'and shift_work = "No" order by team,def_shift,employee_name')
     globals()['emplistnn'] = [list(x) for x in mycursor.fetchall()]
 
     for i in range(len(emplistnn)):
@@ -286,7 +286,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = '2'
                    elif values['atp3ssy' + str(i)] == True:
                        indata = '3'
-                   elif values['atpassy' + str(i)] == True:
+                   elif values['atp0ssy' + str(i)] == True:
                        indata = 'A'
                    else:
                        indata = 'e'
@@ -334,7 +334,7 @@ def AttendancePushFn(Menu,event,values):
                        indata = '2'
                    elif values['atp3snsy' + str(i)] == True:
                        indata = '3'
-                   elif values['atpasnsy' + str(i)] == True:
+                   elif values['atp0snsy' + str(i)] == True:
                        indata = 'A'
                    else:
                        indata = 'e'
@@ -468,4 +468,4 @@ def AttendancePushFn(Menu,event,values):
             except:
                 pass
 
-#v6.1
+#V6.1

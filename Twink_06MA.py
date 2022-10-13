@@ -8,6 +8,7 @@ import Master_User
 import Cleaning_Crew
 import CC_Attendence_View
 #---Custom DB Declaration
+
 #sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
 mycursor.execute('Use Twink_06ma')
 mydb.commit()
@@ -16,7 +17,7 @@ ms.theme('Topanga')
 MenuDef = [
            ['Navigate',   ['Home','Register','Master User']],
            ['Attendance', ['Create','View','CC_Attendence','CC_View','Advance']],
-           ['Reports',    ['Wages']],
+           ['Reports',    ['Wages_Monthly Calc',"Wages_Category Split"]],
 ]
 #--- Base Layout Declaration
 BaseLayout=[[ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
@@ -57,9 +58,12 @@ while True:
             Menu.close()
             break
         if event == "Home" or  event[:6] == 'Escape':
-            mycursor.execute(
-                "select `%s` from %s_%s where empcode = 'counter'" % (tempdate[0], tempdate[1], tempdate[2]))
-            atstat = "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
+            try:
+                mycursor.execute(
+                    "select `%s` from %s_%s where empcode = 'counter'" % (tempdate[0], tempdate[1], tempdate[2]))
+                atstat = "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
+            except:
+                atstat = "To be Created"
             for i in MenuList:
                 Menu[i].update(visible=False)
             Menu['base'].update(visible=True)
@@ -103,7 +107,7 @@ while True:
                 Menu[i].update(visible=False)
             Menu['c_view'].update(visible=True)
 
-        if event == 'Wages' or event[:2] == 'F4':
+        if event == 'Wages_Monthly Calc' or event[:2] == 'F4':
             for i in MenuList:
                 Menu[i].update(visible=False)
             Menu['wagecalc'].update(visible=True)

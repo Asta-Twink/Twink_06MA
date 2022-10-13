@@ -271,7 +271,7 @@ def wage_fetch():
     #print(dict_data)
     return dict_data
 
-wage_fetch()
+#wage_fetch()
 
 def user_pass(name):
     sql = "select user_password from user_details where `user_name`='%s'" % name

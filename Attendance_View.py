@@ -2,7 +2,6 @@ from Env import *
 import Env
 
 def AttendanceViewLay():
-
     head1=['Emp.Code','Team','Name']
     headwidth1=[15,30,30]
     head2=[]
@@ -66,7 +65,6 @@ def AdvanceoptLay():
                       justification='centre',
                       auto_size_columns=False,
                       col_widths=[15,15,30,15],
-
                       row_height=20,
                       num_rows=20,
                       font=fstyle,
@@ -78,6 +76,9 @@ def AdvanceoptLay():
                      [
                      [ms.Text("Employee Code",font=fstyle,size=(15,1)),ms.Input("",font=fstyle,size=(30,1),key="adv_empid",enable_events=True)],
                      [ms.Text("Employee Name", font=fstyle, size=(15, 1)), ms.Text("", font=fstyle, size=(30, 1),key="adv_empname")],
+                     [ms.Text("Date",font=fstyle,size=(15,1)),
+                      ms.Input("",font=fstyle,size=(26,1),key="adv_gendate",enable_events=True),
+                      ms.CalendarButton(todatenf,target='adv_gendate',image_data=chse, format="%d-%m-%Y",location=(1000,650))],
                      [ms.Text("Advance Amount", font=fstyle, size=(15, 1)), ms.Input("", font=fstyle, size=(30, 1),key="adv_amount",)],
                         [ms.Button("Generate",font=fstyle,key="adv_generate")],
                      ],font=fstyle,element_justification='center'),
@@ -103,31 +104,77 @@ def AttendaceViewFn(Menu,event,values):
         Menu['TL1_Atview'].update(values=fltrdata[0][:((avfind+1)*25)])
         Menu['TL2_Atview'].update(values=fltrdata[1][:((avfind+1)*25)])
     if event == 'avxlexp':
-        xl=openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_Exp.xlsx')
-        for step in ['Attendance','OT','Expenses',"DP_List"]:
-            xl.active=xl[step]
+        exptype = ms.popup_get_text("Enter the report code to generate\n01 : Format A Export\n02 : XL Fetch Export",
+                                    font=fstyle)
+        if exptype == "02":
+            xl=openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_Exp.xlsx')
+            for step in ['Attendance','OT','Expenses',"DP_List"]:
+                xl.active=xl[step]
+                xlc=xl.active
+                Env.avxlop = True
+                data = attendance_fetch(values['atvwdate'])
+                atndata=datasplit(copy.deepcopy(data),step)
+                crow=2
+                ccol=1
+                for part in atndata:
+                    #print(part)
+                    for i in range(len(part)):
+                        xlc.cell(row=crow,column=ccol).value=part[i]
+                        ccol+=1
+                    crow+=1
+                    ccol = 1
+            xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
+            os.system(r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
+        if exptype == "01":
+            xl = openpyxl.load_workbook(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpF2.xlsx')
             xlc=xl.active
             Env.avxlop = True
             data = attendance_fetch(values['atvwdate'])
-            atndata=datasplit(copy.deepcopy(data),step)
-            crow=2
-            ccol=1
+            atndata = datasplit(copy.deepcopy(attendance_fetch(values['atvwdate'])), "Attendance")
+            #print(atndata)
+            for step in atndata:
+                mycursor.execute("select uan_no,esic_no,f_sp_name,designation,shift_work from register where emp_code='%s'"%step[0])
+                S1Data=list(sum(mycursor.fetchall(),()))
+                step.pop(1)
+                step.insert(1,S1Data[0])
+                step.insert(2, S1Data[1])
+                step.insert(4, S1Data[2])
+                step.insert(5, S1Data[3])
+                step.insert(6,"SFT" if S1Data[4] == "Yes" else "Gen")
+            crow = 8
+            ccol = 2
             for part in atndata:
-                #print(part)
                 for i in range(len(part)):
-                    xlc.cell(row=crow,column=ccol).value=part[i]
-                    ccol+=1
-                crow+=1
-                ccol = 1
-        xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
-        os.system(r'C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx')
+                    xlc.cell(row=crow, column=ccol).value = part[i]
+                    ccol += 1
+                crow += 1
+                ccol = 2
+            pushdate = list(values['atvwdate'].split("-"))
+            tot_days=int(calendar.monthrange(int(pushdate[1]), int(pushdate[0]))[1])
+            hide_list=['AM','AL','AK']
+            for i in range(31-tot_days):
+                xlc.column_dimensions[hide_list[i]].hidden=True
+            crow = 7
+            ccol = 9
+            for i in range(tot_days):
+                xlc.cell(row=crow, column=ccol).value = datetime.strptime(str(i+1)+"-"+values['atvwdate'],"%d-%m-%Y").strftime("%A")
+                ccol+=1
+            for i in range (len(atndata)+1,201):
+                xlc.row_dimensions[i+7].hidden = True
+
+            xlc.cell(row=4, column=3).value = "01-"+values['atvwdate']+" TO "+str(tot_days)+"-"+values['atvwdate']
+            xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpF2O.xlsx')
+            os.system(r'C:\Twink_06MA\Master_Files\Atn_ExpF2O.xlsx')
+
+
     if event == 'adv_empid':
         Menu['adv_empname'].update(empnamefetch(values['adv_empid']))
     if event == 'adv_generate':
         chk=ms.popup_ok("Please confirm to generate advance amount",font=fstyle)
         if chk == "OK":
             mycursor.execute("insert into advance_details (empcode,"
-                             "amount,exdate) values('%s','%s','%s')"%(values['adv_empid'],values['adv_amount'],todatestr))
+                             "amount,exdate) values('%s','%s','%s')"%(values['adv_empid'],values['adv_amount'],
+                                            datetime.strptime(values['adv_gendate'], "%d-%m-%Y").strftime("%Y-%m-%d")))
             mydb.commit()
             Menu['TL_AdvView'].update(values=(advancefetch(todatemy)))
             Menu['adv_empid'].update("")
@@ -206,7 +253,7 @@ def AttendaceViewFn(Menu,event,values):
         pwchk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
                                 keep_on_top=True)
         if pwchk == MasterPass:
-            chk = ms.popup_ok("Please Confirm to Fetch", font=fstyle)
+            chk = ms.popup_ok("Please Confirm to fetch the attendance for the month of %s"%values['atvwdate'], font=fstyle)
             if chk == "OK":
                 xl = openpyxl.load_workbook(filename=r"C:\Twink_06MA\Master_Files\Atn_ExpT1.xlsx")
                 xlc1 = xl['Attendance']
@@ -222,21 +269,21 @@ def AttendaceViewFn(Menu,event,values):
                     for j in range(calendar.monthrange(int(pushdate[1]),int(pushdate[0]))[1]):
                         c1 = xlc1.cell(row=i + 2, column=j + 4)
                         if c1.value == None:
-                            temp.append("A")
+                            c1.value = "A"
                         c2 = xlc2.cell(row=i + 2, column=j + 4)
                         if c2.value == None:
-                            temp.append("0")
+                            c2.value = "0"
                         c3 = xlc3.cell(row=i + 2, column=j + 4)
                         if c3.value == None:
-                            temp.append("0.0")
+                            c3.value = "0.0"
                         c4 = xlc4.cell(row=i + 2, column=j + 4)
                         if c4.value == None:
-                            temp.append("28")
+                            c4.value = "28"
                         temp.append(str(c1.value) + "," + str(c2.value) + "," + str(c3.value) + "," + str(c4.value))
                     Data.append(temp)
+                    #print(len(Data[0]))
                 OPXL = openpyxl.Workbook()
                 XLC = OPXL.active
-                pushdate = list(values['atvwdate'].split("-"))
                 rowc = 1
                 colc = 1
                 for step in Data:
@@ -257,7 +304,9 @@ def AttendaceViewFn(Menu,event,values):
                             ms.popup(e,font=fstyle)
                             break
                 mydb.commit()
-                OPXL.save(r'C:\Twink_06MA\Logs\ATXLFETCH\%s_%s.xlsx'%(todate.strftime("%d-%m-%Y-%H-%M"),values['atvwdate']))
+                OPXL.save(r'C:\Twink_06MA\Logs\ATXLFETCH\OP_%s!!%s.xlsx'%(todate.strftime("%d-%m-%Y-%H-%M"),values['atvwdate']))
+                xl.save((r'C:\Twink_06MA\Logs\ATXLFETCH\IP_%s!!%s.xlsx'%(todate.strftime("%d-%m-%Y-%H-%M"),values['atvwdate'])))
+                globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
                 globals()['fltrdata'] = datasplit(copy.deepcopy(globals()['atnvwdata']), values['atnvwfltr'])
                 globals()['avfind'] = 0
                 Menu['TL1_Atview'].update(values=fltrdata[0][:((avfind + 1) * 25)])

@@ -262,7 +262,7 @@ def WageCalcFn(Menu,event,values):
             Menu['wcexp'].update(disabled=False)
             Menu['wcmail'].update(disabled=False)
         else:
-            incentive_amnt = ms.popup_get_text("Incentive Amount per day for 25-26, 27-29, 30-31 'Separated by Comma'",
+            incentive_amnt = ms.popup_get_text("Incentive Amount per day for 25-26, 27-28, 29-31 'Separated by Comma'",
                                                no_titlebar=True, font=fstyle, location=(30, 100))
             incentive_amnt_list = incentive_amnt.split(",")
             if len(incentive_amnt_list) != 3:
@@ -366,9 +366,9 @@ def WageCalcFn(Menu,event,values):
                             incentive = 0.0
                         elif DP in [25, 26]:
                             incentive = float(incentive_amnt_list[0]) * DP
-                        elif DP in [27, 28, 29]:
+                        elif DP in [27, 28]:
                             incentive = float(incentive_amnt_list[1]) * DP
-                        elif DP in [30, 31]:
+                        elif DP in [29, 30, 31]:
                             incentive = float(incentive_amnt_list[2]) * DP
                         else:
                             incentive = 0.0
@@ -435,9 +435,9 @@ def WageCalcFn(Menu,event,values):
                             incentive = 0.0
                         elif DP in [25, 26]:
                             incentive = float(incentive_amnt_list[0]) * (DP)
-                        elif DP in [27, 28, 29]:
+                        elif DP in [27, 28]:
                             incentive = float(incentive_amnt_list[1]) * (DP)
-                        elif DP in [30, 31]:
+                        elif DP in [29, 30, 31]:
                             incentive = float(incentive_amnt_list[2]) * (DP)
                         else:
                             incentive = 0.0
@@ -483,13 +483,12 @@ def WageCalcFn(Menu,event,values):
                             incentive = 0.0
                         elif DP in [25, 26]:
                             incentive = float(incentive_amnt_list[0]) * DP
-                        elif DP in [27, 28, 29]:
+                        elif DP in [27, 28]:
                             incentive = float(incentive_amnt_list[1]) * DP
-                        elif DP in [30, 31]:
+                        elif DP in [29, 30, 31]:
                             incentive = float(incentive_amnt_list[2]) * DP
                         else:
                             incentive = 0.0
-
 #----------------------
                 temp.append(OT)
                 temp.append(ot_wage)
@@ -509,9 +508,7 @@ def WageCalcFn(Menu,event,values):
                 netwage = round(gross_wage - PF - ESI - ADV - CE,2)
                 temp.append(netwage)
                 wage_proc_data.append(temp)
-            # except Exception as e:
-            # print(e)
-            # print(wage_proc_data)
+
             Menu['TL_WC'].update(values=wage_proc_data)
             Menu['wcexp'].update(disabled=False)
             Menu['wcmail'].update(disabled=False)
