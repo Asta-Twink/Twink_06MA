@@ -22,12 +22,14 @@ import traceback
 import sys
 from prettytable import PrettyTable
 from openpyxl.styles.alignment import Alignment
+import locale
+
 
 mydb = mysql.connector.connect( host='localhost', user="root", passwd="MSeGa@1109",)
 mycursor = mydb.cursor()
 mycursor.execute('Use Twink_06ma')
 mydb.commit
-
+locale.setlocale(locale.LC_MONETARY, 'en_IN')
 mycursor.execute("select value from nrdb order by description")
 nrdb_data=list(sum(mycursor.fetchall(),()))
 MasterPass=nrdb_data[2]
@@ -83,24 +85,16 @@ def CCWFetch():
 def EmpdataFetch(type):
     if type=="PF":
         mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
-                         "from register where active_status = 'Y' and ET ='PF' and shift_work = 'No' order by employee_name")
+                         "from register where active_status = 'Y' and ET ='PF' order by employee_name")
         S1=[list(x) for x in mycursor.fetchall()]
-        mycursor.execute('select Emp_code, employee_name,f_sp_name,Gender,Phone_no,'
-                         'team from register '
-                         'where active_status = "Y" and ET ="PF" and shift_work = "Yes" order by employee_name')
-        S2 = [list(x) for x in mycursor.fetchall()]
         #print(S1+S2)
-        return S1+S2
+        return S1
     if type=="Non PF":
         mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
-                         "from register where active_status = 'Y' and ET ='Non PF' and shift_work = 'No' order by employee_name")
+                         "from register where active_status = 'Y' and ET ='Non PF' order by Team,employee_name")
         S1=[list(x) for x in mycursor.fetchall()]
-        mycursor.execute('select Emp_code, employee_name,f_sp_name,Gender,Phone_no,'
-                         'team from register '
-                         'where active_status = "Y" and ET ="Non PF" and shift_work = "Yes" order by employee_name')
-        S2 = [list(x) for x in mycursor.fetchall()]
-        #print(S1 + S2)
-        return S1+S2
+
+        return S1
 
 def DB_Creation(inp):
     date_split=list(inp.split("-"))
@@ -234,7 +228,8 @@ def attendance_fetch(inp):
     #print(form)
     try:
         mycursor.execute("select register.team,register.employee_name,register.office_staff, %s_%s.* "
-                         "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
+                         "from register inner join %s_%s on register.emp_code = %s_%s.empcode where "
+                         "register.active_status = 'Y' order by register.ET ,register.employee_name" % (
                          form[0], form[1], form[0], form[1], form[0], form[1]))
 
         db_data = [list(x) for x in mycursor.fetchall()]
@@ -468,4 +463,5 @@ def Emp_Revert_Fetch():
     mycursor.execute("select emp_code, employee_name,Phone_no,date_of_birth,date_of_exit,reason from register where active_status = 'N' order by employee_name")
     return [list(x) for x in mycursor.fetchall()]
 atpatmt = 'N'
-#v6.1
+
+#v6.3

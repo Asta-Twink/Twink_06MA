@@ -27,7 +27,7 @@ def AttendancePushLay():
               ms.Input(emplistpy[i][1],font=fstyle,key='atpecsy'+str(i),size=(10,1),disabled=True,justification='center',
                        disabled_readonly_background_color=ms.theme_background_color(),border_width= 0),ms.Sizer(5,0),
               ms.Text(emplistpy[i][2],font=fstyle,size=(35,1),key='atpnsy'+str(i),justification='center'),ms.Sizer(2,0),
-              ms.Text(emplistpy[i][3], enable_events=True, font=fstyle, size=(35, 1) ,key='atpfssy'+str(i),justification='center'),ms.Sizer(20,0),
+              ms.Text(emplistpy[i][3], enable_events=True, font=fstyle, size=(35, 1) ,key='atpfssy'+str(i),justification='left'),ms.Sizer(20,0),
               ms.Radio("1", font=fstyle, key='atp1ssy' + str(i), group_id='atpsdsy' + str(i)),
               ms.Radio("2",font=fstyle,key='atp2ssy'+str(i),group_id='atpsdsy'+str(i)),
               ms.Radio("3",font=fstyle,key='atp3ssy'+str(i),group_id='atpsdsy'+str(i)),
@@ -48,7 +48,7 @@ def AttendancePushLay():
              [ms.Input(emplistpn[i][1],font=fstyle,key='atpecsn'+str(i),size=(10,1),disabled=True,justification='center',
                        disabled_readonly_background_color=ms.theme_background_color(),border_width= 0),ms.Sizer(5,0),
               ms.Text(emplistpn[i][2],font=fstyle,size=(35,1),key='atpnsn'+str(i),justification='center'),ms.Sizer(2,0),
-              ms.Text(emplistpn[i][3],enable_events=True, font=fstyle, size=(35, 1) ,key='atpfssn'+str(i),justification='center'),ms.Sizer(20,0),
+              ms.Text(emplistpn[i][3],enable_events=True, font=fstyle, size=(35, 1) ,key='atpfssn'+str(i),justification='left'),ms.Sizer(20,0),
               ms.Radio("G", font=fstyle, key='atp1ssn' + str(i), group_id='atpsdsn' + str(i)),
               ms.Radio("A",font=fstyle,key='atp2ssn'+str(i),group_id='atpsdsn'+str(i)),
                          ms.Sizer(122,0),
@@ -75,7 +75,7 @@ def AttendancePushLay():
                            ms.Text(emplistny[i][2], font=fstyle, size=(35, 1), key='atpnnsy' + str(i),
                                    justification='center'), ms.Sizer(2, 0),
                            ms.Text(emplistny[i][3],enable_events=True, font=fstyle, size=(35, 1), key='atpfsnsy' + str(i),
-                                   justification='center'), ms.Sizer(15, 0),
+                                   justification='left'), ms.Sizer(15, 0),
                            ms.Radio("1", font=fstyle, key='atp1snsy' + str(i), group_id='atpsdnsy' + str(i)),
                            ms.Radio("2", font=fstyle, key='atp2snsy' + str(i), group_id='atpsdnsy' + str(i)),
                            ms.Radio("3", font=fstyle, key='atp3snsy' + str(i), group_id='atpsdnsy' + str(i)),
@@ -101,7 +101,7 @@ def AttendancePushLay():
                            ms.Text(emplistnn[i][2], font=fstyle, size=(35, 1), key='atpnnsn' + str(i),
                                    justification='center'), ms.Sizer(2, 0),
                            ms.Text(emplistnn[i][3],enable_events=True, font=fstyle, size=(35, 1), key='atpfsnsn' + str(i),
-                                   justification='center'), ms.Sizer(20, 0),
+                                   justification='left'), ms.Sizer(20, 0),
                            ms.Radio("P", font=fstyle, key='atp1snsn' + str(i), group_id='atpsdnsn' + str(i)),
                            ms.Radio("A", font=fstyle, key='atp2snsn' + str(i), group_id='atpsdnsn' + str(i)),
                            ms.Sizer(122, 0),
@@ -468,4 +468,4 @@ def AttendancePushFn(Menu,event,values):
             except:
                 pass
 
-#V6.1
+#V6.3

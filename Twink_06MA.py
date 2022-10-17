@@ -9,7 +9,7 @@ import Cleaning_Crew
 import CC_Attendence_View
 #---Custom DB Declaration
 
-#sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
+sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
 mycursor.execute('Use Twink_06ma')
 mydb.commit()
 ms.theme('Topanga')
@@ -20,8 +20,10 @@ MenuDef = [
            ['Reports',    ['Wages_Monthly Calc',"Wages_Category Split"]],
 ]
 #--- Base Layout Declaration
-BaseLayout=[[ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
-            [ms.Sizer(swi/2-200,0) ,ms.Text("SUNIL INDUSTRIES LIMITED",font=("Courier New",18),justification='center')],
+BaseLayout=[
+            [ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
+            [ms.Sizer(swi/2-200,0) ,ms.Text("SUNIL INDUSTRIES LIMITED",font=("Courier New",18),justification='center'),],
+            [],
             [ms.Sizer(0,150)],
             [ms.Sizer(600,500),ms.Frame(layout=[
                 [ms.Text('Date',font=fstyle,size=(20,1)),ms.Input(todatenf,font=fstyle,size=(10,1),key="SW_date",enable_events=True)],
@@ -33,7 +35,7 @@ BaseLayout=[[ms.Sizer(swi/2-200,0),ms.Image(source=logo)],
 
 layout=[[ms.Menu    (MenuDef, key='MENU',font=fstyle)],
         [
-        ms.Column  (BaseLayout,key="base",visible=False,size=(swi,shi),element_justification='center'),
+        ms.Column  (BaseLayout,key="base",visible=True,size=(swi,shi),element_justification='center'),
         ms.Column  (Register.RegsiterLay(),key='register',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Master_User.Master_User_GUI(),key='mumneu',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Attendance_Push.AttendancePushLay(),key='atnpush',visible=False,size=(swi,shi),element_justification='center'),
@@ -43,7 +45,7 @@ layout=[[ms.Menu    (MenuDef, key='MENU',font=fstyle)],
         ms.Column  (CC_Attendence_View.CC_View_GUI(),key='c_view',visible=False,size=(swi,shi)),
         ms.Column  (Wage_Calc.WageCalcLay(),key='wagecalc',visible=False,size=(swi,shi),element_justification='center'),
         ms.Column  (Attendance_View.AdvanceoptLay(), key='advopt', visible=False, size=(swi, shi),element_justification='center'),
-        ms.Column  (Wage_Calc.CategorySplitWage(), key='cwsvw', visible=True, size=(swi, shi),element_justification='center')
+        ms.Column  (Wage_Calc.CategorySplitWage(), key='cwsvw', visible=False, size=(swi, shi),element_justification='center')
 
         ]]
 
@@ -156,6 +158,6 @@ while True:
         ms.popup_animated(None)
         ms.popup_error(f'AN EXCEPTION OCCURRED!', e, tb)
 
-#sys.stdout.close()
+sys.stdout.close()
 
-#v6.1
+#v6.3

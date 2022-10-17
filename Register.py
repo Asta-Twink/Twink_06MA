@@ -12,18 +12,18 @@ def RegsiterLay():
                         [[ms.Table(values=EmpdataFetch("PF"),
                                    headings=["Employee Code", "Name", "Father/Spouse Name", "Gender", "Phone No.",
                                              "Team"],
-                                   justification='centre', enable_events=True, auto_size_columns=False, row_height=30,
+                                   justification='left',
+                                   enable_events=True, auto_size_columns=False, row_height=30,
                                    col_widths=[15, 40, 40, 10, 20, 15],
                                    right_click_selects=True,
                                    right_click_menu=[[], ["Update Employee", "Remove","Revert"]],
                                    enable_click_events=True, size=(swi - 70, shi - 120), key="emp_data", font=fstyle)]],
                         font=fstyle, size=(swi - 50, shi - 180), element_justification='center')],
-              [ms.Button("Cleaning Crew", font=fstyle, key='ccwin'),ms.Sizer(swi-300,0),ms.Checkbox("Non PF",key="etcnge",enable_events=True,default=False,)]]
+              [ms.Button("Cleaning Crew", font=fstyle, key='ccwin'),ms.Sizer(swi-300,0),ms.Checkbox("*",key="etcnge",enable_events=True,default=False,)]]
 
     return layout
 
 def RegisterFn(Menu, event, values):
-
 
     def Cleaning_Crew_GUI():
         layout = [[ms.Text("Cleaning Crew Register", font=fstylehd)],
@@ -187,8 +187,17 @@ def RegisterFn(Menu, event, values):
             if chk == True:
                 try:
                     shutil.copy(values['e22'],r'C:\Twink_06MA\Image_Data\%s_img.jpg'%values['e2'])
+                    a=Image.open(r'C:\Twink_06MA\Image_Data\%s_img.jpg'% values['e2'])
+                    b=a.resize((80,80))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_img.jpg' % values['e2'])
                     shutil.copy(values['e23'], r'C:\Twink_06MA\Image_Data\%s_simg.jpg' % values['e2'])
+                    a=Image.open(r'C:\Twink_06MA\Image_Data\%s_simg.jpg'% values['e2'])
+                    b=a.resize((100,40))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_simg.jpg'% values['e2'])
                     shutil.copy(values['e26'], r'C:\Twink_06MA\Image_Data\%s_nimg.jpg' % values['e2'])
+                    a = Image.open(r'C:\Twink_06MA\Image_Data\%s_nimg.jpg' % values['e2'])
+                    b = a.resize((80, 80))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_nimg.jpg' % values['e2'])
                 except:
                     pass
 
@@ -393,16 +402,21 @@ def RegisterFn(Menu, event, values):
                     pass
                 try:
                     shutil.copy(values['u22'], r"C:\Twink_06MA\Image_Data\%s_img.jpg" % values['u2'])
+                    a=Image.open(r'C:\Twink_06MA\Image_Data\%s_img.jpg'% values['u2'])
+                    b=a.resize((80,80))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_img.jpg' % values['u2'])
                 except:
                     pass
             if values['u23']!="":
                 try:
                     os.remove(r"C:\Twink_06MA\Image_Data\%s_simg.jpg"%values['u2'])
-
                 except:
                     pass
                 try:
                     shutil.copy(values['u23'], r"C:\Twink_06MA\Image_Data\%s_simg.jpg" % values['u2'])
+                    a=Image.open(r'C:\Twink_06MA\Image_Data\%s_simg.jpg'% values['u2'])
+                    b=a.resize((100,40))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_simg.jpg'% values['u2'])
                 except:
                     pass
 
@@ -413,6 +427,9 @@ def RegisterFn(Menu, event, values):
                     pass
                 try:
                     shutil.copy(values['u26'], r"C:\Twink_06MA\Image_Data\%s_nimg.jpg" % values['u2'])
+                    a = Image.open(r'C:\Twink_06MA\Image_Data\%s_nimg.jpg' % values['u2'])
+                    b = a.resize((80, 80))
+                    b.save(r'C:\Twink_06MA\Image_Data\%s_nimg.jpg' % values['u2'])
                 except:
                     pass
             dict = {'employee_name': values['u1'],'designation':values['u3'],'esic_no':values['u4'],'uan_no':values['u5'],
@@ -822,7 +839,7 @@ def RegisterFn(Menu, event, values):
                         uMenu["u26"].update(disabled=True)
                         uMenu["date3"].update(disabled=True)
 
-    if event=="Revert":
+    if event =="Revert":
         rMenu = ms.Window("Revert Employee", [
             [ms.Column(Employee_Revert_GUI(),  element_justification='centre')]],
                           finalize=True)
@@ -847,39 +864,128 @@ def RegisterFn(Menu, event, values):
                 Menu['emp_data'].update(values=EmpdataFetch("PF"))
 
     if event == "empexp":
-        mycursor.execute("select emp_code, employee_name, designation, esic_no, uan_no, "
-                         "pan_no,aadhar_no,address,marriage_status,f_sp_name,gender,date_of_join from register where active_status = 'Y'")
+        from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
+        from openpyxl.utils.units import cm_to_EMU, pixels_to_EMU
+        from openpyxl.drawing.xdr import XDRPoint2D, XDRPositiveSize2D
+        from openpyxl.styles import Alignment
+        from openpyxl.styles import Font as xlfont
+        c2e = cm_to_EMU
+        p2e = pixels_to_EMU
+        cellh = lambda x: c2e((x * 49.77) / 99)
+        cellw = lambda x: c2e((x * (18.65 - 1.71)) / 10)
+        mycursor.execute\
+            ("SELECT `emp_code`,`employee_name`,`gender`,`f_sp_name`,`date_of_birth`,`date_of_join`,`designation`,"
+             "`phone_no`,`uan_no`,`esic_no`,`pan_no`,`aadhar_no`,`bank_account_no`,`bank_name`,"
+             "`ifsc_code`,`address`,`date_of_exit`,`shift_work`,`base_salary`,concat(shift_1_salary,',',shift_2_salary,',',shift_3_salary) "
+             "from register where active_status = 'Y' and ET = 'PF'" )
         db_data=[list(x) for x in mycursor.fetchall()]
-        xl=openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\Emp_Exp.xlsx')
-        xl.active=xl['Emp_Info']
+        #print(db_data)
+        xl=openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\Register_Export.xlsx')
+        xl.active=xl['Form A']
         xlc=xl.active
-        rowc=2
-        colc=1
+        rowc=3
+        colc=2
         for step in db_data:
-            colc=1
+            colc=2
             for i in step:
                 xlc.cell(row=rowc,column=colc).value=i
+                xlc.cell(row=rowc,column=colc).alignment= Alignment(horizontal='center',vertical='center')
+                xlc.cell(row=rowc, column=colc).font= xlfont(name="Courier New", size=10)
                 colc+=1
-            rowc+=1
-        xl.save(r'C:\Twink_06MA\Master_Files\Emp_Exp01.xlsx')
-        os.system(r'C:\Twink_06MA\Master_Files\Emp_Exp01.xlsx')
+            try:
+                a = Image.open(r'C:\Twink_06MA\Image_Data\%s_img.jpg'  %step[0])
+                b = a.resize((80, 80))
+                b.save(r'C:\Twink_06MA\Image_Data\%s_img.jpg' %step[0])
+                img=openpyxl.drawing.image.Image(r"C:\Twink_06MA\Image_Data\%s_img.jpg"%step[0])
+                size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
+                column = colc-1
+                coloffset = cellw(0.3)
+                row = rowc-1
+                rowoffset = cellh(0.6)
+                marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+                img.anchor = OneCellAnchor(_from=marker, ext=size)
+                xlc.add_image(img)
+                #--
+                a = Image.open(r'C:\Twink_06MA\Image_Data\%s_simg.jpg' % step[0])
+                b = a.resize((100, 40))
+                b.save(r'C:\Twink_06MA\Image_Data\%s_simg.jpg' % step[0])
+                img=openpyxl.drawing.image.Image(r"C:\Twink_06MA\Image_Data\%s_simg.jpg"%step[0])
+                size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
+                column = colc
+                coloffset = cellw(0.6)
+                row = rowc-1
+                rowoffset = cellh(2.0)
+                marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+                img.anchor = OneCellAnchor(_from=marker, ext=size)
+                xlc.add_image(img)
+            except:
+                pass
+            rowc += 1
+
+        xl.save(r'C:\Twink_06MA\Master_Files\Emp_Exp.xlsx')
+        os.system(r'C:\Twink_06MA\Master_Files\Emp_Exp.xlsx')
+        #----
 
     if event == 'empmail':
-        mycursor.execute("select emp_code, employee_name, designation, esic_no, uan_no, "
-                         "pan_no,aadhar_no,address,marriage_status,f_sp_name,gender,date_of_join from register where active_status = 'Y'")
+        from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker
+        from openpyxl.utils.units import cm_to_EMU, pixels_to_EMU
+        from openpyxl.drawing.xdr import XDRPoint2D, XDRPositiveSize2D
+        from openpyxl.styles import Alignment
+        from openpyxl.styles import Font as xlfont
+        c2e = cm_to_EMU
+        p2e = pixels_to_EMU
+        cellh = lambda x: c2e((x * 49.77) / 99)
+        cellw = lambda x: c2e((x * (18.65 - 1.71)) / 10)
+        mycursor.execute\
+            ("SELECT `emp_code`,`employee_name`,`gender`,`f_sp_name`,`date_of_birth`,`date_of_join`,`designation`,"
+             "`phone_no`,`uan_no`,`esic_no`,`pan_no`,`aadhar_no`,`bank_account_no`,`bank_name`,"
+             "`ifsc_code`,`address`,`date_of_exit`,`shift_work`,`base_salary`,concat(shift_1_salary,',',shift_2_salary,',',shift_3_salary) "
+             "from register where active_status = 'Y' and ET = 'PF'" )
         db_data=[list(x) for x in mycursor.fetchall()]
-        xl=openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\Emp_Exp.xlsx')
-        xl.active=xl['Emp_Info']
+        #print(db_data)
+        xl=openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\Register_Export.xlsx')
+        xl.active=xl['Form A']
         xlc=xl.active
-        rowc=2
-        colc=1
+        rowc=3
+        colc=2
         for step in db_data:
-            colc=1
+            colc=2
             for i in step:
                 xlc.cell(row=rowc,column=colc).value=i
+                xlc.cell(row=rowc,column=colc).alignment= Alignment(horizontal='center',vertical='center')
+                xlc.cell(row=rowc, column=colc).font= xlfont(name="Courier New", size=10)
                 colc+=1
-            rowc+=1
-        xl.save(r'C:\Twink_06MA\Master_Files\Emp_Exp01.xlsx')
+            try:
+                a = Image.open(r'C:\Twink_06MA\Image_Data\%s_img.jpg'  %step[0])
+                b = a.resize((80, 80))
+                b.save(r'C:\Twink_06MA\Image_Data\%s_img.jpg' %step[0])
+                img=openpyxl.drawing.image.Image(r"C:\Twink_06MA\Image_Data\%s_img.jpg"%step[0])
+                size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
+                column = colc-1
+                coloffset = cellw(0.3)
+                row = rowc-1
+                rowoffset = cellh(0.6)
+                marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+                img.anchor = OneCellAnchor(_from=marker, ext=size)
+                xlc.add_image(img)
+                #--
+                a = Image.open(r'C:\Twink_06MA\Image_Data\%s_simg.jpg' % step[0])
+                b = a.resize((100, 40))
+                b.save(r'C:\Twink_06MA\Image_Data\%s_simg.jpg' % step[0])
+                img=openpyxl.drawing.image.Image(r"C:\Twink_06MA\Image_Data\%s_simg.jpg"%step[0])
+                size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
+                column = colc
+                coloffset = cellw(0.6)
+                row = rowc-1
+                rowoffset = cellh(2.0)
+                marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+                img.anchor = OneCellAnchor(_from=marker, ext=size)
+                xlc.add_image(img)
+            except:
+                pass
+            rowc += 1
+
+        xl.save(r'C:\Twink_06MA\Master_Files\Emp_Exp.xlsx')
         maillist = popup_select(mailid_fetch(False,""))
         for i in maillist:
             mail_content = "PFA"
@@ -910,4 +1016,5 @@ def RegisterFn(Menu, event, values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
-#v6.1
+
+#v6.3

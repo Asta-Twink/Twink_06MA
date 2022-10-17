@@ -1,6 +1,35 @@
 from Env import *
 import Env
 
+def AdvanceoptLay():
+    layout=[[ms.Sizer(350,0),ms.Column([[ms.Text("Advance Details",font=fstyle)],
+            [ms.Input(todatemy,font=fstyle,key='advdateinp',size=(8,1),background_color=ms.theme_background_color(),enable_events=True),],
+           [ms.Frame("Regsiter",[[ms.Table(values=advancefetch(todatemy),headings=["Date","Empcode","Employee Name","Amount"],
+                      justification='centre',
+                      auto_size_columns=False,
+                      col_widths=[15,15,30,15],
+                      row_height=20,
+                      num_rows=20,
+                      font=fstyle,
+                      right_click_selects=True,
+                      right_click_menu=[[], ["Remove Advance"]],
+                      enable_click_events=True, key="TL_AdvView",enable_events=True
+                      )]],font=fstyle)],
+            [ms.Frame("Generate Advance",
+                     [
+                     [ms.Text("Employee Code",font=fstyle,size=(15,1)),ms.Input("",font=fstyle,size=(30,1),key="adv_empid",enable_events=True)],
+                     [ms.Text("Employee Name", font=fstyle, size=(15, 1)), ms.Text("", font=fstyle, size=(30, 1),key="adv_empname")],
+                     [ms.Text("Date",font=fstyle,size=(15,1)),
+                      ms.Input("",font=fstyle,size=(26,1),key="adv_gendate",enable_events=True),
+                      ms.CalendarButton(todatenf,target='adv_gendate',image_data=chse, format="%d-%m-%Y",location=(1000,650))],
+                     [ms.Text("Advance Amount", font=fstyle, size=(15, 1)), ms.Input("", font=fstyle, size=(30, 1),key="adv_amount",)],
+                        [ms.Button("Generate",font=fstyle,key="adv_generate")],
+                     ],font=fstyle,element_justification='center'),
+            ],
+    ],size=(swi,shi),element_justification='center'),]]
+    return layout
+
+
 def AttendanceViewLay():
     head1=['Emp.Code','Team','Name']
     headwidth1=[15,30,30]
@@ -15,7 +44,7 @@ def AttendanceViewLay():
     globals()['fltrdata']=datasplit(copy.deepcopy(globals()['atnvwdata']),"Attendance")
     globals()['avfind']=0
     TL1=ms.Table(values=fltrdata[0][:((avfind+1)*25)], headings=head1,
-                justification='centre', enable_events=True,
+                justification='left', enable_events=True,
                 auto_size_columns=False,
                 row_height=20,
                 col_widths=headwidth1,
@@ -58,33 +87,7 @@ def AttendanceViewLay():
             ]
     return layout
 
-def AdvanceoptLay():
-    layout=[[ms.Sizer(350,0),ms.Column([[ms.Text("Advance Details",font=fstyle)],
-            [ms.Input(todatemy,font=fstyle,key='advdateinp',size=(8,1),background_color=ms.theme_background_color(),enable_events=True),],
-           [ms.Frame("Regsiter",[[ms.Table(values=advancefetch(todatemy),headings=["Date","Empcode","Employee Name","Amount"],
-                      justification='centre',
-                      auto_size_columns=False,
-                      col_widths=[15,15,30,15],
-                      row_height=20,
-                      num_rows=20,
-                      font=fstyle,
-                      right_click_selects=True,
-                      right_click_menu=[[], ["Remove Advance"]],
-                      enable_click_events=True, key="TL_AdvView",enable_events=True
-                      )]],font=fstyle)],
-            [ms.Frame("Generate Advance",
-                     [
-                     [ms.Text("Employee Code",font=fstyle,size=(15,1)),ms.Input("",font=fstyle,size=(30,1),key="adv_empid",enable_events=True)],
-                     [ms.Text("Employee Name", font=fstyle, size=(15, 1)), ms.Text("", font=fstyle, size=(30, 1),key="adv_empname")],
-                     [ms.Text("Date",font=fstyle,size=(15,1)),
-                      ms.Input("",font=fstyle,size=(26,1),key="adv_gendate",enable_events=True),
-                      ms.CalendarButton(todatenf,target='adv_gendate',image_data=chse, format="%d-%m-%Y",location=(1000,650))],
-                     [ms.Text("Advance Amount", font=fstyle, size=(15, 1)), ms.Input("", font=fstyle, size=(30, 1),key="adv_amount",)],
-                        [ms.Button("Generate",font=fstyle,key="adv_generate")],
-                     ],font=fstyle,element_justification='center'),
-            ],
-    ],size=(swi,shi),element_justification='center'),]]
-    return layout
+
 
 '''
 TestMenu=ms.Window("", AdvanceoptLay(),location=(0,0),element_justification='center')
@@ -321,6 +324,9 @@ def AttendaceViewFn(Menu,event,values):
         Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
         Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
     if event =="TL1_Atview":
-        print(values[event][0])
+        #print(values[event][0])
         Menu["TL2_Atview"].update(select_rows=values[event])
-#v6.1
+
+
+
+#v6.3
