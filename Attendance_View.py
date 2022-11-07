@@ -29,7 +29,6 @@ def AdvanceoptLay():
     ],size=(swi,shi),element_justification='center'),]]
     return layout
 
-
 def AttendanceViewLay():
     head1=['Emp.Code','Team','Name']
     headwidth1=[15,30,30]
@@ -86,8 +85,6 @@ def AttendanceViewLay():
                                        ],size=(swi-70,shi-100),font=fstyle,element_justification='center')]
             ]
     return layout
-
-
 
 '''
 TestMenu=ms.Window("", AdvanceoptLay(),location=(0,0),element_justification='center')
@@ -326,7 +323,5 @@ def AttendaceViewFn(Menu,event,values):
     if event =="TL1_Atview":
         #print(values[event][0])
         Menu["TL2_Atview"].update(select_rows=values[event])
-
-
 
 #v6.3

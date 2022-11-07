@@ -297,6 +297,15 @@ def Emp_code_Gen(type):
             db_data=mycursor.fetchall()
             return "SILTEMP" + str((int("0" if (db_data)==None else str(len(db_data))) + 1)).zfill(3)
 
+def Dep_idfetch(inp):
+    try:
+        mycursor.execute("select uid from dep_list where description = '%s'"%inp)
+        return mycursor.fetchall()[0][0]
+    except:
+        return "Check"
+
+
+
 def DepListFetch():
     mycursor.execute("select * from dep_list")
     return ([list(x) for x in mycursor.fetchall()])
@@ -331,6 +340,7 @@ def mailreport(inp):
             if temp[0] in ['1', '2', '3', 'P']:
                 try:
                     i[1] = dplist.get(int(temp[3]))
+
                 except:
                     i[1] = "Wander"
                 wage = wage_data.get(i[0])
@@ -370,16 +380,50 @@ def mailreport(inp):
     #print(output)
     s1tot,s2tot,s3tot,gtot,wtot=0,0,0,0,0.0
     tabular_table = PrettyTable()
-    tabular_table.field_names =  ["<   Department   >"," S1 "," S2 "," S3 "," General "," Total ","Net Wage"]
+    tabular_table.field_names =  ["<   Employee Category   >"," S1 "," S2 "," S3 "," General "," Total ","Net Wage"]
+    tabular_table.add_row(["<< Department Work >>", "----", "----", "----", "----", "----", "-------"])
     for i in output:
-        tabular_table.add_row(i)
-        s1tot+=i[1]
-        s2tot += i[2]
-        s3tot += i[3]
-        gtot += i[4]
-        wtot+=i[6]
+        dep=Dep_idfetch(i[0])
+        if dep in [1,2,3,6,7,8,10,11,17,22]:
+            tabular_table.add_row(i)
+            s1tot+=i[1]
+            s2tot += i[2]
+            s3tot += i[3]
+            gtot += i[4]
+            wtot+=i[6]
     tabular_table.add_row(["-------------", "----","----","----","----","----", "-------"])
     tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot,round(wtot,0)])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
+    tabular_table.add_row(["<< Staffs & Fitters >>", "----", "----", "----", "----", "----", "-------"])
+    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
+    for i in output:
+        dep=Dep_idfetch(i[0])
+        if dep in [4,5,9,15,16,18,19,21,23,24,25,26,27,29,30,31]:
+            tabular_table.add_row(i)
+            s1tot+=i[1]
+            s2tot += i[2]
+            s3tot += i[3]
+            gtot += i[4]
+            wtot+=i[6]
+    tabular_table.add_row(["-------------", "----","----","----","----","----", "-------"])
+    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot,round(wtot,0)])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
+    tabular_table.add_row(["<< Others >>", "----", "----", "----", "----", "----", "-------"])
+    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
+    for i in output:
+        dep = Dep_idfetch(i[0])
+        print(dep)
+        if dep in [12,13,14,20,32,33,34]:
+            tabular_table.add_row(i)
+            s1tot += i[1]
+            s2tot += i[2]
+            s3tot += i[3]
+            gtot += i[4]
+            wtot += i[6]
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
+    tabular_table.add_row(["Total", s1tot, s2tot, s3tot, gtot, s1tot + s2tot + s3tot + gtot, round(wtot, 0)])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
+
     print(tabular_table)
     ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),location=(100,100),line_width=500)
     maillist = popup_select(mailid_fetch(False, ""))

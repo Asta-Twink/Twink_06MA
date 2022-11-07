@@ -185,7 +185,7 @@ def AttendancePushFn(Menu,event,values):
                            indata = '2'
                        elif values['atp3ssy' + str(i)] == True:
                            indata = '3'
-                       elif values['atpassy' + str(i)] == True:
+                       elif values['atp0ssy' + str(i)] == True:
                            indata = 'A'
                        elif int(values['atpotsy' + str(i)]) != 0:
                            indata = 'e'
@@ -227,7 +227,7 @@ def AttendancePushFn(Menu,event,values):
                            indata = '2'
                        elif values['atp3snsy' + str(i)] == True:
                            indata = '3'
-                       elif values['atpasnsy' + str(i)] == True:
+                       elif values['atp0snsy' + str(i)] == True:
                            indata = 'A'
                        elif int(values['atpotnsy' + str(i)]) != 0:
                            indata = 'e'
@@ -293,7 +293,7 @@ def AttendancePushFn(Menu,event,values):
                        echk.append(values['atpecsy' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotsy' + str(i)]):
-                       if values['atpassy' + str(i)] == False:
+                       if values['atp0ssy' + str(i)] == False:
                            ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecsy' + str(i)],font=fstyle)
                            return
                    indata += str(values['atpotsy' + str(i)])
@@ -341,7 +341,7 @@ def AttendancePushFn(Menu,event,values):
                        echk.append(values['atpecnsy' + str(i)])
                    indata += ","
                    if "/" in str(values['atpotnsy' + str(i)]):
-                       if values['atpasnsy' + str(i)] == False:
+                       if values['atp0snsy' + str(i)] == False:
                            ms.popup("Incorrect OT Entry, Please Check %s"%values['atpecnsy' + str(i)],font=fstyle)
                            return
                    indata += str(values['atpotnsy' + str(i)])
@@ -395,8 +395,11 @@ def AttendancePushFn(Menu,event,values):
                else:
                    return
 
-           globals()['atnvwdata'] = attendance_fetch(values['atvwdate'])
-           Menu['TL_Atview'].update(values=datasplit(copy.deepcopy(atnvwdata), values['atnvwfltr']))
+           globals()['atnvwdata'] = attendance_fetch(todatemy)
+           globals()['fltrdata'] = datasplit(copy.deepcopy(globals()['atnvwdata']), "Attendance")
+           globals()['avfind'] = 0
+           Menu["TL1_Atview"].update(values=fltrdata[0][:((avfind+1)*25)])
+           Menu["TL2_Atview"].update(values=fltrdata[1][:((avfind + 1) * 25)])
        else:
            ms.popup_auto_close("Wrong Password",font=fstyle, auto_close_duration=1)
 
