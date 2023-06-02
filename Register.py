@@ -5,6 +5,7 @@ from Env import *
 def RegsiterLay():
     layout = [[ms.Text("Employee Register", font=fstylehd)],
               [ms.Sizer(swi - 400, 0),
+               ms.Button("AT_Export", font=fstyle, key='empexpAT'),
                ms.Button("Export", font=fstyle, key='empexp'),
                ms.Button("Mail", font=fstyle, key='empmail'),
                ms.Button("Add", font=fstyle, key='empadd')],
@@ -860,6 +861,7 @@ def RegisterFn(Menu, event, values):
                 doe=ms.popup_get_text("Enter date of exiting",default_text=todatestr, size=(20, 1), font=fstyle, keep_on_top=True)
                 mycursor.execute("UPDATE `register` SET `active_status` = 'N' WHERE (`emp_code` = '%s')" % crow[0][0])
                 mycursor.execute("UPDATE `register` SET `date_of_exit` = '%s' WHERE (`emp_code` = '%s')" % (doe,crow[0][0]))
+                mycursor.execute("UPDATE `register` SET `reason` = '%s' WHERE (`emp_code` = '%s')"%(reason,crow[0][0]))
                 mydb.commit()
                 Menu['emp_data'].update(values=EmpdataFetch("PF"))
 
@@ -877,7 +879,7 @@ def RegisterFn(Menu, event, values):
             ("SELECT `emp_code`,`employee_name`,`gender`,`f_sp_name`,`date_of_birth`,`date_of_join`,`designation`,"
              "`phone_no`,`uan_no`,`esic_no`,`pan_no`,`aadhar_no`,`bank_account_no`,`bank_name`,"
              "`ifsc_code`,`address`,`date_of_exit`,`shift_work`,`base_salary`,concat(shift_1_salary,',',shift_2_salary,',',shift_3_salary) "
-             "from register where active_status = 'Y' and ET = 'PF'" )
+             "from register where active_status = 'Y' " )
         db_data=[list(x) for x in mycursor.fetchall()]
         #print(db_data)
         xl=openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\Register_Export.xlsx')
@@ -1016,5 +1018,117 @@ def RegisterFn(Menu, event, values):
             session.quit()
             #print('Mail Sent')
         ms.popup_auto_close("Mail Successfully Sent", font=fstyle, no_titlebar=True)
+
+    if event == 'empexpAT':
+        chk = ms.popup_get_text("Enter password to proceed further ", password_char='*', size=(20, 1), font=fstyle,
+                                keep_on_top=True)
+        if chk == MasterPass:
+            mycursor.execute \
+                ("SELECT `emp_code`,`employee_name` "
+                 "from register where active_status = 'Y' and ET ='PF' and shift_work = 'Yes' order by employee_name ")
+            db_data = [list(x) for x in mycursor.fetchall()]
+            db_data.append(["<<>>", "STAFF AND FITTERS"])
+            mycursor.execute \
+                ("SELECT `emp_code`,`employee_name` "
+                 "from register where active_status = 'Y' and ET ='PF' and shift_work = 'No' order by employee_name ")
+            db_data1 = [list(x) for x in mycursor.fetchall()]
+            #print(db_data)
+            xl = openpyxl.load_workbook(r'C:\Twink_06MA\Master_Files\ATMEXP.xlsx')
+            xl.active = xl['PF_I']
+            xlc = xl.active
+            rowc = 9
+            colc = 1
+            for step in db_data:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34,67,100,133,166,199]:
+                    rowc+=4
+            for step in db_data1:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34,67,100,133,166,199]:
+                    rowc+=4
+            xl.active = xl['PF_II']
+            xlc = xl.active
+            rowc = 9
+            colc = 1
+            for step in db_data:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34,67,100,133,166,199]:
+                    rowc+=4
+
+            for step in db_data1:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34,67,100,133,166,199]:
+                    rowc+=4
+            #-----
+            mycursor.execute \
+                ("SELECT `emp_code`,`employee_name` "
+                 "from register where active_status = 'Y' and ET ='Non PF' and shift_work = 'Yes' order by employee_name ")
+            db_data = [list(x) for x in mycursor.fetchall()]
+            db_data.append(["<<>>","STAFF AND FITTERS"])
+            mycursor.execute \
+                ("SELECT `emp_code`,`employee_name` "
+                 "from register where active_status = 'Y' and ET ='Non PF' and shift_work = 'No' order by employee_name ")
+            db_data1 = [list(x) for x in mycursor.fetchall()]
+            # print(db_data)
+            xl.active = xl['NPF_I']
+            xlc = xl.active
+            rowc = 9
+            colc = 1
+            for step in db_data:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34, 67, 100, 133, 166, 199]:
+                    rowc += 4
+
+            for step in db_data1:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34, 67, 100, 133, 166, 199]:
+                    rowc += 4
+            xl.active = xl['NPF_II']
+            xlc = xl.active
+            rowc = 9
+            colc = 1
+            for step in db_data:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34, 67, 100, 133, 166, 199]:
+                    rowc += 4
+            for step in db_data1:
+                colc = 1
+                for i in step:
+                    xlc.cell(row=rowc, column=colc).value = i
+                    colc += 1
+                rowc += 1
+                if rowc in [34, 67, 100, 133, 166, 199]:
+                    rowc += 4
+
+            xl.save(r'C:\Twink_06MA\Master_Files\Emp_MExp.xlsx')
+            os.system(r'C:\Twink_06MA\Master_Files\Emp_MExp.xlsx')
 
 #v6.3

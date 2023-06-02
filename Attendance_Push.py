@@ -1,5 +1,5 @@
 from Env import *
-
+import essl
 def AttendancePushLay():
     datalist=[[ms.Text("Emp. Code",justification= 'center',size=(10,1),relief= 'raised',font=fstylehd),
                ms.Text("Team",justification= 'center',relief= 'raised',size=(32,1),font=fstylehd),
@@ -19,7 +19,7 @@ def AttendancePushLay():
               ]]
 
     mycursor.execute('select UID,emp_code,team,employee_name,designation from register where active_status = "Y" and '
-                     'ET = "PF" and shift_work = "Yes" order by def_shift,team,employee_name')
+                     'ET = "PF" and shift_work = "Yes" order by employee_name')
     globals()['emplistpy']=[list(x) for x in mycursor.fetchall()]
 
     for i in range (len(emplistpy)):
@@ -38,9 +38,11 @@ def AttendancePushLay():
               ms.Combo(default_value=emplistpy[i][4], values=dep_list,font=fstyle,key='atpdpsy'+str(i),size=(14,1))
         ],[ms.HSeparator(key='atpsepsy'+str(i))] ],visible= True,key='atpsy'+str(i))
         datalist.append([sub1])
+    datalist.append([ms.Text("--- >> STAFFS AND FITTERS  << ---",font=fstyle)])
+    datalist.append([ms.HSeparator()])
 
     mycursor.execute('select UID,emp_code,team,employee_name,designation from register where active_status = "Y" '
-                     'and ET = "PF" and shift_work = "No" order by def_shift,team,employee_name')
+                     'and ET = "PF" and shift_work = "No" order by employee_name')
     globals()['emplistpn']=[list(x) for x in mycursor.fetchall()]
 
     for i in range (len(emplistpn)):
@@ -60,10 +62,11 @@ def AttendancePushLay():
         datalist.append([sub1])
 
 #---------------------------------------------------------------------
-
+    datalist.append([ms.Text("--- >> STAFFS AND FITTERS  << ---",font=fstyle)])
+    datalist.append([ms.HSeparator()])
     mycursor.execute(
         'select UID,emp_code,team,employee_name,designation from register where active_status = "Y" and ET = "NON PF" '
-        'and shift_work = "Yes" order by team,def_shift,employee_name')
+        'and shift_work = "Yes" order by employee_name')
     globals()['emplistny'] = [list(x) for x in mycursor.fetchall()]
 
     for i in range(len(emplistny)):
@@ -90,7 +93,7 @@ def AttendancePushLay():
 
     mycursor.execute(
         'select UID,emp_code,team,employee_name,designation  from register where active_status = "Y" and ET = "NON PF" '
-        'and shift_work = "No" order by team,def_shift,employee_name')
+        'and shift_work = "No" order by employee_name')
     globals()['emplistnn'] = [list(x) for x in mycursor.fetchall()]
 
     for i in range(len(emplistnn)):
@@ -118,7 +121,8 @@ def AttendancePushLay():
     layout=[
         [ms.Text("Attendance Register",font=fstylehd)],
         [ms.Text("Entry Person",font=fstyle,size=(12,1)),ms.Combo(values=user_name(),font=fstyle,size=(20,1),key='atpers'),
-         ms.Sizer(swi - 720, 0),
+         ms.Button("",key='fn'),
+         ms.Sizer(swi - 680, 0),
          ms.Text("Date",font=fstyle,size=(5,1)),ms.InputText("",size=(15,1),font=fstyle,key="atpdate"),
          ms.CalendarButton(todatenf,target='atpdate',image_data=chse, format="%d-%m-%Y",location=(1250,100)),
          ms.Text("Auto",visible=True if globals()['atpatmt'] == 'OK' else False,font=fstyle,key='atpatmtkey'),],
@@ -126,7 +130,12 @@ def AttendancePushLay():
                                    ms.Column(datalistnp,scrollable=True,visible=False,vertical_scroll_only=True,size=(swi-70,shi-220),key='atpnpf')],
                                    [ms.Checkbox("Non Pf",key='atpswap',enable_events= True,font=fstyle)]],
                   font=fstyle,size=(swi-50,shi-150))],
-         [ms.Input(default_text= "",size=(15,1),font=fstyle,password_char="*",key='atppw',tooltip="Please enter the Password to proceed .!")],
+         [ms.Sizer(640,0),
+          ms.Input(default_text= "",size=(15,1),font=fstyle,password_char="*",key='atppw',tooltip="Please enter the Password to proceed .!"),
+          ms.Sizer(520,0),
+          ms.Button("Production",font=fstyle,key='atp_prod',tooltip="Enter the production data")
+          ]
+        ,
         [ms.Button("Update",font=fstyle,key='atpupdate',tooltip="Please enter the Password to proceed .!")
          ]]
     return layout
@@ -271,7 +280,14 @@ def AttendancePushFn(Menu,event,values):
                          (pushdate[1], pushdate[2], pushdate[0],)
                    mycursor.execute(sql)
                    mydb.commit()
-
+                   j=0
+                   for i in ['PROD_AC','PROD_TFO','EB_AC','EB_TFO']:
+                       sql = "update %s_%s set `%s` = '%s' where empcode = '%s'" % \
+                             (pushdate[1], pushdate[2], pushdate[0],globals()['prod_data'][j],i)
+                       mycursor.execute(sql)
+                       j+=1
+                   mydb.commit()
+                   ms.popup_auto_close("Attendance Pushed Successfully",font=fstyle)
                else:
                    ms.popup_auto_close("Please Try Again", auto_close_duration=1)
                    return
@@ -392,6 +408,14 @@ def AttendancePushFn(Menu,event,values):
                    mycursor.execute(sql)
                    mydb.commit()
                    ms.popup_auto_close("Attendance Updated Sucessfully", font=fstyle, auto_close_duration=1)
+                   j=0
+                   for i in ['PROD_AC','PROD_TFO','EB_AC','EB_TFO']:
+                       sql = "update %s_%s set `%s` = '%s' where empcode = '%s'" % \
+                             (pushdate[1], pushdate[2], pushdate[0],globals()['prod_data'][j],i)
+                       mycursor.execute(sql)
+                       j+=1
+                   mydb.commit()
+
                else:
                    return
 
@@ -470,5 +494,94 @@ def AttendancePushFn(Menu,event,values):
                     Menu['atpf' + globals()['atvar']].update(text_color='White')
             except:
                 pass
+
+    if event == "atp_prod":
+        tlayout=[
+            [ms.Text("Production Upto A/C (Kg)", justification='left', size=(25, 1), font=fstyle, ),
+             ms.Input("", size=(15, 1), key='prod1', font=fstyle)],
+            [ms.Text("Production Upto TFO (Kg)", justification='left', size=(25, 1), font=fstyle, ),
+             ms.Input("", size=(15, 1),  key='prod2',font=fstyle)],
+            [ms.Text("EB Upto A/C (kWH)", justification='left', size=(25, 1), font=fstyle, ),
+             ms.Input("", size=(15, 1),  key='prod3', font=fstyle)],
+            [ms.Text("EB upto TFO (kWH)", justification='left', size=(25, 1), font=fstyle, ),
+             ms.Input("", size=(15, 1), key='prod4', font=fstyle)],
+            [ms.Button("Generate",font=fstyle,key='prod_gen')]
+
+        ]
+        TempMenu=ms.Window(layout=tlayout,title="Production Data",location=(900,560),element_justification='center')
+        while True:
+            event,values=TempMenu.read()
+            if event==ms.WIN_CLOSED:
+                TempMenu.close()
+                break
+            if event == "prod_gen":
+                globals()['prod_data']=[values['prod1'],values['prod2'],values['prod3'],values['prod4']]
+                ms.popup_auto_close("Production data Generated",font=fstyle)
+                TempMenu.close()
+                break
+                #print(globals()['prod_data'])
+
+    if event == 'fn':
+        atnfndata=essl.atn_create(datetime.strptime(values['atpdate'], "%d-%m-%Y").strftime("%Y-%m-%d"))
+        for i in range(len(emplistpy)):
+            try:
+                temp=atnfndata.get(emplistpy[i][1])
+                if temp[0] != "0":
+                    Menu['atp' + temp[0] + 'ssy' + str(i)].update(value=True)
+                    Menu['atpotsy' + str(i)].update(value=temp[1])
+                else:
+                    Menu['atpotsy' + str(i)].update(value=temp[1])
+                    Menu['atp'+temp[0]+'ssy'+str(i)].update(value=True)
+            except Exception as e:
+                Menu['atp0ssy' + str(i)].update(value=True)
+                print(e)
+        for i in range(len(emplistpn)):
+            try:
+                temp=atnfndata.get(emplistpn[i][1])
+
+                if temp[0] != "0":
+                    Menu['atp1ssn'+str(i)].update(value=True)
+                    #Menu['atpotsn' + str(i)].update(value=temp[1])
+
+                else:
+                    print(temp)
+                    temp[1] = "P" +temp[1][1:]
+                    Menu['atp2ssn' + str(i)].update(value=True)
+                    #Menu['atpotsn' + str(i)].update(value=temp[1])
+
+            except Exception as e:
+                Menu['atp2ssn' + str(i)].update(value=True)
+                print(e)
+
+        for i in range(len(emplistny)):
+            try:
+                temp=atnfndata.get(emplistny[i][1])
+                if temp[0] != "0":
+                    Menu['atp' + temp[0] + 'snsy' + str(i)].update(value=True)
+                    Menu['atpotnsy' + str(i)].update(value=temp[1])
+                else:
+                    temp[1][0] = "P"
+                    Menu['atpotnsy' + str(i)].update(value=temp[1])
+                    Menu['atp'+temp[0]+'snsy'+str(i)].update(value=True)
+            except Exception as e:
+                Menu['atp0snsy' + str(i)].update(value=True)
+                print(e)
+
+        for i in range(len(emplistnn)):
+            try:
+                temp = atnfndata.get(emplistnn[i][1])
+                if temp[0] != "0":
+                    Menu['atp1snsn' + str(i)].update(value=True)
+                    #Menu['atpotnsn' + str(i)].update(value=temp[1])
+
+                else:
+                    Menu['atp2snsn' + str(i)].update(value=True)
+                    temp[1][0]="P"
+                   # Menu['atpotnsn' + str(i)].update(temp[1])
+
+            except Exception as e:
+                Menu['atp2snsn' + str(i)].update(value=True)
+                print(e)
+
 
 #V6.3

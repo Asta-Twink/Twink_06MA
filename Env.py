@@ -23,7 +23,7 @@ import sys
 from prettytable import PrettyTable
 from openpyxl.styles.alignment import Alignment
 import locale
-
+import datetime as dp
 
 mydb = mysql.connector.connect( host='localhost', user="root", passwd="MSeGa@1109",)
 mycursor = mydb.cursor()
@@ -50,16 +50,15 @@ with open("load.png", "rb") as image_file:
  load = base64.b64encode(image_file.read())
 with open("logo.png", "rb") as image_file:
  logo = base64.b64encode(image_file.read())
-
 atvar=None
 avxlop=None
 todate=datetime.today()
-print(todate)
 todatestr=todate.strftime("%Y-%m-%d")
 todatenf=todate.strftime("%d-%m-%Y")
 todatemy=todate.strftime("%m-%Y")
 file_types = [("JPEG (*.jpg)", "*.jpg"),("All files (*.*)", "*.*")]
 team_list=["PF Native","Jharkand","Assam","Odisha","NPF Native",]
+
 def border(element, color, width=3):
     if color is None:
         color = ms.theme_background_color()
@@ -91,7 +90,7 @@ def EmpdataFetch(type):
         return S1
     if type=="Non PF":
         mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
-                         "from register where active_status = 'Y' and ET ='Non PF' order by Team,employee_name")
+                         "from register where active_status = 'Y' and ET ='Non PF' order by employee_name")
         S1=[list(x) for x in mycursor.fetchall()]
 
         return S1
@@ -118,6 +117,26 @@ def DB_Creation(inp):
             pass
     try:
         mycursor.execute("insert into %s_%s (empcode) values ('counter')" % (date_split[1], date_split[2]))
+        mydb.commit()
+    except:
+        pass
+    try:
+        mycursor.execute("insert into %s_%s (empcode) values ('PROD_AC')" % (date_split[1], date_split[2]))
+        mydb.commit()
+    except:
+        pass
+    try:
+        mycursor.execute("insert into %s_%s (empcode) values ('PROD_TFO')" % (date_split[1], date_split[2]))
+        mydb.commit()
+    except:
+        pass
+    try:
+        mycursor.execute("insert into %s_%s (empcode) values ('EB_AC')" % (date_split[1], date_split[2]))
+        mydb.commit()
+    except:
+        pass
+    try:
+        mycursor.execute("insert into %s_%s (empcode) values ('EB_TFO')" % (date_split[1], date_split[2]))
         mydb.commit()
     except:
         pass
@@ -304,8 +323,6 @@ def Dep_idfetch(inp):
     except:
         return "Check"
 
-
-
 def DepListFetch():
     mycursor.execute("select * from dep_list")
     return ([list(x) for x in mycursor.fetchall()])
@@ -316,9 +333,11 @@ dep_list=list(sum(mycursor.fetchall(),()))
 mycursor.execute("select count(*) from register where active_status = 'Y'")
 empcount=mycursor.fetchall()[0][0]
 tempdate=todatenf.split("-")
+
 try:
     mycursor.execute("select `%s` from %s_%s where empcode = 'counter'" % (tempdate[0], tempdate[1], tempdate[2]))
     atstat= "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
+
 except:
     atstat = "To be Created"
 #atstat="created"
@@ -328,7 +347,7 @@ def mailreport(inp):
     dplist = {int(x[0]): (x[1]) for x in db_data}
     dateform = inp.split("-")
     mycursor.execute(
-        "select empcode,`%s` from %s_%s where empcode !='counter'" % (dateform[0], dateform[1], dateform[2]))
+        "select empcode,`%s` from %s_%s" % (dateform[0], dateform[1], dateform[2]))
     db_data = [list(x) for x in mycursor.fetchall()]
     db_data_Fn = []
     wage_data = wage_fetch()
@@ -336,20 +355,22 @@ def mailreport(inp):
     for i in db_data:
         if i[1] != None:
             temp = list(i[1].split(","))
-
             if temp[0] in ['1', '2', '3', 'P']:
                 try:
                     i[1] = dplist.get(int(temp[3]))
-
                 except:
                     i[1] = "Wander"
                 wage = wage_data.get(i[0])
                 i[0] = wage
                 if type(i[0]) == list:
-                    i[0] = wage[int(temp[0]) - 1]
+                    i[0] = round(wage[int(temp[0]) - 1],1)
                     i.append(temp[0])
                 else:
-                    i[0]
+
+                    try:
+                        i[0]=round(i[0],1)
+                    except:
+                        pass
                     i.append(temp[0])
             db_data_Fn.append(i)
 
@@ -358,6 +379,7 @@ def mailreport(inp):
     mycursor.execute("select Description from dep_list order by Description")
     dep_data = list(sum(mycursor.fetchall(), ()))
     output = []
+    total=[]
     for i in dep_data:
         s1=0
         s2=0
@@ -374,72 +396,128 @@ def mailreport(inp):
                     s3+=1
                 if j[2]=="P":
                     general+=1
-                wage += round(j[0],2)
+                try:
+                    wage += round(j[0],2)
+                except:
+                    pass
 
-        output.append([i,s1,s2,s3,general,s1+s2+s3+general, wage])
+        output.append([i,s1,s2,s3,general,s1+s2+s3+general])
     #print(output)
     s1tot,s2tot,s3tot,gtot,wtot=0,0,0,0,0.0
     tabular_table = PrettyTable()
-    tabular_table.field_names =  ["<   Employee Category   >"," S1 "," S2 "," S3 "," General "," Total ","Net Wage"]
-    tabular_table.add_row(["<< Department Work >>", "----", "----", "----", "----", "----", "-------"])
-    for i in output:
-        dep=Dep_idfetch(i[0])
-        if dep in [1,2,3,6,7,8,10,11,17,22]:
-            tabular_table.add_row(i)
-            s1tot+=i[1]
-            s2tot += i[2]
-            s3tot += i[3]
-            gtot += i[4]
-            wtot+=i[6]
-    tabular_table.add_row(["-------------", "----","----","----","----","----", "-------"])
-    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot,round(wtot,0)])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
-    tabular_table.add_row(["<< Staffs & Fitters >>", "----", "----", "----", "----", "----", "-------"])
-    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
-    for i in output:
-        dep=Dep_idfetch(i[0])
-        if dep in [4,5,9,15,16,18,19,21,23,24,25,26,27,29,30,31]:
-            tabular_table.add_row(i)
-            s1tot+=i[1]
-            s2tot += i[2]
-            s3tot += i[3]
-            gtot += i[4]
-            wtot+=i[6]
-    tabular_table.add_row(["-------------", "----","----","----","----","----", "-------"])
-    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot,round(wtot,0)])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
-    tabular_table.add_row(["<< Others >>", "----", "----", "----", "----", "----", "-------"])
-    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
-    for i in output:
-        dep = Dep_idfetch(i[0])
-        print(dep)
-        if dep in [12,13,14,20,32,33,34]:
-            tabular_table.add_row(i)
-            s1tot += i[1]
-            s2tot += i[2]
-            s3tot += i[3]
-            gtot += i[4]
-            wtot += i[6]
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
-    tabular_table.add_row(["Total", s1tot, s2tot, s3tot, gtot, s1tot + s2tot + s3tot + gtot, round(wtot, 0)])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----", "-------"])
+    tabular_table.field_names =  ["<   Employee Category   >"," S1 "," S2 "," S3 "," General "," Total "]
+    tabular_table.add_row(["<< Department Work >>", "","","","",""])
+    AC_Res=0
+    TFO_Res=0
+    for j in [3, 6, 22, 11, 2, 8, 10, 17, 1, 7]:
+        for i in output:
+            dep=Dep_idfetch(i[0])
+            if dep == j:
+                tabular_table.add_row(i)
+                s1tot+=i[1]
+                s2tot += i[2]
+                s3tot += i[3]
+                gtot += i[4]
+                #wtot+=i[6]
+                if dep in [1,7]:
+                    TFO_Res=TFO_Res+(i[1]+i[2]+i[3]+i[4])
+                else:
+                    AC_Res=AC_Res+(i[1]+i[2]+i[3]+i[4])
 
+    tabular_table.add_row(["-------------", "----","----","----","----","----",])
+    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----"])
+    tabular_table.add_row(["<< Staffs & Fitters >>", "","","","",""])
+    total.append([s1tot, s2tot, s3tot, gtot])
+    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
+    for j in [24,21,25,30,4,26,16,27,9,15,29,23,31,19,18]:
+        for i in output:
+            dep=Dep_idfetch(i[0])
+            if dep == j:
+                tabular_table.add_row(i)
+                s1tot+=i[1]
+                s2tot += i[2]
+                s3tot += i[3]
+                gtot += i[4]
+                #wtot+=i[6]
+    tabular_table.add_row(["-------------", "----","----","----","----","----", ])
+    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
+    tabular_table.add_row(["<< Others >>", "","","","",""])
+    total.append([s1tot, s2tot, s3tot, gtot])
+    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
+    for j in [14,13,12,33,20,34,32]:
+        for i in output:
+            dep = Dep_idfetch(i[0])
+            print(dep)
+            if dep == j:
+                tabular_table.add_row(i)
+                s1tot += i[1]
+                s2tot += i[2]
+                s3tot += i[3]
+                gtot += i[4]
+                #wtot += i[6]
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
+    tabular_table.add_row(["Total", s1tot, s2tot, s3tot, gtot, s1tot + s2tot + s3tot + gtot])
+    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
+    total.append([s1tot, s2tot, s3tot, gtot])
+    gtotalS1= list(map(sum, zip(*total)))
+    gtotalS1.insert(0,"Grand Total")
+    gtotalS1.insert(5,gtotalS1[1]+gtotalS1[2]+gtotalS1[3]+gtotalS1[4])
+    #print(gtotalS1, total)
+    #print(gtotalS1)
+    tabular_table.add_row(gtotalS1)
+    tabular_table.align='l'
+    tabular_table.align['Net Wage']='r'
     print(tabular_table)
-    ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),location=(100,100),line_width=500)
+    prod=[]
+    for i in ['PROD_AC', 'PROD_TFO', 'EB_AC', 'EB_TFO']:
+        mycursor.execute(
+        "select `%s` from %s_%s where empcode = '%s' " % (dateform[0], dateform[1], dateform[2],i))
+        prod.append(mycursor.fetchall()[0][0])
+    #ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),location=(100,100),line_width=500)
     maillist = popup_select(mailid_fetch(False, ""))
-    sys.stdout.close()
+    #sys.stdout.close()
     DS1 = todate.strftime("%Y-%m-%d-%H-%M")
     sys.stdout = open('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1, 'w')
+    print("\t"*13,inp)
+    print("\t"*5,"Sunil Industries Limited")
+    print("Daily Attendance : ")
     print(tabular_table)
+    print("\n")
+    print("Production Perfotmance : \n")
+    print("Auto Coner Production : ", prod[0] ,"kg")
+    print("Labors Worked         : ", AC_Res )
+    try:
+        print("Labor Per kg     (LKG): ", round(float(prod[0])/AC_Res,2) )
+    except:
+        print("Labor Per kg     (LKG): ", 0)
+    print("Units_kWH Consumed    : ", prod[2] , "U")
+    try:
+        print("Units per kg     (UKG): ", round(float(prod[2])/float(prod[0]),2))
+    except:
+        print("Units per kg     (UKG): ", 0)
+
+    print("----------------------")
+    print("TFO Production        : ", prod[1],"kg")
+    print("Labors Worked         : ", TFO_Res)
+    try:
+        print("Labor Per kg     (LKG): ", round(float(prod[1])/TFO_Res,2))
+    except:
+        print("Labor Per kg     (LKG): ", 0)
+    print("Units_kWH Consumed    : ", prod[3] , "U")
+    try:
+        print("Units per kg     (UKG): ", round(float(prod[3])/float(prod[1]),2))
+    except:
+        print("Units per kg     (UKG): ", 0)
     sys.stdout.close()
     os.system('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1)
     sys.stdout = open('C:\Twink_06MA\Logs\%s.txt' % todate.strftime("%Y-%m-%d-%H-%M"), 'w')
-
     if maillist == None:
         return
     for i in maillist:
         sender_address = 'asta.sunilindustries@gmail.com'
-        sender_pass = 'uxzgkfvkdzuxwpad'
+        sender_pass = 'hbsdsjgloutfbkhi'
         # Setup the MIME
         receiver_address = mailid_fetch(True, i)
         message = MIMEMultipart()
@@ -447,6 +525,16 @@ def mailreport(inp):
         message['To'] = receiver_address
         message['Subject'] = "Daily Attendance Mail - %s"%inp
         message.attach(MIMEText(tabular_table.get_html_string(), 'html'))
+        #----
+        attach_file_name = 'C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1
+        attach_file = open(attach_file_name, 'rb')  # Open the file as binary mode
+        payload = MIMEBase('application', 'octate-stream')
+        payload.set_payload((attach_file).read())
+        encoders.encode_base64(payload)  # encode the attachment
+        # add payload header with filename
+        payload.add_header('Content-Disposition ', 'attachment',
+                           filename='AtnData.txt')
+        message.attach(payload)
         # Create SMTP session for sending the mail
         session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
         session.starttls()  # enable security
@@ -503,9 +591,11 @@ def mailid_fetch(x,inp):
 def deplistfetch():
     mycursor.execute("select description from dep_list")
     return list(sum(mycursor.fetchall(),()))
+
 def Emp_Revert_Fetch():
     mycursor.execute("select emp_code, employee_name,Phone_no,date_of_birth,date_of_exit,reason from register where active_status = 'N' order by employee_name")
     return [list(x) for x in mycursor.fetchall()]
+
 atpatmt = 'N'
 
 #v6.3

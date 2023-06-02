@@ -248,6 +248,8 @@ def WageCalcFn(Menu,event,values):
             data = attendance_Wfetch(values['wcdateinp'],1)
             wagedata = wage_fetch()
             globals()['wage_proc_data']=[]
+
+
             #print(data)
             for step in data:
                 try:

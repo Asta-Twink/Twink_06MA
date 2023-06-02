@@ -7,9 +7,10 @@ import Wage_Calc
 import Master_User
 import Cleaning_Crew
 import CC_Attendence_View
+import essl
 #---Custom DB Declaration
 
-sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
+#sys.stdout = open('C:\Twink_06MA\Logs\%s.txt'%todate.strftime("%Y-%m-%d-%H-%M") , 'w')
 mycursor.execute('Use Twink_06ma')
 mydb.commit()
 ms.theme('Topanga')
@@ -60,6 +61,7 @@ while True:
         if event == ms.WIN_CLOSED:
             Menu.close()
             break
+
         if event == "Home" or  event[:6] == 'Escape':
             try:
                 mycursor.execute(
@@ -127,12 +129,10 @@ while True:
         Master_User.Master_User(Menu,event,values)
         Cleaning_Crew.cc_att_(event, values, Menu)
         CC_Attendence_View.c_view_db(event, values, Menu)
-
         if event == 'mailreport':
             chk=ms.popup_ok("Please confrim to send mail",font=fstyle,no_titlebar=True)
             if chk == "OK":
                 mailreport(values['SW_date'])
-
         if event == 'SW_date':
             tempMdate = values['SW_date'].split("-")
             try:
@@ -146,18 +146,16 @@ while True:
                 Menu['mailreport'].update(disabled=False)
             else:
                 Menu['mailreport'].update(disabled=True)
-
         if event == 'Wages_Category Split':
             for i in MenuList:
                 Menu[i].update(visible=False)
             Menu['cwsvw'].update(visible=True)
-
 
     except Exception as e:
         tb = traceback.format_exc()
         ms.popup_animated(None)
         ms.popup_error(f'AN EXCEPTION OCCURRED!', e, tb)
 
-sys.stdout.close()
+#sys.stdout.close()
 
 #v6.3

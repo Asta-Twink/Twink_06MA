@@ -165,8 +165,6 @@ def AttendaceViewFn(Menu,event,values):
             xlc.cell(row=4, column=3).value = "01-"+values['atvwdate']+" TO "+str(tot_days)+"-"+values['atvwdate']
             xl.save(filename=r'C:\Twink_06MA\Master_Files\Atn_ExpF2O.xlsx')
             os.system(r'C:\Twink_06MA\Master_Files\Atn_ExpF2O.xlsx')
-
-
     if event == 'adv_empid':
         Menu['adv_empname'].update(empnamefetch(values['adv_empid']))
     if event == 'adv_generate':
@@ -314,12 +312,12 @@ def AttendaceViewFn(Menu,event,values):
                 ms.popup_auto_close("Updated Successfully",font=fstyle)
     if event == 'avrswap':
         globals()['avfind'] += 1
-        Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
-        Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL2_Atview'].update(values=globals()['fltrdata'][1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL1_Atview'].update(values=globals()['fltrdata'][0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
     if event == 'avlswap':
         globals()['avfind'] -= 1
-        Menu['TL2_Atview'].update(values=fltrdata[1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
-        Menu['TL1_Atview'].update(values=fltrdata[0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL2_Atview'].update(values=globals()['fltrdata'][1][globals()['avfind']*25:((globals()['avfind']+1)*25)])
+        Menu['TL1_Atview'].update(values=globals()['fltrdata'][0][globals()['avfind']*25:((globals()['avfind']+1)*25)])
     if event =="TL1_Atview":
         #print(values[event][0])
         Menu["TL2_Atview"].update(select_rows=values[event])
