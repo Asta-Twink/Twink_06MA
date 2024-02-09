@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MWin_WageModule</class>
+ <widget class="QMainWindow" name="MWin_WageModule">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1605</width>
+    <height>895</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="CWin_WageModule">
+   <property name="styleSheet">
+    <string notr="true">font: 10pt &quot;Courier New&quot;;</string>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="4" column="0" colspan="8">
+     <widget class="QGroupBox" name="NEX_groupBox">
+      <property name="title">
+       <string>Output</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QTableWidget" name="IQTB_WageReport">
+         <column>
+          <property name="text">
+           <string>Emp Code</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>F/S Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Team</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Days</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>S1</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>S2</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>S3</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>PD Wage</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Wage</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>OT</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>OT Days</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Gross Wages</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>PF</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>ESI</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Advance</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Net Wages</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="4">
+     <spacer name="NEX_horizontalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="1">
+     <widget class="QPushButton" name="IQPB_Generate">
+      <property name="text">
+       <string>Generate</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <spacer name="NEX_horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>40</width>
+        <height>20</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="0">
+     <widget class="QDateEdit" name="IQDE_Date">
+      <property name="displayFormat">
+       <string>MM-yyyy</string>
+      </property>
+      <property name="calendarPopup">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="6">
+     <widget class="QPushButton" name="IQPB_Mail">
+      <property name="text">
+       <string>Mail</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="IQL_Title">
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;Wages Report Generation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="5">
+     <widget class="QPushButton" name="IQPB_Export">
+      <property name="text">
+       <string>Export</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="8">
+     <spacer name="NEX_verticalSpacer_2">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Maximum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>50</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="0" column="0" colspan="8">
+     <spacer name="NEX_verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Maximum</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>50</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

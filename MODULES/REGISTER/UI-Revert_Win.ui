@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MWin_Revert</class>
+ <widget class="QMainWindow" name="MWin_Revert">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>674</width>
+    <height>809</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="CWin_Revert">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="1">
+     <widget class="QLabel" name="NEX_Message">
+      <property name="font">
+       <font>
+        <family>Courier New</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>false</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Select the Employee for revert and click</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="2">
+     <widget class="QDialogButtonBox" name="IQDB_EmpRevert">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="standardButtons">
+       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" colspan="3">
+     <widget class="QTableWidget" name="OQTB_EmpRevert">
+      <property name="styleSheet">
+       <string notr="true">font: 10pt &quot;Courier New&quot;;</string>
+      </property>
+      <column>
+       <property name="text">
+        <string>Employee Code</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Employee Name</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Designation/Dept</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Phone</string>
+       </property>
+      </column>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../BASE_WIN/Source_icon/icon.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -1,157 +1,145 @@
-import copy
-import PySimpleGUI as ms
-import mysql.connector
-from datetime import *
-import os
-import io
-from PIL import Image
-import base64
-from win32api import GetSystemMetrics
-import os
-import calendar
-import openpyxl
-from PIL import Image
-import pprint
-import smtplib
-import shutil
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
-import traceback
-import sys
-from prettytable import PrettyTable
-from openpyxl.styles.alignment import Alignment
-import locale
-import datetime as dp
+# ___Import Statements___
+from Base_Environment.B_Env import *
+# from Custom_Widgets.Widgets import QCustomSlideMenu
+# from Custom_Widgets.Widgets import *
+# from MODULES.BASE_WIN import icon_rc
 
-mydb = mysql.connector.connect( host='localhost', user="root", passwd="MSeGa@1109",)
-mycursor = mydb.cursor()
-mycursor.execute('Use Twink_06ma')
-mydb.commit
-locale.setlocale(locale.LC_MONETARY, 'en_IN')
-mycursor.execute("select value from nrdb order by description")
-nrdb_data=list(sum(mycursor.fetchall(),()))
-MasterPass=nrdb_data[2]
-#print(MasterPass)
-shi=GetSystemMetrics(1)-100
-swi=GetSystemMetrics(0)
+# ___Database Dictioanry___
+Local_DB = \
+    {
+        'host': 'localhost',
+        'user': 'root',
+        'password': 'MSeGa@1109',
+        'database': 'twink_06ma',
+        'port': 3307,
 
-fstyle=(nrdb_data[0],int(nrdb_data[1]))
-fstylehd=(nrdb_data[0],int(nrdb_data[1])+2)
-del nrdb_data
-file_types = [("JPEG (*.jpg)", "*.jpg"),("All files (*.*)", "*.*")]
-os.chdir('C:\Twink_06MA\Icons')
-with open("choose.png", "rb") as image_file:
- chse = base64.b64encode(image_file.read())
-with open("browse.png", "rb") as image_file:
- browse = base64.b64encode(image_file.read())
-with open("load.png", "rb") as image_file:
- load = base64.b64encode(image_file.read())
-with open("logo.png", "rb") as image_file:
- logo = base64.b64encode(image_file.read())
-atvar=None
-avxlop=None
-todate=datetime.today()
-todatestr=todate.strftime("%Y-%m-%d")
-todatenf=todate.strftime("%d-%m-%Y")
-todatemy=todate.strftime("%m-%Y")
-file_types = [("JPEG (*.jpg)", "*.jpg"),("All files (*.*)", "*.*")]
-team_list=["PF Native","Jharkand","Assam","Odisha","NPF Native",]
+    }
+Cloud_DB = \
+    {
+        'host': '10.241.1.1',
+        'user': 'AstA_V5_WAN',
+        'password': 'AstA@1309',
+        'database': 'twink_06ma',
+        'port': 3307,
+    }
+# // Use """ db """ as variable for all db connections
+dbase = DB_Connect(Local_DB)
+dbc = dbase[0]
+db = dbase[1]
 
-def border(element, color, width=3):
-    if color is None:
-        color = ms.theme_background_color()
-    element.Widget.configure(highlightcolor=color, highlightbackground=color,
-        highlightthickness=width)
+# ___UI Creation___
+app = Qwid.QApplication(sys.argv)
+Home = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-HomePage.ui')
+UI_Confirm_Win = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-Confirmation_Win.ui')
+Rvt = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Revert_Win.ui')
+Wge=uic.loadUi(fr'{ldir}\MODULES\WAGE CALC\Wage_Calcu.ui')
+Adv = uic.loadUi(fr'{ldir}\MODULES\ADVANCE AMOUNT\Advance_amount.ui')
+pwd= uic.loadUi(fr'{ldir}\MODULES\REGISTER\password.ui')
+Rgtr = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Register.ui')
+AttnPush = uic.loadUi(fr'{ldir}\MODULES\ATTENDANCE\UI-Attendance_Register.ui')
+AttnView = uic.loadUi(fr'{ldir}\MODULES\ATTENDANCE\UI-Attendance_View.ui')
+PnchBld = uic.loadUi(fr'{ldir}\MODULES\PUNCH_BUILD\UI-Punch_Build.ui')
+PrsPnchTrck = uic.loadUi(fr'{ldir}\MODULES\PUNCH_BUILD\UI-Personal_Punch_Track.ui')
 
-def MAILFetch():
-    mycursor.execute("select * from mail_list")
-    return ([list(x) for x in mycursor.fetchall()])
-
-def CCWORKFetch():
-    mycursor.execute("select * from cc_work_list")
-    return ([list(x) for x in mycursor.fetchall()])
-
-def MUWFetch():
-    mycursor.execute("select * from user_details")
-    return ([list(x) for x in mycursor.fetchall()])
-
-def CCWFetch():
-    mycursor.execute("select * from cleaning_crew")
-    return ([list(x) for x in mycursor.fetchall()])
-
-def EmpdataFetch(type):
-    if type=="PF":
-        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
-                         "from register where active_status = 'Y' and ET ='PF' order by employee_name")
-        S1=[list(x) for x in mycursor.fetchall()]
-        #print(S1+S2)
-        return S1
-    if type=="Non PF":
-        mycursor.execute("select Emp_code, employee_name,f_sp_name,Gender,Phone_no,team "
-                         "from register where active_status = 'Y' and ET ='Non PF' order by employee_name")
-        S1=[list(x) for x in mycursor.fetchall()]
-
-        return S1
-
-def DB_Creation(inp):
+# ___Data_Fetch_Functions___
+@Exception_Handle
+def DB_Creation(inp,init):
     date_split=list(inp.split("-"))
-    mycursor.execute('CREATE TABLE IF NOT EXISTS %s_%s (empcode varchar(50), primary key (empcode))'%(date_split[1],date_split[2]))
-    #print(inp)
-    mydb.commit()
+    if init == True:
+        for date in DateList(int(date_split[2]),int(date_split[1])):
+            try:
+                DB_Cmt_WOE(dbc, db, f"insert into attendance_track values ('{date}','YTC','{Cur_Date_SQL}')", True)
+            except Exception as e:
+                break
+        try:
+            TBL_Data=DB_Fetch(dbc,f"SHOW TABLES LIKE '{date_split[1]}_{date_split[2]}'",False,'LOE')
+            print(TBL_Data)
+            if f'{date_split[1]}_{date_split[2]}' in TBL_Data:
+                return
+        except:
+            pass
+
+
+    DB_Cmt(dbc,db,f'CREATE TABLE IF NOT EXISTS {date_split[1]}_{date_split[2]} (empcode varchar(50), primary key ('
+                  f'empcode))',False)
+
     try:
         for i in range (1,calendar.monthrange(int(date_split[2]),int(date_split[1]))[1]+1):
             sql="alter table %s_%s add column (`%s` varchar(30))"%(date_split[1],date_split[2],str(i).zfill((2)))
-            mycursor.execute(sql)
-    except:
+            DB_Cmt_WOE(dbc, db,sql,False)
+    except :
         pass
-    mycursor.execute("select emp_code from register where active_status = 'Y'" )
-    db_data=list(sum(mycursor.fetchall(),()))
 
+    db_data=DB_Fetch(dbc,"select emp_code from register where active_status = 'Y'",False,'LOE')
     for i in db_data:
         try:
-            mycursor.execute("insert into %s_%s (empcode) values ('%s')"%(date_split[1],date_split[2],str(i)))
-            mydb.commit()
-        except:
+            DB_Cmt_WOE(dbc,db,fr"insert into {date_split[1]}_{date_split[2]} (empcode) values ('{str(i)}')",False)
+        except Exception as e:
+            print('XXs', e)
             pass
-    try:
-        mycursor.execute("insert into %s_%s (empcode) values ('counter')" % (date_split[1], date_split[2]))
-        mydb.commit()
-    except:
-        pass
-    try:
-        mycursor.execute("insert into %s_%s (empcode) values ('PROD_AC')" % (date_split[1], date_split[2]))
-        mydb.commit()
-    except:
-        pass
-    try:
-        mycursor.execute("insert into %s_%s (empcode) values ('PROD_TFO')" % (date_split[1], date_split[2]))
-        mydb.commit()
-    except:
-        pass
-    try:
-        mycursor.execute("insert into %s_%s (empcode) values ('EB_AC')" % (date_split[1], date_split[2]))
-        mydb.commit()
-    except:
-        pass
-    try:
-        mycursor.execute("insert into %s_%s (empcode) values ('EB_TFO')" % (date_split[1], date_split[2]))
-        mydb.commit()
-    except:
-        pass
 
-#DB_Creation("01-10-2022")
+def DateList(year, month):
+    first_day = datetime(year, month, 1)
 
-def datasplit(data,filter):
+    if month == 12:
+        next_month = datetime(year + 1, 1, 1)
+    else:
+        next_month = datetime(year, month + 1, 1)
+    last_day = next_month - timedelta(days=1)
+
+    current_day = first_day
+    while current_day <= last_day:
+        yield current_day
+        current_day += timedelta(days=1)
+
+def TD_datelist(year, month):
+    today = date.today()
+    first_day = date(year, month, 1)
+
+    # Calculate the last day of the specified month and year
+    if month == 12:
+        last_day = date(year + 1, 1, 1) - timedelta(days=1)
+    else:
+        last_day = date(year, month + 1, 1) - timedelta(days=1)
+
+    current_day = first_day
+
+    while current_day <= today and current_day <= last_day:
+        yield current_day
+        current_day += timedelta(days=1)
+
+DB_Creation(Cur_Date_NF,True)
+
+Active_EmpC=DB_Fetch(dbc,"select emp_code from register where active_status = 'Y'",False,'LOE')
+Active_EmpList=DB_Fetch(dbc,"select employee_name from register where active_status = 'Y'",False,'LOE')
+
+@Exception_Handle
+def Attendance_Fetch(inp):
+    form = list(inp.split("-"))
+    print(form)
+    try:
+        sql="select register.team,register.employee_name, %s_%s.* from register inner join %s_%s on " \
+            "register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
+                         form[0], form[1], form[0], form[1], form[0], form[1])
+        db_data = DB_Fetch(dbc,sql,True,"LOL")
+        print(db_data[0])
+        for i in range(len(db_data)):
+            db_data[i].insert(0, db_data[i][2])
+            del db_data[i][3]
+        db_data = [[item if item is not None else "NA" for item in inner_list]for inner_list in db_data]
+    except:
+        db_data=[[]]
+    return db_data
+
+Attendance_View_XLF = False
+def Attendance_datasplit(data,filter,XLF):
     #print(data)
     if filter == 'Attendance':
         try:
             for part in data:
-                part.pop(3)
                 for i in range(3,len(part)):
                     try:
-                        temp=list(part[i].split(","))
+                        temp=list(part[i].split("::"))
                         part[i]=temp[0]
                     except:
                         pass
@@ -159,443 +147,237 @@ def datasplit(data,filter):
             pass
     elif filter == 'OT':
         for part in data:
-            part.pop(3)
             for i in range(3,len(part)):
                 #print(part[i])
                 try:
-                    temp=list(part[i].split(","))
+                    temp=list(part[i].split("::"))
                     part[i]=temp[1]
                 except:
                     pass
-    elif filter == 'Expenses':
-        for part in data:
-            part.pop(3)
-            for i in range(3,len(part)):
-                try:
-                    temp=list(part[i].split(","))
-                    part[i]=temp[2]
-                except:
-                    pass
+
     elif filter == 'Atn+ot':
         for part in data:
-            part.pop(3)
             for i in range(3,len(part)):
                 try:
-                    temp=list(part[i].split(","))
-                    part[i]=str(temp[0])+";",str(temp[1])
+                    temp=list(part[i].split("::"))
+                    part[i]=f'{temp[0]} :: {temp[1]}'
                 except:
                     pass
-    elif filter == 'DP_List':
-        mycursor.execute("select UID,Description from dep_list")
-        db_data = mycursor.fetchall()
-        dplist = {int(x[0]): (x[1]) for x in db_data}
-        #print(dplist)
-        for part in data:
-            part.pop(3)
-            for i in range(3,len(part)):
-                try:
-                    temp=list(part[i].split(","))
-                    part[i]=temp[3]
-                except:
-                    pass
-    if  avxlop == True:
-        globals()['avxlop'] = False
-        return data
     dataT1=[]
     dataT2=[]
     for step in data:
         dataT1.append(step[:3])
         dataT2.append(step[3:])
+    if  XLF == True:
+        return data
     return [dataT1,dataT2]
 
-def attendance_Wfetch(inp,chk):
+def Punch_Build_Data(empcode,inp):
 
-    form = list(inp.split("-"))
-    if chk == 0:
+    inp_next = (lambda d: (d + timedelta(days=1)).strftime("%Y-%m-%d"))(datetime.strptime(inp, "%Y-%m-%d"))
+    #Check_In List
+    CheckIN = DB_Fetch(dbc,f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
+                     f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 06:00:00' "
+                     f"AND '{inp} 23:50:00' and r.emp_code='{empcode}' and Direction = 'in'",False,"LOE")
+
+    if len(CheckIN)==0:return["NA","NA","NA","NA","A::0.0"]
+    CheckIN = min(CheckIN)
+    try:C_I = CheckIN.strftime("%H:%M")
+    except :C_I = "NA"
+
+    timestamps = DB_Fetch(dbc, f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
+                               f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 08:00:00' "
+                               f"AND '{inp_next} 08:00:00' and r.emp_code='{empcode}' and Direction = 'out'", False,
+                              "LOE")
+
+
+    if CheckIN.time() <=  time(10,00,0) :
+
+        try:L_O = min([dt for dt in timestamps if time(7, 30, 0) <= dt.time() <= time(14, 30, 0)]).strftime("%H:%M")
+        except:L_O= "NA"
+
         try:
-            mycursor.execute("select register.employee_name,register.f_sp_name,register.team,register.office_staff, %s_%s.* "
-                             "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
-                             form[0], form[1], form[0], form[1], form[0], form[1]))
-            db_data = [list(x) for x in mycursor.fetchall()]
+            L_I = max([dt for dt in timestamps if time(7, 30, 0) <= dt.time() <= time(14, 45, 0)]).strftime("%H:%M")
+            if L_I == L_O:L_I="NA"
+        except:L_I = "NA"
 
-            for i in range(len(db_data)):
-                db_data[i].insert(0, db_data[i][4])
-                del db_data[i][5]
-            #print(db_data)
-        except:
-            db_data=[[]]
-    else:
-        try:
-            mycursor.execute("select register.employee_name,register.f_sp_name,register.team,register.office_staff, %s_%s.* "
-                             "from register inner join %s_%s on register.emp_code = %s_%s.empcode where register.active_status = 'Y' "
-                             "and team = 'Odisha' order by register.emp_code" % (
-                             form[0], form[1], form[0], form[1], form[0], form[1]))
-            db_data = [list(x) for x in mycursor.fetchall()]
-            #print(db_data)
-            for i in range(len(db_data)):
-                db_data[i].insert(0, db_data[i][4])
-                del db_data[i][5]
-                del db_data[i][-15:]
-            #print(db_data)
-        except:
-            db_data=[[]]
+        try:C_O = max([dt for dt in timestamps if time(14, 40, 0) <= dt.time() <= time(20, 0, 0)]).strftime("%H:%M")
+        except:C_O= "NA"
 
-    return db_data
+        if L_O != "NA" and L_I != "NA" and C_O != "NA":
+            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
+            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
+            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
+            NH = round((FH + SH), 0)
 
-def attendance_fetch(inp):
-    form = list(inp.split("-"))
-    #print(form)
-    try:
-        mycursor.execute("select register.team,register.employee_name,register.office_staff, %s_%s.* "
-                         "from register inner join %s_%s on register.emp_code = %s_%s.empcode where "
-                         "register.active_status = 'Y' order by register.ET ,register.employee_name" % (
-                         form[0], form[1], form[0], form[1], form[0], form[1]))
-
-        db_data = [list(x) for x in mycursor.fetchall()]
-        #print(db_data)
-        for i in range(len(db_data)):
-            db_data[i].insert(0, db_data[i][3])
-            del db_data[i][4]
-            #del db_data[i][3]
-        #print(db_data)
-    except:
-        db_data=[[]]
-    return db_data
-
-def wage_fetch():
-
-    mycursor.execute("Select emp_code,base_salary from register where shift_work='No' ")
-    db_data=[list(x) for x in mycursor.fetchall()]
-    #print(db_data)
-    dict_data={x[0]:float(x[1]) for x in db_data}
-    #print(dict_data)
-    mycursor.execute("Select emp_code,shift_1_salary,shift_2_salary,shift_3_salary from register where shift_work='Yes'")
-    db_data=[list(x) for x in mycursor.fetchall()]
-    output=[]
-    for step in db_data:
-        temp=[]
-        temp.append(step[0])
-        temp1=[]
-        for i in range (1,4):
-            temp1.append(float(step[i]))
-        temp.append(temp1)
-        output.append(temp)
-    dict_data_SY= {x[0]:x[1] for x in output}
-    dict_data.update(dict_data_SY)
-    #print(dict_data)
-    return dict_data
-
-#wage_fetch()
-
-def user_pass(name):
-    sql = "select user_password from user_details where `user_name`='%s'" % name
-    #print(sql)
-    mycursor.execute(sql)
-
-    return [list(x) for x in mycursor.fetchall()]
-
-def user_name():
-    sql="select user_name from user_details"
-    mycursor.execute(sql)
-    return list(sum(mycursor.fetchall(),()))
-
-def remove_data(Menu,event,values):
-    if event == "user_data"or 'wrk_data' or 'mail_data':
-        data = Menu[event].get()
-        inx = [data[row] for row in values[event]]
-    return inx
-
-def Emp_code_Gen(type):
-        if type=="PF":
-            mycursor.execute("SELECT emp_code FROM register WHERE emp_code LIKE 'SIL0%'")
-            db_data=mycursor.fetchall()
-            #print(mycursor.fetchall())
-            return  str("SIL" + str((int("0" if (db_data)==None else (len(db_data))) + 1)).zfill(3))
-        if type=="Non PF":
-            mycursor.execute("SELECT emp_code FROM register WHERE emp_code LIKE 'SILTEMP%'")
-            db_data=mycursor.fetchall()
-            return "SILTEMP" + str((int("0" if (db_data)==None else str(len(db_data))) + 1)).zfill(3)
-
-def Dep_idfetch(inp):
-    try:
-        mycursor.execute("select uid from dep_list where description = '%s'"%inp)
-        return mycursor.fetchall()[0][0]
-    except:
-        return "Check"
-
-def DepListFetch():
-    mycursor.execute("select * from dep_list")
-    return ([list(x) for x in mycursor.fetchall()])
-
-mycursor.execute("select description from dep_list")
-dep_list=list(sum(mycursor.fetchall(),()))
-
-mycursor.execute("select count(*) from register where active_status = 'Y'")
-empcount=mycursor.fetchall()[0][0]
-tempdate=todatenf.split("-")
-
-try:
-    mycursor.execute("select `%s` from %s_%s where empcode = 'counter'" % (tempdate[0], tempdate[1], tempdate[2]))
-    atstat= "created" if mycursor.fetchall()[0][0] == "v" else "To be Created"
-
-except:
-    atstat = "To be Created"
-#atstat="created"
-def mailreport(inp):
-    mycursor.execute("select UID,Description from dep_list")
-    db_data = mycursor.fetchall()
-    dplist = {int(x[0]): (x[1]) for x in db_data}
-    dateform = inp.split("-")
-    mycursor.execute(
-        "select empcode,`%s` from %s_%s" % (dateform[0], dateform[1], dateform[2]))
-    db_data = [list(x) for x in mycursor.fetchall()]
-    db_data_Fn = []
-    wage_data = wage_fetch()
-
-    for i in db_data:
-        if i[1] != None:
-            temp = list(i[1].split(","))
-            if temp[0] in ['1', '2', '3', 'P']:
-                try:
-                    i[1] = dplist.get(int(temp[3]))
-                except:
-                    i[1] = "Wander"
-                wage = wage_data.get(i[0])
-                i[0] = wage
-                if type(i[0]) == list:
-                    i[0] = round(wage[int(temp[0]) - 1],1)
-                    i.append(temp[0])
-                else:
-
-                    try:
-                        i[0]=round(i[0],1)
-                    except:
-                        pass
-                    i.append(temp[0])
-            db_data_Fn.append(i)
-
+            if NH < 8:
+                NH = "1A::" + str(NH)
+            elif NH >= 8:
+                NH = "1::" + str(NH - 8)
         else:
-            pass
-    mycursor.execute("select Description from dep_list order by Description")
-    dep_data = list(sum(mycursor.fetchall(), ()))
-    output = []
-    total=[]
-    for i in dep_data:
-        s1=0
-        s2=0
-        s3=0
-        general = 0
-        wage = 0
-        for j in db_data_Fn:
-            if j[1] == i:
-                if j[2]=="1":
-                    s1+=1
-                if j[2]=="2":
-                    s2+=1
-                if j[2]=="3":
-                    s3+=1
-                if j[2]=="P":
-                    general+=1
-                try:
-                    wage += round(j[0],2)
-                except:
-                    pass
+            NH = "A::0.0"
 
-        output.append([i,s1,s2,s3,general,s1+s2+s3+general])
-    #print(output)
-    s1tot,s2tot,s3tot,gtot,wtot=0,0,0,0,0.0
-    tabular_table = PrettyTable()
-    tabular_table.field_names =  ["<   Employee Category   >"," S1 "," S2 "," S3 "," General "," Total "]
-    tabular_table.add_row(["<< Department Work >>", "","","","",""])
-    AC_Res=0
-    TFO_Res=0
-    for j in [3, 6, 22, 11, 2, 8, 10, 17, 1, 7]:
-        for i in output:
-            dep=Dep_idfetch(i[0])
-            if dep == j:
-                tabular_table.add_row(i)
-                s1tot+=i[1]
-                s2tot += i[2]
-                s3tot += i[3]
-                gtot += i[4]
-                #wtot+=i[6]
-                if dep in [1,7]:
-                    TFO_Res=TFO_Res+(i[1]+i[2]+i[3]+i[4])
-                else:
-                    AC_Res=AC_Res+(i[1]+i[2]+i[3]+i[4])
 
-    tabular_table.add_row(["-------------", "----","----","----","----","----",])
-    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----"])
-    tabular_table.add_row(["<< Staffs & Fitters >>", "","","","",""])
-    total.append([s1tot, s2tot, s3tot, gtot])
-    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
-    for j in [24,21,25,30,4,26,16,27,9,15,29,23,31,19,18]:
-        for i in output:
-            dep=Dep_idfetch(i[0])
-            if dep == j:
-                tabular_table.add_row(i)
-                s1tot+=i[1]
-                s2tot += i[2]
-                s3tot += i[3]
-                gtot += i[4]
-                #wtot+=i[6]
-    tabular_table.add_row(["-------------", "----","----","----","----","----", ])
-    tabular_table.add_row(["Total",s1tot,s2tot,s3tot,gtot,s1tot+s2tot+s3tot+gtot])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
-    tabular_table.add_row(["<< Others >>", "","","","",""])
-    total.append([s1tot, s2tot, s3tot, gtot])
-    s1tot, s2tot, s3tot, gtot, wtot = 0, 0, 0, 0, 0.0
-    for j in [14,13,12,33,20,34,32]:
-        for i in output:
-            dep = Dep_idfetch(i[0])
-            print(dep)
-            if dep == j:
-                tabular_table.add_row(i)
-                s1tot += i[1]
-                s2tot += i[2]
-                s3tot += i[3]
-                gtot += i[4]
-                #wtot += i[6]
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
-    tabular_table.add_row(["Total", s1tot, s2tot, s3tot, gtot, s1tot + s2tot + s3tot + gtot])
-    tabular_table.add_row(["-------------", "----", "----", "----", "----", "----",])
-    total.append([s1tot, s2tot, s3tot, gtot])
-    gtotalS1= list(map(sum, zip(*total)))
-    gtotalS1.insert(0,"Grand Total")
-    gtotalS1.insert(5,gtotalS1[1]+gtotalS1[2]+gtotalS1[3]+gtotalS1[4])
-    #print(gtotalS1, total)
-    #print(gtotalS1)
-    tabular_table.add_row(gtotalS1)
-    tabular_table.align='l'
-    tabular_table.align['Net Wage']='r'
-    print(tabular_table)
-    prod=[]
-    for i in ['PROD_AC', 'PROD_TFO', 'EB_AC', 'EB_TFO']:
-        mycursor.execute(
-        "select `%s` from %s_%s where empcode = '%s' " % (dateform[0], dateform[1], dateform[2],i))
-        prod.append(mycursor.fetchall()[0][0])
-    #ms.popup_ok(tabular_table,title="Employee Split",font=("Courier New",10),location=(100,100),line_width=500)
-    maillist = popup_select(mailid_fetch(False, ""))
-    #sys.stdout.close()
-    DS1 = todate.strftime("%Y-%m-%d-%H-%M")
-    sys.stdout = open('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1, 'w')
-    print("\t"*13,inp)
-    print("\t"*5,"Sunil Industries Limited")
-    print("Daily Attendance : ")
-    print(tabular_table)
-    print("\n")
-    print("Production Perfotmance : \n")
-    print("Auto Coner Production : ", prod[0] ,"kg")
-    print("Labors Worked         : ", AC_Res )
-    try:
-        print("Labor Per kg     (LKG): ", round(float(prod[0])/AC_Res,2) )
-    except:
-        print("Labor Per kg     (LKG): ", 0)
-    print("Units_kWH Consumed    : ", prod[2] , "U")
-    try:
-        print("Units per kg     (UKG): ", round(float(prod[2])/float(prod[0]),2))
-    except:
-        print("Units per kg     (UKG): ", 0)
+    if time(14, 50, 0) <= CheckIN.time() <= time(15, 50, 0):
 
-    print("----------------------")
-    print("TFO Production        : ", prod[1],"kg")
-    print("Labors Worked         : ", TFO_Res)
-    try:
-        print("Labor Per kg     (LKG): ", round(float(prod[1])/TFO_Res,2))
-    except:
-        print("Labor Per kg     (LKG): ", 0)
-    print("Units_kWH Consumed    : ", prod[3] , "U")
-    try:
-        print("Units per kg     (UKG): ", round(float(prod[3])/float(prod[1]),2))
-    except:
-        print("Units per kg     (UKG): ", 0)
-    sys.stdout.close()
-    os.system('C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1)
-    sys.stdout = open('C:\Twink_06MA\Logs\%s.txt' % todate.strftime("%Y-%m-%d-%H-%M"), 'w')
-    if maillist == None:
-        return
-    for i in maillist:
-        sender_address = 'asta.sunilindustries@gmail.com'
-        sender_pass = 'hbsdsjgloutfbkhi'
-        # Setup the MIME
-        receiver_address = mailid_fetch(True, i)
-        message = MIMEMultipart()
-        message['From'] = sender_address
-        message['To'] = receiver_address
-        message['Subject'] = "Daily Attendance Mail - %s"%inp
-        message.attach(MIMEText(tabular_table.get_html_string(), 'html'))
-        #----
-        attach_file_name = 'C:\Twink_06MA\Logs\Atn_Mail_OP_%s.txt' % DS1
-        attach_file = open(attach_file_name, 'rb')  # Open the file as binary mode
-        payload = MIMEBase('application', 'octate-stream')
-        payload.set_payload((attach_file).read())
-        encoders.encode_base64(payload)  # encode the attachment
-        # add payload header with filename
-        payload.add_header('Content-Disposition ', 'attachment',
-                           filename='AtnData.txt')
-        message.attach(payload)
-        # Create SMTP session for sending the mail
-        session = smtplib.SMTP('smtp.gmail.com', 587)  # use gmail with port
-        session.starttls()  # enable security
-        session.login(sender_address, sender_pass)
-        text = message.as_string()
-        session.sendmail(sender_address, receiver_address, text)
-        session.quit()
-    ms.popup_auto_close("Mail Successfully Sent",font=fstyle,no_titlebar=True)
+        try:
+            L_O = min([dt for dt in timestamps if time(19, 30, 0) <= dt.time() <= time(22, 00, 0)]).strftime("%H:%M")
+        except:
+            L_O = "NA"
 
-def advancefetch(inp):
-    dateform=inp.split("-")
-    mycursor.execute("select DATE_FORMAT(exdate,'%s'), empcode, register.employee_name, amount from advance_details inner join register"
-                     " on advance_details.empcode = register.emp_code "
-                     "where month(exdate) = '%s' and year(exdate) = '%s'"%(r'%d-%m-%Y',dateform[0],dateform[1]))
-    return [list(x) for x in mycursor.fetchall()]
+        try:
+            L_I = max([dt for dt in timestamps if time(19, 30, 0) <= dt.time() <= time(22, 00, 0)]).strftime("%H:%M")
+            if L_I == L_O: L_I = "NA"
+        except:
+            L_I = "NA"
 
-def empnamefetch(inp):
+        try:
+            C_O = max([dt for dt in timestamps if time(22, 00, 0) <= dt.time() <= time(23, 50, 0)]).strftime("%H:%M")
+        except:
+            C_O = "NA"
+
+        if L_O != "NA" and L_I != "NA" and C_O != "NA":
+            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
+            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
+            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
+            NH = round((FH + SH), 0)
+            if NH < 8:
+                NH = "2A::" + str(NH)
+            elif NH >= 8:
+                NH = "2::" + str(NH - 8)
+        else:
+            NH = "A::0.0"
+
+    if time(22, 00, 0) <= CheckIN.time() <= time(23, 50, 0):
+
+        try:
+            L_O = min([dt for dt in timestamps if time(2, 00, 0) <= dt.time() <= time(5, 30, 0)]).strftime("%H:%M")
+        except:
+            L_O = "NA"
+
+        try:
+            L_I = max([dt for dt in timestamps if time(2, 00, 0) <= dt.time() <= time(5, 30, 0)]).strftime("%H:%M")
+            if L_I == L_O: L_I = "NA"
+        except:
+            L_I = "NA"
+
+        try:
+            C_O = max([dt for dt in timestamps if time(6, 30, 0) <= dt.time() <= time(7, 30, 0)]).strftime("%H:%M")
+        except:
+            C_O = "NA"
+
+        if L_O != "NA" and L_I != "NA" and C_O != "NA":
+            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
+            if FH < 0 :
+                FH = Time_Difference_Behind(L_O, C_I)
+            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
+            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
+            NH = round((FH + SH), 0)
+
+            if NH < 8:
+                NH = "3A::" + str(NH)
+            elif NH >= 8:
+                NH = "3::" + str(NH - 8)
+        else:
+            NH = "A::0.0"
+
+
+    return [C_I,L_O,L_I,C_O,NH]
+
+def Convert_Punch_Attendance(data):
+
+    if "NA" in data:
+        return "A::0.0"
+
+    if datetime.strptime(data[0], "%H:%M").time() <=  time(10,00,0) :
+        FH = (datetime.strptime(data[1], "%H:%M") - datetime.strptime(data[0], "%H:%M")).total_seconds() / 3600
+        LT = (datetime.strptime(data[2], "%H:%M") - datetime.strptime(data[1], "%H:%M")).total_seconds() / 3600
+        SH = (datetime.strptime(data[3], "%H:%M") - datetime.strptime(data[2], "%H:%M")).total_seconds() / 3600
+        NH = round((FH + SH), 0)
+        if NH < 8:
+            NH = "1A::" + str(NH)
+        elif NH >= 8:
+            NH = "1::" + str(NH - 8)
+
+    if time(14, 50, 0) <= datetime.strptime(data[0], "%H:%M").time() <= time(15, 50, 0):
+        print("XX")
+        FH = (datetime.strptime(data[1], "%H:%M") - datetime.strptime(data[0], "%H:%M")).total_seconds() / 3600
+        LT = (datetime.strptime(data[2], "%H:%M") - datetime.strptime(data[1], "%H:%M")).total_seconds() / 3600
+        SH = (datetime.strptime(data[3], "%H:%M") - datetime.strptime(data[2], "%H:%M")).total_seconds() / 3600
+        NH = round((FH + SH), 0)
+        if NH < 8:
+            NH = "2A::" + str(NH)
+        elif NH >= 8:
+            NH = "2::" + str(NH - 8)
+
+
+    if time(22, 00, 0) <= datetime.strptime(data[0], "%H:%M").time() <= time(23, 50, 0):
+        FH = (datetime.strptime(data[1], "%H:%M") - datetime.strptime(data[0], "%H:%M")).total_seconds() / 3600
+        if FH < 0 :
+            FH = Time_Difference_Behind(data[1], data[0])
+        LT = (datetime.strptime(data[2], "%H:%M") - datetime.strptime(data[1], "%H:%M")).total_seconds() / 3600
+        SH = (datetime.strptime(data[3], "%H:%M") - datetime.strptime(data[2], "%H:%M")).total_seconds() / 3600
+        NH = round((FH + SH), 0)
+
+        if NH < 8:
+            NH = "3A::" + str(NH)
+        elif NH >= 8:
+            NH = "3::" + str(NH - 8)
+
+    return NH
+
+def Punch_Build_Fetch(res,date):
     try:
-        mycursor.execute("select employee_name from register where emp_code = '%s'"%inp)
-        return mycursor.fetchall()[0][0]
+        data=DB_Fetch(dbc,fr"select gen_attn from punch_build where emp_code = '{res}' and gen_date='{date}'",
+                      False,"LOE")
+        return data[0]
+    except Exception as e:print(e);return 'A::0.0'
+
+def EmpCode_Fetch(inp):
+    try:
+        return DB_Fetch(dbc,f"select emp_code from register where employee_name= '{inp}'",False,"LOE")[0]
     except:
         pass
 
-def wageadvfetch(inp,datefo):
-    dateform=datefo.split("-")
-    mycursor.execute("select amount from advance_details where empcode='%s' and "
-                     "month(exdate) = '%s' and year(exdate) = '%s'"%(inp,dateform[0],dateform[1]))
-    db_data=list(sum(mycursor.fetchall(),()))
-    #print(db_data)
-    return sum(db_data)
+@Exception_Handle
+def read_image(file_path):
+        with open(file_path, 'rb') as file:
+            return file.read()
 
-def shiftcheck(inp):
-    mycursor.execute("select shift_work from register where emp_code='%s'"%inp)
-    chk=mycursor.fetchall()[0][0]
-    return True if chk=="Yes" else False
+Dept=['TFO','SPINNING','BLOW ROOM','SUPERVISOR','FACTORY MANAGER','CARDING','PACKING','AUTO DOFFER','CARDING FITTER',
+'AUTO CONER','SIMPLEX','WATCHMAN','SWEEPING','TRAINING','SPINNING FITTER','ELECTRICIAN','CHEESE WINDING','SQC','DRIVER',
+'COOKING','SPINNING MASTER','DRAWING','TFO FITTER','GENERAL MANAGER','MAINTANENCE SUPERVISOR','ACCOUNTS','ELECTRICAL HELPER',
+'CHECK','AUTO CONER FITTER','ELECTRICAL SUPERVISOR','TFO TRAINER','SCAVENGER','COW MAN','COOK ASST']
+Team=['Assam','PF Native','Jharkand','Odisha','CHECK','NPF Native']
+Blod_grp=['A+','A-','B+','B-','O+','O-','AB+','AB-']
 
-def popup_select(the_list):
-    layout = [[ms.Listbox(the_list,key='_LIST_',size=(45,5),select_mode=ms.LISTBOX_SELECT_MODE_MULTIPLE,bind_return_key=True),ms.OK()]]
-    window = ms.Window('Select the mail id to send',layout=layout)
-    event, values = window.read()
-    window.close()
-    del window
+def AttendaceFetch_Day(inp):
+    date_split=inp.split("-")
+    return DB_Fetch(dbc,fr"select empcode,`{date_split[2]}` from {date_split[1]}_{date_split[0]}",False,"DIC")
 
-    return values['_LIST_']
-
-def mailid_fetch(x,inp):
-    if x == False:
-        mycursor.execute("select name_ from mail_list")
-        return list(sum(mycursor.fetchall(),()))
+def Emp_code_Gen(type):
+    if type :
+        db_data = DB_Fetch(dbc, "SELECT MAX(CAST(SUBSTRING(emp_code, 4) AS UNSIGNED)) +1 AS max_value FROM register "
+                                "WHERE emp_code LIKE 'SIL%';", False, "LOE")[0]
+        return str("SIL" + str(db_data).zfill(3))
     else:
-        mycursor.execute("select mail_id from mail_list where name_='%s'"%inp)
-        return mycursor.fetchall()[0][0]
+        db_data = DB_Fetch(dbc, "SELECT MAX(CAST(SUBSTRING(emp_code, 5) AS UNSIGNED)) +1 AS max_value FROM register "
+                                "WHERE emp_code LIKE 'TEMP%';", False, "LOE")[0]
+        return str("TEMP" + str(db_data).zfill(3))
 
-def deplistfetch():
-    mycursor.execute("select description from dep_list")
-    return list(sum(mycursor.fetchall(),()))
+def resize_image(image_data, new_width, new_height):
+    image = Image.open(BytesIO(image_data))
+    resized_image = image.resize((new_width, new_height))
+    buffered = BytesIO()
+    resized_image.save(buffered, format="JPEG")  # You can change the format if needed (JPEG, PNG, etc.)
+    return buffered.getvalue()
 
-def Emp_Revert_Fetch():
-    mycursor.execute("select emp_code, employee_name,Phone_no,date_of_birth,date_of_exit,reason from register where active_status = 'N' order by employee_name")
-    return [list(x) for x in mycursor.fetchall()]
+def Fetch_Employee_ID(inp):
+    return DB_Fetch(dbc,f"select UID from register where employee_name ='{inp}'",False,"LOE")[0]
 
-atpatmt = 'N'
+@Exception_Handle
+def Fetch_Employee_Info(inp):
+    return DB_Fetch(dbc,f"select * from register where UID = '{Fetch_Employee_ID(inp)}'",False,"LOE")
 
-#v6.3
+
+
