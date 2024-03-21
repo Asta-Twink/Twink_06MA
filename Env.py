@@ -1,39 +1,15 @@
 # ___Import Statements___
-from Base_Environment.B_Env import *
-# from Custom_Widgets.Widgets import QCustomSlideMenu
-# from Custom_Widgets.Widgets import *
-# from MODULES.BASE_WIN import icon_rc
-
-# ___Database Dictioanry___
-Local_DB = \
-    {
-        'host': 'localhost',
-        'user': 'root',
-        'password': 'MSeGa@1109',
-        'database': 'twink_06ma',
-        'port': 3307,
-
-    }
-Cloud_DB = \
-    {
-        'host': '10.241.1.1',
-        'user': 'AstA_V5_WAN',
-        'password': 'AstA@1309',
-        'database': 'twink_06ma',
-        'port': 3307,
-    }
-# // Use """ db """ as variable for all db connections
-dbase = DB_Connect(Local_DB)
-dbc = dbase[0]
-db = dbase[1]
+from BENV.B_Env import *
+import copy
 
 # ___UI Creation___
 app = Qwid.QApplication(sys.argv)
 Home = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-HomePage.ui')
 UI_Confirm_Win = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-Confirmation_Win.ui')
 Rvt = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Revert_Win.ui')
-Wge=uic.loadUi(fr'{ldir}\MODULES\WAGE CALC\Wage_Calcu.ui')
-Adv = uic.loadUi(fr'{ldir}\MODULES\ADVANCE AMOUNT\Advance_amount.ui')
+Mtr = uic.loadUi(fr'{ldir}\MODULES\MASTER_LIST\UI-Master.ui')
+Wge=uic.loadUi(fr'{ldir}\MODULES\WAGE\Wage.ui')
+Adv = uic.loadUi(fr'{ldir}\MODULES\ADVANCE\Advance.ui')
 pwd= uic.loadUi(fr'{ldir}\MODULES\REGISTER\password.ui')
 Rgtr = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Register.ui')
 AttnPush = uic.loadUi(fr'{ldir}\MODULES\ATTENDANCE\UI-Attendance_Register.ui')
@@ -48,11 +24,11 @@ def DB_Creation(inp,init):
     if init == True:
         for date in DateList(int(date_split[2]),int(date_split[1])):
             try:
-                DB_Cmt_WOE(dbc, db, f"insert into attendance_track values ('{date}','YTC','{Cur_Date_SQL}')", True)
+                DB_Cmt_WOE( f"insert into attendance_track values ('{date}','YTC','{Cur_Date_SQL}')", True)
             except Exception as e:
                 break
         try:
-            TBL_Data=DB_Fetch(dbc,f"SHOW TABLES LIKE '{date_split[1]}_{date_split[2]}'",False,'LOE')
+            TBL_Data=DB_Fetch(f"SHOW TABLES LIKE '{date_split[1]}_{date_split[2]}'",False,'LOE')
             print(TBL_Data)
             if f'{date_split[1]}_{date_split[2]}' in TBL_Data:
                 return
@@ -60,20 +36,20 @@ def DB_Creation(inp,init):
             pass
 
 
-    DB_Cmt(dbc,db,f'CREATE TABLE IF NOT EXISTS {date_split[1]}_{date_split[2]} (empcode varchar(50), primary key ('
+    DB_Cmt(f'CREATE TABLE IF NOT EXISTS {date_split[1]}_{date_split[2]} (empcode varchar(50), primary key ('
                   f'empcode))',False)
 
     try:
         for i in range (1,calendar.monthrange(int(date_split[2]),int(date_split[1]))[1]+1):
             sql="alter table %s_%s add column (`%s` varchar(30))"%(date_split[1],date_split[2],str(i).zfill((2)))
-            DB_Cmt_WOE(dbc, db,sql,False)
+            DB_Cmt_WOE(sql,False)
     except :
         pass
 
-    db_data=DB_Fetch(dbc,"select emp_code from register where active_status = 'Y'",False,'LOE')
+    db_data=DB_Fetch("select emp_code from register where active = 'Y'",False,'LOE')
     for i in db_data:
         try:
-            DB_Cmt_WOE(dbc,db,fr"insert into {date_split[1]}_{date_split[2]} (empcode) values ('{str(i)}')",False)
+            DB_Cmt_WOE(fr"insert into {date_split[1]}_{date_split[2]} (empcode) values ('{str(i)}')",False)
         except Exception as e:
             print('XXs', e)
             pass
@@ -110,8 +86,8 @@ def TD_datelist(year, month):
 
 DB_Creation(Cur_Date_NF,True)
 
-Active_EmpC=DB_Fetch(dbc,"select emp_code from register where active_status = 'Y'",False,'LOE')
-Active_EmpList=DB_Fetch(dbc,"select employee_name from register where active_status = 'Y'",False,'LOE')
+Active_EmpC=DB_Fetch("select emp_code from register where active= 'Y'",False,'LOE')
+Active_EmpList=DB_Fetch("select employee_name from register where active = 'Y'",False,'LOE')
 
 @Exception_Handle
 def Attendance_Fetch(inp):
@@ -119,9 +95,9 @@ def Attendance_Fetch(inp):
     print(form)
     try:
         sql="select register.team,register.employee_name, %s_%s.* from register inner join %s_%s on " \
-            "register.emp_code = %s_%s.empcode where register.active_status = 'Y' order by register.emp_code" % (
+            "register.emp_code = %s_%s.empcode where register.active = 'Y' order by register.emp_code" % (
                          form[0], form[1], form[0], form[1], form[0], form[1])
-        db_data = DB_Fetch(dbc,sql,True,"LOL")
+        db_data = DB_Fetch(sql,True,"LOL")
         print(db_data[0])
         for i in range(len(db_data)):
             db_data[i].insert(0, db_data[i][2])
@@ -176,7 +152,7 @@ def Punch_Build_Data(empcode,inp):
 
     inp_next = (lambda d: (d + timedelta(days=1)).strftime("%Y-%m-%d"))(datetime.strptime(inp, "%Y-%m-%d"))
     #Check_In List
-    CheckIN = DB_Fetch(dbc,f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
+    CheckIN = DB_Fetch(f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
                      f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 06:00:00' "
                      f"AND '{inp} 23:50:00' and r.emp_code='{empcode}' and Direction = 'in'",False,"LOE")
 
@@ -185,7 +161,7 @@ def Punch_Build_Data(empcode,inp):
     try:C_I = CheckIN.strftime("%H:%M")
     except :C_I = "NA"
 
-    timestamps = DB_Fetch(dbc, f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
+    timestamps = DB_Fetch( f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
                                f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 08:00:00' "
                                f"AND '{inp_next} 08:00:00' and r.emp_code='{empcode}' and Direction = 'out'", False,
                               "LOE")
@@ -300,7 +276,6 @@ def Convert_Punch_Attendance(data):
             NH = "1::" + str(NH - 8)
 
     if time(14, 50, 0) <= datetime.strptime(data[0], "%H:%M").time() <= time(15, 50, 0):
-        print("XX")
         FH = (datetime.strptime(data[1], "%H:%M") - datetime.strptime(data[0], "%H:%M")).total_seconds() / 3600
         LT = (datetime.strptime(data[2], "%H:%M") - datetime.strptime(data[1], "%H:%M")).total_seconds() / 3600
         SH = (datetime.strptime(data[3], "%H:%M") - datetime.strptime(data[2], "%H:%M")).total_seconds() / 3600
@@ -328,14 +303,14 @@ def Convert_Punch_Attendance(data):
 
 def Punch_Build_Fetch(res,date):
     try:
-        data=DB_Fetch(dbc,fr"select gen_attn from punch_build where emp_code = '{res}' and gen_date='{date}'",
+        data=DB_Fetch(fr"select gen_attn from punch_build where emp_code = '{res}' and gen_date='{date}'",
                       False,"LOE")
         return data[0]
     except Exception as e:print(e);return 'A::0.0'
 
 def EmpCode_Fetch(inp):
     try:
-        return DB_Fetch(dbc,f"select emp_code from register where employee_name= '{inp}'",False,"LOE")[0]
+        return DB_Fetch(f"select emp_code from register where employee_name= '{inp}'",False,"LOE")[0]
     except:
         pass
 
@@ -344,24 +319,22 @@ def read_image(file_path):
         with open(file_path, 'rb') as file:
             return file.read()
 
-Dept=['TFO','SPINNING','BLOW ROOM','SUPERVISOR','FACTORY MANAGER','CARDING','PACKING','AUTO DOFFER','CARDING FITTER',
-'AUTO CONER','SIMPLEX','WATCHMAN','SWEEPING','TRAINING','SPINNING FITTER','ELECTRICIAN','CHEESE WINDING','SQC','DRIVER',
-'COOKING','SPINNING MASTER','DRAWING','TFO FITTER','GENERAL MANAGER','MAINTANENCE SUPERVISOR','ACCOUNTS','ELECTRICAL HELPER',
-'CHECK','AUTO CONER FITTER','ELECTRICAL SUPERVISOR','TFO TRAINER','SCAVENGER','COW MAN','COOK ASST']
-Team=['Assam','PF Native','Jharkand','Odisha','CHECK','NPF Native']
+Dept=DB_Fetch("select distinct description from Dep_list;",False,"LOE")
+Team = DB_Fetch("select distinct team from register;",False,"LOE")
 Blod_grp=['A+','A-','B+','B-','O+','O-','AB+','AB-']
+
 
 def AttendaceFetch_Day(inp):
     date_split=inp.split("-")
-    return DB_Fetch(dbc,fr"select empcode,`{date_split[2]}` from {date_split[1]}_{date_split[0]}",False,"DIC")
+    return DB_Fetch(fr"select empcode,`{date_split[2]}` from {date_split[1]}_{date_split[0]}",False,"DIC")
 
 def Emp_code_Gen(type):
     if type :
-        db_data = DB_Fetch(dbc, "SELECT MAX(CAST(SUBSTRING(emp_code, 4) AS UNSIGNED)) +1 AS max_value FROM register "
+        db_data = DB_Fetch( "SELECT MAX(CAST(SUBSTRING(emp_code, 4) AS UNSIGNED)) +1 AS max_value FROM register "
                                 "WHERE emp_code LIKE 'SIL%';", False, "LOE")[0]
         return str("SIL" + str(db_data).zfill(3))
     else:
-        db_data = DB_Fetch(dbc, "SELECT MAX(CAST(SUBSTRING(emp_code, 5) AS UNSIGNED)) +1 AS max_value FROM register "
+        db_data = DB_Fetch( "SELECT MAX(CAST(SUBSTRING(emp_code, 5) AS UNSIGNED)) +1 AS max_value FROM register "
                                 "WHERE emp_code LIKE 'TEMP%';", False, "LOE")[0]
         return str("TEMP" + str(db_data).zfill(3))
 
@@ -373,11 +346,20 @@ def resize_image(image_data, new_width, new_height):
     return buffered.getvalue()
 
 def Fetch_Employee_ID(inp):
-    return DB_Fetch(dbc,f"select UID from register where employee_name ='{inp}'",False,"LOE")[0]
+    return DB_Fetch(f"select UID from register where employee_name ='{inp}'",False,"LOE")[0]
 
 @Exception_Handle
 def Fetch_Employee_Info(inp):
-    return DB_Fetch(dbc,f"select * from register where UID = '{Fetch_Employee_ID(inp)}'",False,"LOE")
+    return DB_Fetch(f"select * from register where UID = '{Fetch_Employee_ID(inp)}'",False,"LOE")
 
+@Exception_Handle
+def Incentive_List():
+    return DB_Fetch("select total_days, Incentive from incentive_list", True, "DIC")
+
+Incentive = DB_Fetch("select total_days, Incentive from incentive_list", True, "DIC")
+
+print(Incentive)
+
+Worker_List = DB_Fetch("Select emp_code from register where Worker = 'Y'",False,"LOE")
 
 
