@@ -1,11 +1,12 @@
 #___Import Statements__
 from Env import *
 import time
+import threading
 
 
 
 #___QT_Window_Creation___
-# Twink_UI = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-Base_Win.ui')
+Twink_UI = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-Base_Win.ui')
 Twink_UI.setWindowTitle('Twink_06MA : Sunil Industries Limited')
 
 Twink_UI.OQL_ProgressBar.setValue(100)
@@ -17,7 +18,7 @@ Twink_UI.BseM_Stack.removeWidget(Twink_UI.NEX_Stack2)
 
 # #_________Home_________
 Twink_UI.BseM_Stack.addWidget(Home)
-original_image_data = read_image(fr'{ldir}\F3_AUX\IMG\SIL.png\SIL.PNG')
+original_image_data = read_image(fr'{ldir}\F3_AUX\IMG\SIL.png')
 pixmap = QPixmap()
 pixmap.loadFromData(original_image_data)
 Home.label.setPixmap(pixmap)
@@ -96,9 +97,9 @@ ip_address = config[4]
 
 # Network Icons
 Twink_UI.IQL_DB_Connection.setScaledContents(True)
-CloudConnect = QPixmap(f"{ldir}\F3_AUX\IMG\Cloud_Connect.png")
-CloudDisconnect = QPixmap(f"{ldir}\F3_AUX\IMG\Cloud_Disconnect.png")
-Home = QPixmap(f"{ldir}\F3_AUX\IMG\Home_Preview.png")
+CloudConnect = QPixmap(fr"{ldir}\F3_AUX\IMG\Cloud_Connect.png")
+CloudDisconnect = QPixmap(fr"{ldir}\F3_AUX\IMG\Cloud_Disconnect.png")
+Home = QPixmap(fr"{ldir}\F3_AUX\IMG\Home_Preview.png")
 
 
 def ping_loop():
