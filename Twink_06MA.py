@@ -1,12 +1,11 @@
 #___Import Statements__
 from Env import *
-
 import time
 
 
 
 #___QT_Window_Creation___
-Twink_UI = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-BaseWin_AWM.ui')
+# Twink_UI = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-Base_Win.ui')
 Twink_UI.setWindowTitle('Twink_06MA : Sunil Industries Limited')
 
 Twink_UI.OQL_ProgressBar.setValue(100)
@@ -18,7 +17,7 @@ Twink_UI.BseM_Stack.removeWidget(Twink_UI.NEX_Stack2)
 
 # #_________Home_________
 Twink_UI.BseM_Stack.addWidget(Home)
-original_image_data = read_image(fr'{ldir}\EXTERNAL\SIL.PNG')
+original_image_data = read_image(fr'{ldir}\F3_AUX\IMG\SIL.png\SIL.PNG')
 pixmap = QPixmap()
 pixmap.loadFromData(original_image_data)
 Home.label.setPixmap(pixmap)
@@ -26,7 +25,7 @@ Twink_UI.actionHome.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentInde
 # #_________Register Module _________
 Twink_UI.BseM_Stack.addWidget(Rgtr)
 Twink_UI.actionRegister.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(1))
-from MODULES.REGISTER import Register
+from F2_MODULES.REGISTER import Register
 Register.Register_FN(Rgtr)
 # #_________Attendance Module _________
 
@@ -34,7 +33,7 @@ Twink_UI.BseM_Stack.addWidget(AttnPush)
 Twink_UI.BseM_Stack.addWidget(AttnView)
 Twink_UI.actionCreate.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(2))
 Twink_UI.actionView.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(3))
-from MODULES.ATTENDANCE import Attendance
+from F2_MODULES.ATTENDANCE import Attendance
 Attendance.Attendance_Push_FN(AttnPush)
 Attendance.Attendance_View_Fn(AttnView)
 
@@ -44,25 +43,25 @@ Twink_UI.BseM_Stack.addWidget(PnchBld)
 Twink_UI.BseM_Stack.addWidget(PrsPnchTrck)
 Twink_UI.actionPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(4))
 Twink_UI.actionPersPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(5))
-from MODULES.PUNCH_BUILD import Punch_Build
+from F2_MODULES.PUNCH_BUILD import Punch_Build
 Punch_Build.Punch_Build_FN(PnchBld,PrsPnchTrck)
 
 # #_________ Advance Module _________
 Twink_UI.BseM_Stack.addWidget(Adv)
 Twink_UI.actionAdvance.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(6))
-from MODULES.ADVANCE import Advance
+from F2_MODULES.ADVANCE import Advance
 Advance.Advance_Amt(Adv)
 
 # #_________ Master Module _________
 Twink_UI.BseM_Stack.addWidget(Mtr)
 Twink_UI.actionMater_User.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(7))
-from MODULES.MASTER_LIST import Master
+from F2_MODULES.MASTER_LIST import Master
 Master.Master_FN(Mtr)
 
 # #_________ Wage Module _________
 Twink_UI.BseM_Stack.addWidget(Wge)
 Twink_UI.actionGenerateWage.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(8))
-from MODULES.WAGE import Wage_Calculation
+from F2_MODULES.WAGE import Wage_Calculation
 Wage_Calculation.Wage_FN(Wge)
 
 
@@ -97,9 +96,9 @@ ip_address = config[4]
 
 # Network Icons
 Twink_UI.IQL_DB_Connection.setScaledContents(True)
-CloudConnect = QPixmap(f"{ldir}\MODULES\BASE_WIN\icons\Cloud_Connect.png")
-CloudDisconnect = QPixmap(f"{ldir}\MODULES\BASE_WIN\icons\Cloud_Disconnect.png")
-Home = QPixmap(f"{ldir}\MODULES\BASE_WIN\icons\Home_Preview.png")
+CloudConnect = QPixmap(f"{ldir}\F3_AUX\IMG\Cloud_Connect.png")
+CloudDisconnect = QPixmap(f"{ldir}\F3_AUX\IMG\Cloud_Disconnect.png")
+Home = QPixmap(f"{ldir}\F3_AUX\IMG\Home_Preview.png")
 
 
 def ping_loop():

@@ -1,21 +1,21 @@
 # ___Import Statements___
-from BENV.B_Env import *
+from F1_BENV.B_Env import *
 import copy
 
 # ___UI Creation___
 app = Qwid.QApplication(sys.argv)
-Home = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-HomePage.ui')
-UI_Confirm_Win = uic.loadUi(fr'{ldir}\MODULES\BASE_WIN\UI-Confirmation_Win.ui')
-Rvt = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Revert_Win.ui')
-Mtr = uic.loadUi(fr'{ldir}\MODULES\MASTER_LIST\UI-Master.ui')
-Wge=uic.loadUi(fr'{ldir}\MODULES\WAGE\Wage.ui')
-Adv = uic.loadUi(fr'{ldir}\MODULES\ADVANCE\Advance.ui')
-pwd= uic.loadUi(fr'{ldir}\MODULES\REGISTER\password.ui')
-Rgtr = uic.loadUi(fr'{ldir}\MODULES\REGISTER\UI-Register.ui')
-AttnPush = uic.loadUi(fr'{ldir}\MODULES\ATTENDANCE\UI-Attendance_Register.ui')
-AttnView = uic.loadUi(fr'{ldir}\MODULES\ATTENDANCE\UI-Attendance_View.ui')
-PnchBld = uic.loadUi(fr'{ldir}\MODULES\PUNCH_BUILD\UI-Punch_Build.ui')
-PrsPnchTrck = uic.loadUi(fr'{ldir}\MODULES\PUNCH_BUILD\UI-Personal_Punch_Track.ui')
+Home = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-HomePage.ui')
+UI_Confirm_Win = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-Confirmation_Win.ui')
+Rvt = uic.loadUi(fr'{ldir}\F2_MODULES\REGISTER\UI-Revert_Win.ui')
+Mtr = uic.loadUi(fr'{ldir}\F2_MODULES\MASTER_LIST\UI-Master.ui')
+Wge=uic.loadUi(fr'{ldir}\F2_MODULES\WAGE\Wage.ui')
+Adv = uic.loadUi(fr'{ldir}\F2_MODULES\ADVANCE\Advance.ui')
+pwd= uic.loadUi(fr'{ldir}\F2_MODULES\REGISTER\password.ui')
+Rgtr = uic.loadUi(fr'{ldir}\F2_MODULES\REGISTER\UI-Register.ui')
+AttnPush = uic.loadUi(fr'{ldir}\F2_MODULES\ATTENDANCE\UI-Attendance_Register.ui')
+AttnView = uic.loadUi(fr'{ldir}\F2_MODULES\ATTENDANCE\UI-Attendance_View.ui')
+PnchBld = uic.loadUi(fr'{ldir}\F2_MODULES\PUNCH_BUILD\UI-Punch_Build.ui')
+PrsPnchTrck = uic.loadUi(fr'{ldir}\F2_MODULES\PUNCH_BUILD\UI-Personal_Punch_Track.ui')
 
 # ___Data_Fetch_Functions___
 @Exception_Handle
