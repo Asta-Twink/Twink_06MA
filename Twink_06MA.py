@@ -26,7 +26,8 @@ Twink_UI.actionHome.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentInde
 # #_________Register Module _________
 Twink_UI.BseM_Stack.addWidget(Rgtr)
 Twink_UI.actionRegister.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(1))
-from F2_MODULES.REGISTER import Register
+from T06MA._internal.F2_MODULES.REGISTER import Register
+
 Register.Register_FN(Rgtr)
 # #_________Attendance Module _________
 
@@ -34,7 +35,8 @@ Twink_UI.BseM_Stack.addWidget(AttnPush)
 Twink_UI.BseM_Stack.addWidget(AttnView)
 Twink_UI.actionCreate.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(2))
 Twink_UI.actionView.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(3))
-from F2_MODULES.ATTENDANCE import Attendance
+from T06MA._internal.F2_MODULES.ATTENDANCE import Attendance
+
 Attendance.Attendance_Push_FN(AttnPush)
 Attendance.Attendance_View_Fn(AttnView)
 
@@ -44,25 +46,29 @@ Twink_UI.BseM_Stack.addWidget(PnchBld)
 Twink_UI.BseM_Stack.addWidget(PrsPnchTrck)
 Twink_UI.actionPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(4))
 Twink_UI.actionPersPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(5))
-from F2_MODULES.PUNCH_BUILD import Punch_Build
-Punch_Build.Punch_Build_FN(PnchBld,PrsPnchTrck)
+from T06MA._internal.F2_MODULES.PUNCH_BUILD import Punch_Build
+
+Punch_Build.Punch_Build_FN(PnchBld, PrsPnchTrck)
 
 # #_________ Advance Module _________
 Twink_UI.BseM_Stack.addWidget(Adv)
 Twink_UI.actionAdvance.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(6))
-from F2_MODULES.ADVANCE import Advance
+from T06MA._internal.F2_MODULES.ADVANCE import Advance
+
 Advance.Advance_Amt(Adv)
 
 # #_________ Master Module _________
 Twink_UI.BseM_Stack.addWidget(Mtr)
 Twink_UI.actionMater_User.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(7))
-from F2_MODULES.MASTER_LIST import Master
+from T06MA._internal.F2_MODULES.MASTER_LIST import Master
+
 Master.Master_FN(Mtr)
 
 # #_________ Wage Module _________
 Twink_UI.BseM_Stack.addWidget(Wge)
 Twink_UI.actionGenerateWage.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(8))
-from F2_MODULES.WAGE import Wage_Calculation
+from T06MA._internal.F2_MODULES.WAGE import Wage_Calculation
+
 Wage_Calculation.Wage_FN(Wge)
 
 
@@ -147,5 +153,5 @@ ping_thread.start()
 
 
 # ___QT Window Initialization___
-Twink_UI.show()
+Twink_UI.showMaximized()
 sys.exit(app.exec_())
