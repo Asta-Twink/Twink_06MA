@@ -745,7 +745,7 @@ def Register_FN(Rgtr):
             "`photo`,`signature`"
             "from register where active = 'Y' and emp_code like 'SIL%' ", False, "LOL")
 
-        xl = openpyxl.load_workbook(fr'{ldir}\F2_MODULES\REGISTER\REGISTER_EXPORT_FORMAT.xlsx')
+        xl = openpyxl.load_workbook(fr'{ldir}\EXTERNAL\Register_Export.xlsx')
         xl.active = xl['Form A']
         xlc = xl.active
         rowc = 3
@@ -766,13 +766,13 @@ def Register_FN(Rgtr):
                 image_photo = Image.open(BytesIO(blob_data_photo))
                 image_sign = Image.open(BytesIO(blob_data_sign))
 
-                image_photo.save(fr'{ldir}\F3_AUX\IMG\output_image_photo{rowc}.jpg')
-                image_sign.save(fr'{ldir}\F3_AUX\IMG\output_image_sign{rowc}.jpg')
+                image_photo.save(fr'{ldir}\Temp\output_image_photo{rowc}.jpg')
+                image_sign.save(fr'{ldir}\Temp\output_image_sign{rowc}.jpg')
 
-                a = Image.open(fr'{ldir}\F3_AUX\IMG\output_image_photo{rowc}.jpg')
+                a = Image.open(fr'{ldir}\Temp\output_image_photo{rowc}.jpg')
                 b = a.resize((80, 80))
-                b.save(fr'{ldir}\F3_AUX\IMG\output_image_photo{rowc}.jpg')
-                img = openpyxl.drawing.image.Image(fr'{ldir}\F3_AUX\IMG\output_image_photo{rowc}.jpg')
+                b.save(fr'{ldir}\Temp\output_image_photo{rowc}.jpg')
+                img = openpyxl.drawing.image.Image(fr'{ldir}\Temp\output_image_photo{rowc}.jpg')
                 size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
                 column = colc - 1
                 coloffset = cellw(0.3)
@@ -782,10 +782,10 @@ def Register_FN(Rgtr):
                 img.anchor = OneCellAnchor(_from=marker, ext=size)
                 xlc.add_image(img)
                 # --
-                a = Image.open(fr'{ldir}\F3_AUX\IMG\output_image_sign{rowc}.jpg')
+                a = Image.open(fr'{ldir}\Temp\output_image_sign{rowc}.jpg')
                 b = a.resize((100, 40))
-                b.save(fr'{ldir}\F3_AUX\IMG\output_image_sign{rowc}.jpg')
-                img = openpyxl.drawing.image.Image(fr'{ldir}\F3_AUX\IMG\output_image_sign{rowc}.jpg')
+                b.save(fr'{ldir}\Temp\output_image_sign{rowc}.jpg')
+                img = openpyxl.drawing.image.Image(fr'{ldir}\Temp\output_image_sign{rowc}.jpg')
                 size = XDRPositiveSize2D(p2e(img.width), p2e(img.height))
                 column = colc
                 coloffset = cellw(0.6)
@@ -798,8 +798,8 @@ def Register_FN(Rgtr):
                 traceback.print_exc()
                 pass
             rowc += 1
-        xl.save(fr'{ldir}\F3_AUX\TEMP\REGISTER_EXPORT_{Cur_Date_NF}_OP.xlsx')
-        subprocess.run(['start', 'excel', fr'{ldir}\F3_AUX\TEMP\REGISTER_EXPORT_{Cur_Date_NF}_OP.xlsx'], shell=True, check=True)
+        xl.save(fr'{ldir}\Temp\Emp_Exp{Cur_Date_NF}.xlsx')
+        subprocess.run(['start', 'excel', fr'{ldir}\Temp\Emp_Exp{Cur_Date_NF}.xlsx'], shell=True, check=True)
         UI_Confirmation(UI_Confirm_Win, "Excel Fetch is Completed Successfully")
 
     # _________ Functionality_List _________

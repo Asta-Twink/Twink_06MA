@@ -1,9 +1,7 @@
 #___Import Statements__
 from Env import *
+
 import time
-import threading
-
-
 
 #___QT_Window_Creation___
 Twink_UI = uic.loadUi(fr'{ldir}\F2_MODULES\BASE_WIN\UI-Base_Win.ui')
@@ -18,16 +16,15 @@ Twink_UI.BseM_Stack.removeWidget(Twink_UI.NEX_Stack2)
 
 # #_________Home_________
 Twink_UI.BseM_Stack.addWidget(Home)
-original_image_data = read_image(fr'{ldir}\F3_AUX\IMG\SIL.png')
-pixmap = QPixmap()
-pixmap.loadFromData(original_image_data)
-Home.label.setPixmap(pixmap)
+# original_image_data = read_image(fr'{ldir}\EXTERNAL\SIL.PNG')
+# pixmap = QPixmap()
+# pixmap.loadFromData(original_image_data)
+# Home.label.setPixmap(pixmap)
 Twink_UI.actionHome.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(0))
 # #_________Register Module _________
 Twink_UI.BseM_Stack.addWidget(Rgtr)
 Twink_UI.actionRegister.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(1))
-from T06MA._internal.F2_MODULES.REGISTER import Register
-
+from _internal.F2_MODULES.REGISTER import Register
 Register.Register_FN(Rgtr)
 # #_________Attendance Module _________
 
@@ -35,8 +32,7 @@ Twink_UI.BseM_Stack.addWidget(AttnPush)
 Twink_UI.BseM_Stack.addWidget(AttnView)
 Twink_UI.actionCreate.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(2))
 Twink_UI.actionView.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(3))
-from T06MA._internal.F2_MODULES.ATTENDANCE import Attendance
-
+from _internal.F2_MODULES.ATTENDANCE import Attendance
 Attendance.Attendance_Push_FN(AttnPush)
 Attendance.Attendance_View_Fn(AttnView)
 
@@ -46,36 +42,32 @@ Twink_UI.BseM_Stack.addWidget(PnchBld)
 Twink_UI.BseM_Stack.addWidget(PrsPnchTrck)
 Twink_UI.actionPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(4))
 Twink_UI.actionPersPunchTrack.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(5))
-from T06MA._internal.F2_MODULES.PUNCH_BUILD import Punch_Build
-
-Punch_Build.Punch_Build_FN(PnchBld, PrsPnchTrck)
+from _internal.F2_MODULES.PUNCH_BUILD import Punch_Build
+Punch_Build.Punch_Build_FN(PnchBld,PrsPnchTrck)
 
 # #_________ Advance Module _________
 Twink_UI.BseM_Stack.addWidget(Adv)
 Twink_UI.actionAdvance.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(6))
-from T06MA._internal.F2_MODULES.ADVANCE import Advance
-
+from _internal.F2_MODULES.ADVANCE import Advance
 Advance.Advance_Amt(Adv)
 
 # #_________ Master Module _________
 Twink_UI.BseM_Stack.addWidget(Mtr)
 Twink_UI.actionMater_User.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(7))
-from T06MA._internal.F2_MODULES.MASTER_LIST import Master
-
+from _internal.F2_MODULES.MASTER_LIST import Master
 Master.Master_FN(Mtr)
 
 # #_________ Wage Module _________
 Twink_UI.BseM_Stack.addWidget(Wge)
 Twink_UI.actionGenerateWage.triggered.connect(lambda: Twink_UI.BseM_Stack.setCurrentIndex(8))
-from T06MA._internal.F2_MODULES.WAGE import Wage_Calculation
-
+from _internal.F2_MODULES.WAGE import Wage_Calculation
 Wage_Calculation.Wage_FN(Wge)
 
 
 # BaseWin Network
-startupinfo = subprocess.STARTUPINFO()
-startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-startupinfo.wShowWindow = subprocess.SW_HIDE
+# startupinfo = subprocess.STARTUPINFO()
+# startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+# startupinfo.wShowWindow = subprocess.SW_HIDE
 
 
 def ping_speed(ip_address):
@@ -103,55 +95,55 @@ ip_address = config[4]
 
 # Network Icons
 Twink_UI.IQL_DB_Connection.setScaledContents(True)
-CloudConnect = QPixmap(fr"{ldir}\F3_AUX\IMG\Cloud_Connect.png")
-CloudDisconnect = QPixmap(fr"{ldir}\F3_AUX\IMG\Cloud_Disconnect.png")
-Home = QPixmap(fr"{ldir}\F3_AUX\IMG\Home_Preview.png")
+CloudConnect = QPixmap(f"{ldir}\F2_MODULES\BASE_WIN\icons\Cloud_Connect.png")
+CloudDisconnect = QPixmap(f"{ldir}\F2_MODULES\BASE_WIN\icons\Cloud_Disconnect.png")
+Home = QPixmap(f"{ldir}\F2_MODULES\BASE_WIN\icons\Home_Preview.png")
 
 
-def ping_loop():
-    while True:
-        if config[2] == "CLOUD":
-            speed = ping_speed(ip_address)
-            if speed is not None:
-                Twink_UI.IQL_DB_Connection.setPixmap(CloudConnect)
-                # Change color based on ping speed
-                if speed <= 10:
-                    Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point4.setStyleSheet("background-color: black;")
-                elif 10 <= speed <= 50:
-                    Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-                elif 50 <= speed <= 100:
-                    Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-                    Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-                else:
-                    Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-                    Twink_UI.IQL_Point2.setStyleSheet("background-color: White;")
-                    Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-                    Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-            else:
-                Twink_UI.IQL_DB_Connection.setPixmap(CloudDisconnect)
-                Twink_UI.IQL_Point1.setStyleSheet("background-color: white;")
-                Twink_UI.IQL_Point2.setStyleSheet("background-color: white;")
-                Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-                Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-
-
-        else:
-            Twink_UI.IQL_DB_Connection.setPixmap(Home)
-        time.sleep(1)
-
-ping_thread = threading.Thread(target=ping_loop)
-ping_thread.daemon = True
-ping_thread.start()
+# def ping_loop():
+#     while True:
+#         if config[2] == "CLOUD":
+#             speed = ping_speed(ip_address)
+#             if speed is not None:
+#                 Twink_UI.IQL_DB_Connection.setPixmap(CloudConnect)
+#                 # Change color based on ping speed
+#                 if speed <= 10:
+#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: black;")
+#                 elif 10 <= speed <= 50:
+#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
+#                 elif 50 <= speed <= 100:
+#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
+#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
+#                 else:
+#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
+#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: White;")
+#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
+#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
+#             else:
+#                 Twink_UI.IQL_DB_Connection.setPixmap(CloudDisconnect)
+#                 Twink_UI.IQL_Point1.setStyleSheet("background-color: white;")
+#                 Twink_UI.IQL_Point2.setStyleSheet("background-color: white;")
+#                 Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
+#                 Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
+#
+#
+#         else:
+#             Twink_UI.IQL_DB_Connection.setPixmap(Home)
+#         time.sleep(1)
+#
+# ping_thread = threading.Thread(target=ping_loop)
+# ping_thread.daemon = True
+# ping_thread.start()
 
 
 # ___QT Window Initialization___
-Twink_UI.showMaximized()
+Twink_UI.show()
 sys.exit(app.exec_())

@@ -385,7 +385,18 @@
        <number>0</number>
       </property>
       <widget class="QWidget" name="NEX_Stack1">
-       <layout class="QGridLayout" name="gridLayout_2"/>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+         <widget class="QLabel" name="label">
+          <property name="styleSheet">
+           <string notr="true">font: 75 16pt &quot;Courier New&quot;;</string>
+          </property>
+          <property name="text">
+           <string>Sunil Industries Limited - Production track</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="NEX_Stack2">
        <layout class="QGridLayout" name="gridLayout_3"/>
@@ -475,6 +486,9 @@
   <action name="actionRegister">
    <property name="text">
     <string>Register</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+1</string>
    </property>
   </action>
   <action name="actionMater_User">

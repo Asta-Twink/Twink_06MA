@@ -400,24 +400,10 @@
          </property>
         </spacer>
        </item>
-       <item row="0" column="3">
+       <item row="0" column="2">
         <widget class="QPushButton" name="IQPB_FormExp">
          <property name="text">
           <string>Form Export</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QPushButton" name="IQPB_Export">
-         <property name="text">
-          <string>Excel</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="IQPB_XLFetch">
-         <property name="text">
-          <string>XL Fetch</string>
          </property>
         </widget>
        </item>

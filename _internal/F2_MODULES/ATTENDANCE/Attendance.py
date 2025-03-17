@@ -102,7 +102,7 @@ def Attendance_View_Fn(AttnView):
     @Exception_Handle
     def Export_Attendance_ExcelFetch():
         if UI_Confirmation(UI_Confirm_Win, f"Please Confrim to Data to Export"):
-            xl = openpyxl.load_workbook(filename=fr'{ldir}\F2_MODULES\ATTENDANCE\ATTENDANCE_EXCEL_FETCH_FORMAT.xlsx')
+            xl = openpyxl.load_workbook(filename=fr'{ldir}\Temp\Excel_Fetch.xlsx')
             for step in ['Attendance', 'OT']:
                 xl.active = xl[step]
                 xlc = xl.active
@@ -118,13 +118,13 @@ def Attendance_View_Fn(AttnView):
                         ccol += 1
                     crow += 1
                     ccol = 1
-            xl.save(filename=fr'{ldir}\F3_AUX\TEMP\ATTENDANCE_EXCEL_FETCH_OP.xlsx')
-            os.system(fr'{ldir}\F3_AUX\TEMP\ATTENDANCE_EXCEL_FETCH_OP.xlsx')
+            xl.save(filename=fr'{ldir}\Temp\Excel_Fetch_OP.xlsx')
+            os.system(fr'{ldir}\Temp\Excel_Fetch_OP.xlsx')
 
     @Exception_Handle
     def ExcelFetch_Attendance():
         if UI_Confirmation(UI_Confirm_Win, f"Please Confrim to Fetch the Attendance from Excel Fetch Export"):
-            xl = openpyxl.load_workbook(filename=fr'{ldir}\F3_AUX\TEMP\ATTENDANCE_EXCEL_FETCH_OP.xlsx')
+            xl = openpyxl.load_workbook(filename=fr'{ldir}\Temp\Excel_Fetch_OP.xlsx')
             xlc1 = xl['Attendance']
             xlc2 = xl['OT']
             Data = []
@@ -160,7 +160,7 @@ def Attendance_View_Fn(AttnView):
     @Exception_Handle
     def Export_Attendance_FormExport():
         if UI_Confirmation(UI_Confirm_Win, f"Please Confrim to Export Attendance data in FormExport"):
-            xl = openpyxl.load_workbook(filename=fr'{ldir}\F2_MODULES\ATTENDANCE\ATTENDANCE_GOVT_FORMAT.xlsx')
+            xl = openpyxl.load_workbook(filename=fr'{ldir}\Temp\Attendance_Form.xlsx')
             xlc = xl.active
             data = Attendance_Fetch(AttnView.IQDE_Date.date().toString('MM-yyyy'))
             atndata = Attendance_datasplit(copy.deepcopy(Attendance_Fetch(AttnView.IQDE_Date.date().toString('MM-yyyy'))), "Attendance",True)
@@ -198,8 +198,8 @@ def Attendance_View_Fn(AttnView):
 
             xlc.cell(row=4, column=3).value = "01-" + AttnView.IQDE_Date.date().toString('MM-yyyy')\
                                               + " TO " + str(tot_days) + "-" + AttnView.IQDE_Date.date().toString('MM-yyyy')
-            xl.save(filename=fr'{ldir}\F3_AUX\TEMP\ATTENDANCE_GOVT_FORMAT_OP.xlsx')
-            os.system(fr'{ldir}\F3_AUX\TEMP\ATTENDANCE_GOVT_FORMAT_OP.xlsx')
+            xl.save(filename=fr'{ldir}\Temp\Attendance_Form_OP.xlsx')
+            os.system(fr'{ldir}\Temp\Attendance_Form_OP.xlsx')
 
     AttnView.IQDE_Date.setDate(QtCore.QDate.currentDate())
     View_Table_Data = Attendance_datasplit(Attendance_Fetch(Cur_Date_MY),"Atn+ot",False)
@@ -219,8 +219,8 @@ def Attendance_View_Fn(AttnView):
     AttnView.IQCB_Attendance.currentIndexChanged.connect(lambda : Custom_Attendance_View())
     AttnView.IQDE_Date.dateChanged.connect(lambda : Custom_Attendance_View())
 
-    AttnView.IQPB_Export.clicked.connect(lambda : Export_Attendance_ExcelFetch())
-    AttnView.IQPB_XLFetch.clicked.connect(lambda: ExcelFetch_Attendance())
+    #AttnView.IQPB_Export.clicked.connect(lambda : Export_Attendance_ExcelFetch())
+    #AttnView.IQPB_XLFetch.clicked.connect(lambda: ExcelFetch_Attendance())
     AttnView.IQPB_FormExp.clicked.connect(lambda : Export_Attendance_FormExport() )
 
 # __StandAlone Running__

@@ -1,8 +1,8 @@
 1
-F:\Twink\T06MA
+A:\Twink\Client_Docs\06_MA\T06MA\_internal
 CLOUD
 twink_06ma
-localhost
-root
-AstA@1309
+100.108.242.3
+AstA_NBserver
+AstA1309
 3306

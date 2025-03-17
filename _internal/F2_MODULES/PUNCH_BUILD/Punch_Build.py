@@ -291,8 +291,8 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
         df = pd.DataFrame(Fetch_Table_Values(PnchBld.OQTB_PunchTrack),
                           columns=['Emp Code', 'Employee Name', 'Check In Time', 'Lunch Out Time', 'Lunch In Time',
                                    'Check Out Time', 'Attendance'])
-        df.to_csv(fr'{ldir}\F3_AUX\TEMP\PTRACKTemp.csv')
-        subprocess.run(['start', 'excel',fr'{ldir}\F3_AUX\TEMP\PTRACKTemp.csv'], shell=True, check=True)
+        df.to_csv(fr'{ldir}\Temp\PTRACKTemp.csv')
+        subprocess.run(['start', 'excel',fr'{ldir}\Temp\PTRACKTemp.csv'], shell=True, check=True)
         UI_Confirmation(UI_Confirm_Win, "Punch Track Exported Successfully")
 
     @Exception_Handle
