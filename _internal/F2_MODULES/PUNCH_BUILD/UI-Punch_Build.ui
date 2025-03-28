@@ -136,16 +136,6 @@
          </column>
          <column>
           <property name="text">
-           <string>Lunch Out</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Lunch In</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
            <string>Check Out</string>
           </property>
          </column>

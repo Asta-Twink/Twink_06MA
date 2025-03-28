@@ -51,7 +51,7 @@ def DB_Creation(inp,init):
         try:
             DB_Cmt_WOE(fr"insert into {date_split[1]}_{date_split[2]} (empcode) values ('{str(i)}')",False)
         except Exception as e:
-            print('XXs', e)
+            #print('XXs', e)
             pass
 
 def DateList(year, month):
@@ -97,7 +97,7 @@ def Attendance_Fetch(inp):
         sql="select register.team,register.employee_name, %s_%s.* from register inner join %s_%s on " \
             "register.emp_code = %s_%s.empcode where register.active = 'Y' order by register.emp_code" % (
                          form[0], form[1], form[0], form[1], form[0], form[1])
-        db_data = DB_Fetch(sql,True,"LOL")
+        db_data = DB_Fetch(sql,False,"LOL")
         print(db_data[0])
         for i in range(len(db_data)):
             db_data[i].insert(0, db_data[i][2])
