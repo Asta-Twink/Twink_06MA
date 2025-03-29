@@ -152,113 +152,92 @@ def Punch_Build_Data(empcode,inp):
 
     inp_next = (lambda d: (d + timedelta(days=1)).strftime("%Y-%m-%d"))(datetime.strptime(inp, "%Y-%m-%d"))
     #Check_In List
-    CheckIN = DB_Fetch(f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
-                     f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 06:00:00' "
-                     f"AND '{inp} 23:50:00' and r.emp_code='{empcode}' and Direction = 'in'",False,"LOE")
+    CheckIN = DB_Fetch(f"SELECT it.punch_time FROM register r JOIN iclock_transaction it ON "
+                     f"r.device_id = it.emp_Code where punch_time between '{inp} 06:00:00' "
+                     f"AND '{inp} 23:50:00' and r.device_id='{Device_ID()[empcode]}' and punch_state = 0 ",False,"LOE")
 
     if len(CheckIN)==0:return["NA","NA","NA","NA","A::0.0"]
     CheckIN = min(CheckIN)
     try:C_I = CheckIN.strftime("%H:%M")
     except :C_I = "NA"
 
-    timestamps = DB_Fetch( f"SELECT it.Timestamp FROM register r JOIN punch_logs it ON "
-                               f"r.emp_code = it.Emp_Code where Timestamp between '{inp} 08:00:00' "
-                               f"AND '{inp_next} 08:00:00' and r.emp_code='{empcode}' and Direction = 'out'", False,
-                              "LOE")
+    CheckOUT = DB_Fetch(f"SELECT it.punch_time FROM register r JOIN iclock_transaction it ON "
+                     f"r.emp_code = it.emp_Code where punch_time between '{inp} 06:00:00' "
+                     f"AND '{inp_next} 08:00:00' and r.emp_code='{Device_ID()[empcode]}' and punch_state = 1 ",False,"LOE")
 
 
-    if CheckIN.time() <=  time(10,00,0) :
+    try:
+        CheckOUT = max(CheckOUT)
+        C_O = CheckOUT.strftime("%H:%M")
+    except :C_O = "NA"
 
-        try:L_O = min([dt for dt in timestamps if time(7, 30, 0) <= dt.time() <= time(14, 30, 0)]).strftime("%H:%M")
-        except:L_O= "NA"
+    OTIN = DB_Fetch(f"SELECT it.punch_time FROM register r JOIN iclock_transaction it ON "
+                     f"r.emp_code = it.emp_Code where punch_time between '{inp} 12:00:00' "
+                     f"AND '{inp_next} 08:00:00' and r.emp_code='{Device_ID()[empcode]}' and punch_state = 4 ",False,"LOE")
 
+
+    try:
+        OTIN = min(OTIN)
+        OT_I = OTIN.strftime("%H:%M")
+    except :OT_I = "NA"
+
+    OTOUT = DB_Fetch(f"SELECT it.punch_time FROM register r JOIN iclock_transaction it ON "
+                     f"r.emp_code = it.emp_Code where punch_time between '{inp} 12:00:00' "
+                     f"AND '{inp_next} 12:00:00' and r.emp_code='{Device_ID()[empcode]}' and punch_state = 5 ",False,"LOE")
+
+
+    try:
+        OTOUT = max(OTOUT)
+        OT_O = OTOUT.strftime("%H:%M")
+    except :OT_O = "NA"
+
+
+    if CheckIN.time() <=  time(11,00,0) :
         try:
-            L_I = max([dt for dt in timestamps if time(7, 30, 0) <= dt.time() <= time(14, 45, 0)]).strftime("%H:%M")
-            if L_I == L_O:L_I="NA"
-        except:L_I = "NA"
+            NH =  (datetime.strptime(C_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
 
-        try:C_O = max([dt for dt in timestamps if time(14, 40, 0) <= dt.time() <= time(20, 0, 0)]).strftime("%H:%M")
-        except:C_O= "NA"
+            OT = (datetime.strptime(OT_O, "%H:%M") - datetime.strptime(OT_I, "%H:%M")).total_seconds() / 3600
 
-        if L_O != "NA" and L_I != "NA" and C_O != "NA":
-            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
-            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
-            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
-            NH = round((FH + SH), 0)
-
-            if NH < 8:
+            if NH < 7.5:
                 NH = "1A::" + str(NH)
-            elif NH >= 8:
-                NH = "1::" + str(NH - 8)
-        else:
-            NH = "A::0.0"
-
+            else:
+                NH = "1::" + str(OT)
+        except:
+            NH = "1-IN"
 
     if time(14, 50, 0) <= CheckIN.time() <= time(15, 50, 0):
 
         try:
-            L_O = min([dt for dt in timestamps if time(19, 30, 0) <= dt.time() <= time(22, 00, 0)]).strftime("%H:%M")
-        except:
-            L_O = "NA"
+            NH =  (datetime.strptime(C_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
+            OT = (datetime.strptime(OT_O, "%H:%M") - datetime.strptime(OT_I, "%H:%M")).total_seconds() / 3600
 
-        try:
-            L_I = max([dt for dt in timestamps if time(19, 30, 0) <= dt.time() <= time(22, 00, 0)]).strftime("%H:%M")
-            if L_I == L_O: L_I = "NA"
-        except:
-            L_I = "NA"
-
-        try:
-            C_O = max([dt for dt in timestamps if time(22, 00, 0) <= dt.time() <= time(23, 50, 0)]).strftime("%H:%M")
-        except:
-            C_O = "NA"
-
-        if L_O != "NA" and L_I != "NA" and C_O != "NA":
-            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
-            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
-            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
-            NH = round((FH + SH), 0)
-            if NH < 8:
+            if NH < 7.5:
                 NH = "2A::" + str(NH)
-            elif NH >= 8:
-                NH = "2::" + str(NH - 8)
-        else:
-            NH = "A::0.0"
+            else:
+                NH = "2::" + str(OT)
+        except:
+            NH = "2-IN"
 
     if time(22, 00, 0) <= CheckIN.time() <= time(23, 50, 0):
-
         try:
-            L_O = min([dt for dt in timestamps if time(2, 00, 0) <= dt.time() <= time(5, 30, 0)]).strftime("%H:%M")
-        except:
-            L_O = "NA"
+            h1, m1 = map(int, C_I.split(":"))
+            h2, m2 = map(int, C_O.split(":"))
 
-        try:
-            L_I = max([dt for dt in timestamps if time(2, 00, 0) <= dt.time() <= time(5, 30, 0)]).strftime("%H:%M")
-            if L_I == L_O: L_I = "NA"
-        except:
-            L_I = "NA"
+            # Convert to total minutes
+            minutes_in = h1 * 60 + m1
+            minutes_out = (h2 * 60 ) + m2 + (24 * 60)
 
-        try:
-            C_O = max([dt for dt in timestamps if time(6, 30, 0) <= dt.time() <= time(7, 30, 0)]).strftime("%H:%M")
-        except:
-            C_O = "NA"
+            NH =  minutes_out - minutes_in /60
+            OT = (datetime.strptime(OT_O, "%H:%M") - datetime.strptime(OT_I, "%H:%M")).total_seconds() / 3600
 
-        if L_O != "NA" and L_I != "NA" and C_O != "NA":
-            FH = (datetime.strptime(L_O, "%H:%M") - datetime.strptime(C_I, "%H:%M")).total_seconds() / 3600
-            if FH < 0 :
-                FH = Time_Difference_Behind(L_O, C_I)
-            LT = (datetime.strptime(L_I, "%H:%M") - datetime.strptime(L_O, "%H:%M")).total_seconds() / 3600
-            SH = (datetime.strptime(C_O, "%H:%M") - datetime.strptime(L_I, "%H:%M")).total_seconds() / 3600
-            NH = round((FH + SH), 0)
-
-            if NH < 8:
+            if NH < 7.5:
                 NH = "3A::" + str(NH)
-            elif NH >= 8:
-                NH = "3::" + str(NH - 8)
-        else:
-            NH = "A::0.0"
-
-
-    return [C_I,L_O,L_I,C_O,NH]
+            else:
+                NH = "3::" + str(OT)
+        except:
+            NH = "3-IN"
+    print(empcode,[C_I,C_O,OT_I,OT_O,NH])
+    return [C_I,C_O,OT_I,OT_O,NH]
 
 def Convert_Punch_Attendance(data):
 
@@ -362,4 +341,8 @@ print(Incentive)
 
 Worker_List = DB_Fetch("Select emp_code from register where Worker = 'Y'",False,"LOE")
 
+Device_ID = lambda : DB_Fetch("select emp_code,device_id from register",False,"DIC")
 
+print(DB_Fetch("select emp_code,device_id from register",False,"DIC"))
+print(Device_ID()['SIL070'])
+print(Punch_Build_Data('SIL070','2025-03-29'))

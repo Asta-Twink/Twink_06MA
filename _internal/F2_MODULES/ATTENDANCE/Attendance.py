@@ -88,6 +88,7 @@ def Attendance_Push_FN(AttnPush):
 
 @Exception_Handle
 def Attendance_View_Fn(AttnView):
+
     @Exception_Handle
     def Custom_Attendance_View():
         AttnView.OQTB_EmpDetails.horizontalHeader().setSortIndicator(0, Qt.AscendingOrder)

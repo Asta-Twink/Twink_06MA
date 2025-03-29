@@ -141,6 +141,16 @@
          </column>
          <column>
           <property name="text">
+           <string>OT IN</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>OT OUT</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
            <string>Attendance</string>
           </property>
          </column>

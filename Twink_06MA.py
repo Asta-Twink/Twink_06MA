@@ -100,50 +100,5 @@ CloudDisconnect = QPixmap(f"{ldir}\F2_MODULES\BASE_WIN\icons\Cloud_Disconnect.pn
 Home = QPixmap(f"{ldir}\F2_MODULES\BASE_WIN\icons\Home_Preview.png")
 
 
-# def ping_loop():
-#     while True:
-#         if config[2] == "CLOUD":
-#             speed = ping_speed(ip_address)
-#             if speed is not None:
-#                 Twink_UI.IQL_DB_Connection.setPixmap(CloudConnect)
-#                 # Change color based on ping speed
-#                 if speed <= 10:
-#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: black;")
-#                 elif 10 <= speed <= 50:
-#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-#                 elif 50 <= speed <= 100:
-#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-#                 else:
-#                     Twink_UI.IQL_Point1.setStyleSheet("background-color: black;")
-#                     Twink_UI.IQL_Point2.setStyleSheet("background-color: White;")
-#                     Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-#                     Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-#             else:
-#                 Twink_UI.IQL_DB_Connection.setPixmap(CloudDisconnect)
-#                 Twink_UI.IQL_Point1.setStyleSheet("background-color: white;")
-#                 Twink_UI.IQL_Point2.setStyleSheet("background-color: white;")
-#                 Twink_UI.IQL_Point3.setStyleSheet("background-color: white;")
-#                 Twink_UI.IQL_Point4.setStyleSheet("background-color: white;")
-#
-#
-#         else:
-#             Twink_UI.IQL_DB_Connection.setPixmap(Home)
-#         time.sleep(1)
-#
-# ping_thread = threading.Thread(target=ping_loop)
-# ping_thread.daemon = True
-# ping_thread.start()
-
-
-# ___QT Window Initialization___
 Twink_UI.show()
 sys.exit(app.exec_())

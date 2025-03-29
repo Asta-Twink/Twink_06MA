@@ -2,7 +2,7 @@
 A:\Twink\Client_Docs\06_MA\T06MA\_internal
 CLOUD
 twink_06ma
-100.108.242.3
-AstA_NBserver
+192.168.0.100
+AstA
 AstA1309
 3306

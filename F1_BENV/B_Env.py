@@ -4,7 +4,8 @@ from num2words import num2words
 # ___Get the current working directory___
 def Run_Project():
     global ldir,config,Mod_Work
-    dir = fr"{os.getcwd()}\_internal"
+    # dir = fr"{os.getcwd()}\_internal"
+    dir = fr"D:\Twink_SourceCode\06MA\_internal"
     file_path = [os.path.join(dir, file) for file in os.listdir(dir) if file.endswith('.txt')][0]
     with open(file_path, 'r') as file:
         lines = file.readlines()
@@ -64,7 +65,7 @@ import mysql.connector,\
 
 from PIL import Image
 from io import BytesIO
-
+import subprocess
 #_________ DateTime Imports _________
 from datetime import datetime,\
     date,\
@@ -137,7 +138,8 @@ Local_DB = \
         'host': 'localhost',
         'user': 'root',
         'password': 'MSeGa@1109',
-        'database': config[3]
+        'database': config[3],
+        "port":3306
     }
 Cloud_DB = \
     {
