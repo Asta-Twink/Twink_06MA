@@ -98,7 +98,7 @@ def Attendance_View_Fn(AttnView):
             select reg.emp_code,reg.team,reg.employee_name ,day(gen_date),pb.gen_attn from punch_build pb 
             inner join register reg where YEAR(gen_date) = '{AttnView.IQDE_Date.date().year()}' 
             and month(gen_date) = '{AttnView.IQDE_Date.date().toString('MM')}' and 
-            pb.emp_code = reg.emp_code  ''', True, 'LOL')
+            pb.emp_code = reg.emp_code  ''', False, 'LOL')
         values = ["NA"] * 31  # Creates a list with 31 "NA" values
         for employee in employee_data:
             values = ["NA"] * 31
