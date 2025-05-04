@@ -330,8 +330,9 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
         df = pd.DataFrame(Fetch_Table_Values(PrsPnchTrck.OQTB_PersonalPunchTrack),
                           columns=['Emp Code', 'Date', 'Check In Time', 'Check Out Time', 'OT In Time',
                                    'OT Out Time', 'Attendance'])
-
-        df.to_csv(fr'{ldir}\F3_AUX\PTRACKTemp.csv')
+        df['Name'] = PrsPnchTrck.IQCB_EmpName.currentText()
+        df[['Emp Code','Name', 'Date', 'Check In Time', 'Check Out Time', 'OT In Time',
+                                   'OT Out Time', 'Attendance']].to_csv(fr'{ldir}\F3_AUX\PTRACKTemp.csv')
         os.system(fr'{ldir}\F3_AUX\PTRACKTemp.csv')
 
 

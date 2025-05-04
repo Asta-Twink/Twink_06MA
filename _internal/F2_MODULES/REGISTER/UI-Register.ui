@@ -921,13 +921,6 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="NEX_label_24">
-             <property name="text">
-              <string>Shift Work</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="3">
             <widget class="QRadioButton" name="IQRB_ShiftWrkNo">
              <property name="enabled">
@@ -935,6 +928,13 @@
              </property>
              <property name="text">
               <string>No</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="NEX_label_24">
+             <property name="text">
+              <string>Shift Work</string>
              </property>
             </widget>
            </item>
@@ -1053,13 +1053,6 @@
            <string/>
           </property>
           <layout class="QGridLayout" name="gridLayout_6">
-           <item row="0" column="0">
-            <widget class="QLabel" name="NEX_label_21">
-             <property name="text">
-              <string>Married Status</string>
-             </property>
-            </widget>
-           </item>
            <item row="0" column="3">
             <widget class="QRadioButton" name="IQRB_MrdNo">
              <property name="enabled">
@@ -1067,19 +1060,6 @@
              </property>
              <property name="text">
               <string>No</string>
-             </property>
-             <property name="checkable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="2">
-            <widget class="QRadioButton" name="IQRB_MrdYes">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-             <property name="text">
-              <string>Yes</string>
              </property>
              <property name="checkable">
               <bool>true</bool>
@@ -1101,6 +1081,26 @@
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="0" column="2">
+            <widget class="QRadioButton" name="IQRB_MrdYes">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Yes</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="NEX_label_21">
+             <property name="text">
+              <string>Married Status</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1336,6 +1336,13 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <widget class="QPushButton" name="IQPB_Register_Form">
+      <property name="text">
+       <string>Register_Form</string>
+      </property>
      </widget>
     </item>
    </layout>

@@ -103,7 +103,6 @@ def Register_FN(Rgtr):
             Push_Table_Values(Rgtr.OQTB_EmployeeList, Customer_List, False)
 
 
-
     # Fetch_Table_individual_details
     @Exception_Handle
     def Fetch_tbl(row, column):
@@ -348,10 +347,16 @@ def Register_FN(Rgtr):
     @Exception_Handle
     def Update_Emp_Details():
         if UI_Confirmation(UI_Confirm_Win, fr"Please confirm do you want to Update the selected data"):
+            print(globals()["Product_Master_Data"],"product master data")
+
             check_device_id_exist = DB_Fetch(fr'''
                 select COUNT(*) from register where device_id = '{Rgtr.IQLE_EmpID.text()}' 
                 ''', False,'LOE')
+            # print(check_device_id_exist)
+            # print(len(check_device_id_exist))
             if check_device_id_exist[0]:
+            # if len(check_device_id_exist) != 0:
+                # print("true")
                 if globals()["Blob_Image_Nomi"] != None:
                     cursor = db.cursor()
                     insert_query_Nomi = "UPDATE register SET nominee_photo = %s WHERE emp_code = %s"
@@ -468,7 +473,6 @@ def Register_FN(Rgtr):
                 UI_Confirmation(UI_Confirm_Win, "Updated Successfully")
                 Function_clear()
                 Rgtr.GB_UpdateEmp.setChecked(False)
- 
 
 
     @Exception_Handle
@@ -798,6 +802,48 @@ def Register_FN(Rgtr):
             print("No BLOB")
 
 
+    @Exception_Handle
+    def Register_Form():
+        if Rgtr.IQLE_EmpName.text() and Rgtr.IQLE_EmpCode.text():
+            xl = openpyxl.load_workbook(filename=fr'{ldir}\F2_MODULES\REGISTER\Register Form.xlsx')
+            xl.active = xl['Emp_Detail']
+            xlc = xl.active
+
+            gender = 'M' if Rgtr.IQRB_Male.isChecked() else 'F' if Rgtr.IQRB_Female.isChecked() else 'O'
+            mar = "Yes" if Rgtr.IQRB_MrdYes.isChecked() else "No"
+            Shift = 'Yes' if Rgtr.IQRB_ShiftwrkYes.isChecked() else "No"
+
+            xlc['E6'] = Rgtr.IQLE_EmpName.text()
+            xlc['E7'] = Rgtr.IQLE_EmpID.text()
+            xlc['E8'] = Rgtr.IQLE_EmpCode.text()
+            xlc['E9'] = Rgtr.IQLE_Aadhar.text()
+            xlc['E10'] = Rgtr.IQLE_PAN.text()
+            xlc['E11'] = Rgtr.IQLE_UAN.text()
+            xlc['E12'] = Rgtr.IQLE_ESIC.text()
+            xlc['E13'] = Rgtr.OQDE_DOB.date().toString(Qt.ISODate)
+            xlc['E14'] = Rgtr.OQDE_DOJ.date().toString(Qt.ISODate)
+            xlc['E15'] = gender
+            xlc['E16'] = Rgtr.OQCB_BloodGroup.currentText()
+            xlc['E17'] = Rgtr.IQLE_PhoneNo.text()
+            xlc['E18'] = Rgtr.IQLE_FatherSpouse.text()
+            xlc['E19'] = mar
+            xlc['E20'] = Rgtr.IQTE_Address.toPlainText()
+            xlc['E22'] = Rgtr.OQCB_Dept.currentText()
+            xlc['E23'] = Shift
+            xlc['E24'] = 0.0 if Rgtr.IQLE_Shift1Salary.text() == '' else Rgtr.IQLE_Shift1Salary.text()
+            xlc['E25'] = 0.0 if Rgtr.IQLEShift2Salary.text() == '' else Rgtr.IQLEShift2Salary.text()
+            xlc['E26'] = 0.0 if Rgtr.IQLE_Shift3Salary.text() == '' else Rgtr.IQLE_Shift3Salary.text()
+            xlc['E27'] = Rgtr.IQLE_NomineeName.text()
+
+            xl.save(fr"{ldir}\F3_AUX\TEMP\Register Form1.xlsx")
+            xl.close()
+            subprocess.run(['start', '', fr"{ldir}\F3_AUX\TEMP\Register Form1.xlsx"], shell=True,
+                           check=True)
+            UI_Confirmation(UI_Confirm_Win, "New Registered Form Exported Successfully")
+
+        else:
+            UI_Confirmation(UI_Confirm_Win, "No Data is filled or No Data is Selected\nPlease select the Data")
+
 
     # _________ Functionality_List _________
     Customer_List = lambda: DB_Fetch("select emp_code,team,employee_name,blood_group,phone_no from register where "
@@ -811,6 +857,9 @@ def Register_FN(Rgtr):
     Rgtr.OQTB_EmployeeList.cellClicked.connect(Fetch_tbl)
     Rgtr.IQPB_Update.clicked.connect(lambda: Update_Emp_Details())
     Rgtr.GB_UpdateEmp.clicked.connect(lambda: Enable_Update())
+
+    Rgtr.IQPB_Register_Form.clicked.connect(lambda: Register_Form())
+
     Rgtr.GB_Add_Emp.clicked.connect(lambda: Enable_Add())
     Rgtr.IQPB_Add.clicked.connect(lambda: Add_Emp_Details())
     Rgtr.OQTB_EmployeeList.setContextMenuPolicy(Qt.CustomContextMenu)
