@@ -2,7 +2,7 @@
 A:\Twink\Client_Docs\06_MA\T06MA\_internal
 CLOUD
 twink_06ma
-192.168.0.100
-AstA
-AstA1309
+localhost
+root
+MSeGa@1109
 3306

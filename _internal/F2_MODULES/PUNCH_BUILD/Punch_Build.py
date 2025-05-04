@@ -236,7 +236,7 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
             PnchBld.IQPB_Update.setEnabled(True)
             PnchBld.IQPB_Regen.setEnabled(True)
             for row in range(PnchBld.OQTB_PunchTrack.rowCount()):
-                for j in range (2,7):
+                for j in range (2,6):
                     item = PnchBld.OQTB_PunchTrack.item(row, j)
                     if item:
                         item.setFlags(item.flags() | Qt.ItemIsEditable)
@@ -267,9 +267,9 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
                 print(e)
                 pass
 
-        sql = f"select punch_build.emp_code, register.employee_name, punch_build.CI, punch_build.LO, punch_build.LI, " \
-                      f"punch_build.CO, punch_build.gen_attn from punch_build left join register on  punch_build.emp_code = " \
-                      f"register.emp_code where punch_build.gen_date = '{inpdate}'"
+        sql = f"select punch_build.emp_code, register.employee_name, punch_build.CI, punch_build.CO, punch_build.OTI, " \
+              f"punch_build.OTO, punch_build.gen_attn from punch_build left join register on  punch_build.emp_code = " \
+              f"register.emp_code where punch_build.gen_date = '{inpdate}' order by punch_build.gen_attn"
         Push_Table_Values(PnchBld.OQTB_PunchTrack, DB_Fetch( sql, False, "LOL"), False)
         Mass_Attendance_Build_Push(Active_EmpC, inpdate)
         UI_Confirmation(UI_Confirm_Win, "Punch time stamps Updated Successfully")
@@ -288,13 +288,42 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
     @Exception_Handle
     def Export_Punch_Track():
 
-        df = pd.DataFrame(Fetch_Table_Values(PnchBld.OQTB_PunchTrack),
-                          columns=['Emp Code', 'Employee Name', 'Check In Time', 'Check Out Time', 'OT In Time',
-                                   'OT Out Time', 'Attendance'])
-        df.to_csv(fr'{ldir}\F3_AUX\TEMP\PTRACKTemp.csv')
-        subprocess.run(['start', '',fr'{ldir}\F3_AUX\TEMP\PTRACKTemp.csv'], shell=True, check=True)
-        UI_Confirmation(UI_Confirm_Win, "Punch Track Exported Successfully")
+        data = Fetch_Table_Values(PnchBld.OQTB_PunchTrack)
 
+        inv = openpyxl.load_workbook(filename=fr"{os.getcwd()}\_internal\F3_AUX\TEMP\Attendance Report.xlsx")
+        sheet = inv.active
+        for j in range(len(data)):
+            sheet.cell(row=4 + j, column=2).value = data[j][0]
+            sheet.cell(row=4 + j, column=3).value = data[j][1]
+            sheet.cell(row=4 + j, column=4).value = data[j][2] if data[j][2] != "NA" else "00:00"
+            sheet.cell(row=4 + j, column=5).value = data[j][3] if data[j][3] != "NA" else "00:00"
+            sheet.cell(row=4 + j, column=6).value = data[j][4] if data[j][4] != "NA" else "00:00"
+            sheet.cell(row=4 + j, column=7).value = data[j][5] if data[j][5] != "NA" else "00:00"
+            sheet.cell(row=4 + j, column=8).value = data[j][6]
+
+            if "IN" in data[j][6]:
+                sheet.cell(row=4 + j, column=9).value = data[j][6].split("-")[0]
+            elif "A::" in data[j][6] and not ("1A::" in data[j][6] or "2A::" in data[j][6] or "3A::" in data[j][6]):
+                sheet.cell(row=4 + j, column=9).value = data[j][6].split("::")[0]
+            elif "1A::" in data[j][6] or "2A::" in data[j][6] or "3A::" in data[j][6]:
+                sheet.cell(row=4 + j, column=9).value = "A"
+            else:
+                sheet.cell(row=4 + j, column=9).value = data[j][6].split("::")[0]
+
+            if "A::" in data[j][6] and not ("1A::" in data[j][6] or "2A::" in data[j][6] or "3A::" in data[j][6]):
+                sheet.cell(row=4 + j, column=10).value = float(0)
+            elif "1A::" in data[j][6] or "2A::" in data[j][6] or "3A::" in data[j][6]:
+                sheet.cell(row=4 + j, column=10).value = float(data[j][6].split("::")[1])
+            elif "IN" in data[j][6]:
+                sheet.cell(row=4 + j, column=10).value = float(0)
+            else:
+                sheet.cell(row=4 + j, column=10).value = float(data[j][6].split("::")[1])
+
+        inv.save(fr"{os.getcwd()}\_internal\F3_AUX\TEMP\Attendance Report1.xlsx")
+        inv.close()
+        subprocess.run(['start', '', fr"{os.getcwd()}\_internal\F3_AUX\TEMP\Attendance Report1.xlsx"], shell=True,
+                       check=True)
+        UI_Confirmation(UI_Confirm_Win, "Punch Track Exported Successfully")
     @Exception_Handle
     def Export_Perosnal_Punch_Track():
 
@@ -318,9 +347,10 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
 
     PnchBld.IQDE_Date.dateChanged.connect(lambda :
     Push_Table_Values(PnchBld.OQTB_PunchTrack,DB_Fetch(
-        f"select punch_build.emp_code, register.employee_name, punch_build.CI, punch_build.LO, punch_build.LI, " \
-          f"punch_build.CO, punch_build.gen_attn from punch_build left join register on  punch_build.emp_code = " \
-          f"register.emp_code where punch_build.gen_date = '{PnchBld.IQDE_Date.date().toString(sqlformat)}'",False,"LOL"),False))
+        f"select punch_build.emp_code, register.employee_name, punch_build.CI, " \
+        f"punch_build.CO,punch_build.OTI, punch_build.OTO, punch_build.gen_attn from punch_build left join register on  punch_build.emp_code = " \
+        f"register.emp_code where punch_build.gen_date = '{PnchBld.IQDE_Date.date().toString(sqlformat)}' order by punch_build.gen_attn",
+    False,"LOL"),False))
 
     PnchBld.IQC_Update.stateChanged.connect(lambda : Editable_Table())
     PnchBld.IQPB_Update.clicked.connect(lambda: Update_Punch_Build())

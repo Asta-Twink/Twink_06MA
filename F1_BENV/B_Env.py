@@ -52,7 +52,8 @@ from PyQt5.QtGui import \
     QImageReader,\
     QColor,\
     QFont
-
+from mysql.connector.locales.eng import client_error
+from mysql.connector.plugins import caching_sha2_password
 # ___Generic Import Statements___
 import mysql.connector,\
     openpyxl,\
