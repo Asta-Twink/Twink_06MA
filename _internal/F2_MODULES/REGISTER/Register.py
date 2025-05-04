@@ -351,7 +351,7 @@ def Register_FN(Rgtr):
             check_device_id_exist = DB_Fetch(fr'''
                 select COUNT(*) from register where device_id = '{Rgtr.IQLE_EmpID.text()}' 
                 ''', False,'LOE')
-            if check_device_id_exist[0] == 0:
+            if check_device_id_exist[0]:
                 if globals()["Blob_Image_Nomi"] != None:
                     cursor = db.cursor()
                     insert_query_Nomi = "UPDATE register SET nominee_photo = %s WHERE emp_code = %s"
@@ -468,8 +468,7 @@ def Register_FN(Rgtr):
                 UI_Confirmation(UI_Confirm_Win, "Updated Successfully")
                 Function_clear()
                 Rgtr.GB_UpdateEmp.setChecked(False)
-            if check_device_id_exist[0] == 1:
-                UI_Confirmation(UI_Confirm_Win, "Employee ID are Unique Check it")
+ 
 
 
     @Exception_Handle

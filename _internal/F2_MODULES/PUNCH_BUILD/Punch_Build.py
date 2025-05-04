@@ -328,11 +328,12 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
     def Export_Perosnal_Punch_Track():
 
         df = pd.DataFrame(Fetch_Table_Values(PrsPnchTrck.OQTB_PersonalPunchTrack),
-                          columns=['Emp Code', 'Date', 'Check In Time', 'Lunch Out Time', 'Lunch In Time',
-                                   'Check Out Time', 'Attendance'])
-        df.to_csv(fr'{ldir}\Temp\PTRACKTemp.csv')
-        os.system(fr'{ldir}\Temp\PTRACKTemp.csv')
-        os.remove(fr'{ldir}\Temp\PTRACKTemp.csv')
+                          columns=['Emp Code', 'Date', 'Check In Time', 'Check Out Time', 'OT In Time',
+                                   'OT Out Time', 'Attendance'])
+
+        df.to_csv(fr'{ldir}\F3_AUX\PTRACKTemp.csv')
+        os.system(fr'{ldir}\F3_AUX\PTRACKTemp.csv')
+
 
     # _________ Functionality_List _________
 
@@ -363,7 +364,7 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
     PrsPnchTrck.IQCB_EmpName.addItems(Active_EmpList)
 
     # Push_Table_Values(PrsPnchTrck.OQTB_PersonalPunchTrack,DB_Fetch(
-    #                     f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,LO,LI,CO,gen_attn from punch_build where '
+    #                     f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,CO,OTI,OTO,gen_attn from punch_build where '
     #                     f'emp_code = "{EmpCode_Fetch(PrsPnchTrck.IQCB_EmpName.currentText())}" and '
     #                     f'month(gen_date)= "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[1]}" and year('
     #                     f'gen_date) = "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[0]}"',
@@ -371,7 +372,7 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
 
     PrsPnchTrck.IQDE_Date.dateChanged.connect(lambda:
             Push_Table_Values(PrsPnchTrck.OQTB_PersonalPunchTrack, DB_Fetch(
-                        f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,LO,LI,CO,gen_attn from punch_build where '
+                        f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,CO,OTI,OTO,gen_attn from punch_build where '
                         f'emp_code = "{EmpCode_Fetch(PrsPnchTrck.IQCB_EmpName.currentText())}" and '
                         f'month(gen_date)= "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[1]}" and year('
                         f'gen_date) = "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[0]}"',
@@ -379,7 +380,7 @@ def Punch_Build_FN(PnchBld,PrsPnchTrck):
 
     PrsPnchTrck.IQCB_EmpName.currentIndexChanged.connect( lambda :
             Push_Table_Values(PrsPnchTrck.OQTB_PersonalPunchTrack,DB_Fetch(
-                        f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,LO,LI,CO,gen_attn from punch_build where '
+                        f'select emp_code, DATE_FORMAT(gen_date, "%d-%m-%Y"),CI,CO,OTI,OTO,gen_attn from punch_build where '
                         f'emp_code = "{EmpCode_Fetch(PrsPnchTrck.IQCB_EmpName.currentText())}" and '
                         f'month(gen_date)= "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[1]}" and year('
                         f'gen_date) = "{PrsPnchTrck.IQDE_Date.date().toString(sqlformat).split("-")[0]}"',

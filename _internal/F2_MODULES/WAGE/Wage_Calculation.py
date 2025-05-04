@@ -291,7 +291,7 @@ def Wage_FN(Wge):
 
     @Exception_Handle
     def Export_Wage_Report():
-        xl = openpyxl.load_workbook(fr"{ldir}\EXTERNAL\Wage_Export.xlsx")
+        xl = openpyxl.load_workbook(fr"{ldir}\F3_AUX\TEMP\Wage_Export.xlsx")
         xl.active = xl['Wage_Calc']
         xlc = xl.active
         rowc = 2
@@ -347,8 +347,8 @@ def Wage_FN(Wge):
                 colc += 1
             rowc += 1
 
-        xl.save(fr"{ldir}\EXTERNAL\Wage_Export_OP.xlsx")
-        subprocess.run(['start', 'excel', fr"{ldir}\EXTERNAL\Wage_Export_OP.xlsx"], shell=True, check=True)
+        xl.save(fr"{ldir}\F3_AUX\TEMP\Wage_Export_OP.xlsx")
+        subprocess.run(['start', 'excel', fr"{ldir}\F3_AUX\TEMP\Wage_Export_OP.xlsx"], shell=True, check=True)
 
     def Fetch_Wage_Data():
         date=Wge.IQDE_Date.date().toString("MM-yyyy")
