@@ -310,7 +310,7 @@ Incentive = DB_Fetch("select total_days, Incentive from incentive_list", True, "
 
 print(Incentive)
 
-Worker_List = DB_Fetch("Select emp_code from register where Worker = 'Y'",False,"LOE")
+# Worker_List = DB_Fetch("Select emp_code from register where Worker = 'Y'",False,"LOE")
 
 Device_ID = lambda : DB_Fetch("select emp_code,device_id from register",False,"DIC")
 

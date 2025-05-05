@@ -511,22 +511,6 @@
            <string>Bank Name</string>
           </property>
          </widget>
-         <widget class="QCheckBox" name="OQC_OfficeStaff">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>682</x>
-            <y>66</y>
-            <width>147</width>
-            <height>24</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Office Staff</string>
-          </property>
-         </widget>
          <widget class="QDateEdit" name="OQDE_DOJ">
           <property name="geometry">
            <rect>
@@ -541,22 +525,6 @@
           </property>
           <property name="calendarPopup">
            <bool>true</bool>
-          </property>
-         </widget>
-         <widget class="QCheckBox" name="IQCB_Worker">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="geometry">
-           <rect>
-            <x>682</x>
-            <y>98</y>
-            <width>87</width>
-            <height>24</height>
-           </rect>
-          </property>
-          <property name="text">
-           <string>Worker</string>
           </property>
          </widget>
          <widget class="QLabel" name="NEX_label_22">
@@ -1267,6 +1235,61 @@
           <property name="readOnly">
            <bool>true</bool>
           </property>
+         </widget>
+         <widget class="QFrame" name="frame_2">
+          <property name="geometry">
+           <rect>
+            <x>680</x>
+            <y>70</y>
+            <width>141</width>
+            <height>80</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="QRadioButton" name="IQRB_OT">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>10</y>
+             <width>82</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>OT</string>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="IQRB_NonOT">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>30</y>
+             <width>82</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>NON-OT</string>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="IQRB_OT_15D">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>50</y>
+             <width>82</width>
+             <height>17</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>OT-15D</string>
+           </property>
+          </widget>
          </widget>
         </widget>
        </item>

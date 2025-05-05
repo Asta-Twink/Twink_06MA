@@ -121,7 +121,7 @@ def Register_FN(Rgtr):
             text = Ind_detail[2]
             letters = re.sub(r'[^A-Za-z]', '', text)  # Remove all non-letters
             Rgtr.IQLE_EmpName.setText(Ind_detail[1])
-            Rgtr.IQLE_EmpID.setText(str(Ind_detail[35]))
+            Rgtr.IQLE_EmpID.setText(str(Ind_detail[34]))
             Rgtr.IQLE_EmpCode.setText(Ind_detail[2])
             Rgtr.OQCB_Dept.addItem(Ind_detail[3])
             Rgtr.IQLE_ESIC.setText(Ind_detail[4])
@@ -168,27 +168,38 @@ def Register_FN(Rgtr):
             Rgtr.OQDE_DOJ.setDate(QDate.fromString(DoJ, 'yyyy-MM-dd'))
             Rgtr.IQLE_NomineeName.setText(str(Ind_detail[27]))
             Rgtr.IQLE_NomineePhNo.setText(str(Ind_detail[28]))
+
             # if Ind_detail[30] == 'PF':
             #     Rgtr.IQRB_PF.setChecked(True)
             #     Rgtr.IQRB_NonPF.setChecked(False)
             # else:
             #     Rgtr.IQRB_NonPF.setChecked(True)
             #     Rgtr.IQRB_PF.setChecked(False)
-            if Ind_detail[30] == 'Y':
-                Rgtr.OQC_OfficeStaff.setChecked(True)
-            else:
-                Rgtr.OQC_OfficeStaff.setChecked(False)
-            Rgtr.IQCB_Worker.setEnabled(True)
-            Rgtr.IQCB_Worker.setChecked(False)
+            # if Ind_detail[30] == 'Y':
+            #     Rgtr.OQC_OfficeStaff.setChecked(True)
+            # else:
+            #     Rgtr.OQC_OfficeStaff.setChecked(False)
+            # Rgtr.IQCB_Worker.setEnabled(True)
+            # Rgtr.IQCB_Worker.setChecked(False)
             #print(Ind_detail[33])
-            if Ind_detail[33] == 'Y':
-                Rgtr.IQCB_Worker.setChecked(True)
-            else:
-                Rgtr.IQCB_Worker.setChecked(False)
+            # if Ind_detail[33] == 'Y':
+            #     Rgtr.IQCB_Worker.setChecked(True)
+            # else:
+            #     Rgtr.IQCB_Worker.setChecked(False)
 
-            Rgtr.IQCB_Worker.setEnabled(False)
-            Rgtr.OQC_OfficeStaff.setEnabled(False)
+            # Rgtr.IQCB_Worker.setEnabled(False)
+            # Rgtr.OQC_OfficeStaff.setEnabled(False)
+            # Rgtr.Ind_detail[30]
+
+            if Ind_detail[30] == 'OT':
+                Rgtr.IQRB_OT.setChecked(True)
+            elif Ind_detail[30] == 'Non-OT':
+                Rgtr.IQRB_NonOT.setChecked(True)
+            else:
+                Rgtr.IQRB_OT_15D.setChecked(True)
+
             Rgtr.OQCB_Team.addItem(Ind_detail[31])
+
 
             if Ind_detail[25] != bytes(b'...'):
                 try:
@@ -225,14 +236,15 @@ def Register_FN(Rgtr):
                 Update_Property(Rgtr.NEX_EmployeeDetails,"Readonly","IQLE",False)
                 Update_Property(Rgtr.NEX_EmployeeDetails, "Readonly", "IQTE", False)
                 Update_Property(Rgtr.NEX_EmployeeDetails, "Enable", "IQRB", True)
-                Rgtr.OQC_OfficeStaff.setEnabled(True)
-                Rgtr.IQCB_Worker.setEnabled(True)
+                # Rgtr.OQC_OfficeStaff.setEnabled(True)
+                # Rgtr.IQCB_Worker.setEnabled(True)
+
             else:
                 Update_Property(Rgtr.NEX_EmployeeDetails,"Readonly","IQLE",True)
                 Update_Property(Rgtr.NEX_EmployeeDetails, "Readonly", "IQTE", True)
                 Update_Property(Rgtr.NEX_EmployeeDetails, "Enable", "IQRB", False)
-                Rgtr.OQC_OfficeStaff.setEnabled(False)
-                Rgtr.IQCB_Worker.setEnabled(False)
+                # Rgtr.OQC_OfficeStaff.setEnabled(False)
+                # Rgtr.IQCB_Worker.setEnabled(False)
         except Exception as e:
             print(e)
         Rgtr.OQCB_Dept.setEnabled(True)
@@ -266,13 +278,20 @@ def Register_FN(Rgtr):
         Rgtr.IQRB_Other.setChecked(False)
         Rgtr.IQRB_ShiftwrkYes.setChecked(False)
         Rgtr.IQRB_ShiftWrkNo.setChecked(False)
-        Rgtr.IQRB_PF.setEnabled(True)
-        Rgtr.IQRB_NonPF.setEnabled(True)
-        Rgtr.IQCB_Worker.setEnabled(True)
-        Rgtr.IQRB_PF.setChecked(False)
+
+        Rgtr.IQRB_PF.setEnabled(False)
+        Rgtr.IQRB_NonPF.setEnabled(False)
+
+        Rgtr.IQRB_OT_15D.setEnabled(False)
+        Rgtr.IQRB_NonOT.setEnabled(False)
+        Rgtr.IQRB_OT.setEnabled(False)
+
+        # Rgtr.IQCB_Worker.setEnabled(True)
+        Rgtr.IQRB_PF.setChecked(True)
         Rgtr.IQRB_NonPF.setChecked(False)
-        Rgtr.OQC_OfficeStaff.setChecked(False)
-        Rgtr.IQCB_Worker.setChecked(False)
+
+        # Rgtr.OQC_OfficeStaff.setChecked(False)
+        # Rgtr.IQCB_Worker.setChecked(False)
 
 
         Rgtr.IQLE_FatherSpouse.clear()
@@ -313,7 +332,7 @@ def Register_FN(Rgtr):
         # Rgtr.IQRB_ShiftwrkYes.setEnabled(True)
         # Rgtr.IQRB_ShiftWrkNo.setEnabled(True)
 
-        Rgtr.OQC_OfficeStaff.setEnabled(True)
+        # Rgtr.OQC_OfficeStaff.setEnabled(True)
 
         Update_Property(Rgtr.NEX_EmployeeDetails,"Readonly","IQLE",False)
         Update_Property(Rgtr.NEX_EmployeeDetails, "Readonly", "IQTE", False)
@@ -398,10 +417,10 @@ def Register_FN(Rgtr):
                     Shift = 'Yes'
                 else:
                     Shift = 'No'
-                if Rgtr.OQC_OfficeStaff.isChecked():
-                    Office = 'Y'
-                else:
-                    Office = 'N'
+                # if Rgtr.OQC_OfficeStaff.isChecked():
+                #     Office = 'Y'
+                # else:
+                #     Office = 'N'
                 # if Rgtr.IQRB_PF.isChecked():
                 #     PF = 'PF'
                 # else:
@@ -412,10 +431,21 @@ def Register_FN(Rgtr):
                     Gnd = "F"
                 else:
                     Gnd = "O"
-                if Rgtr.IQCB_Worker.isChecked():
-                    Work = 'Y'
+
+                if Rgtr.IQRB_OT.isChecked():
+                    ott = "OT"
+                elif Rgtr.IQRB_NonOT.isChecked():
+                    ott = "Non-OT"
                 else:
-                    Work = 'N'
+                    ott = "OT-15D"
+
+                # if
+
+
+                # if Rgtr.IQCB_Worker.isChecked():
+                #     Work = 'Y'
+                # else:
+                #     Work = 'N'
                 text = Rgtr.IQLE_EmpCode.text()
                 letters = re.sub(r'[^A-Za-z]', '', text)  # Remove all non-letters
                 dict = {
@@ -448,8 +478,8 @@ def Register_FN(Rgtr):
                     'nominee_name': Rgtr.IQLE_NomineeName.text(),
                     'nominee_phone_no': Rgtr.IQLE_NomineePhNo.text(),
                     # 'ET': PF,
-                    'Worker':Work,
-                    'office_staff': Office,
+                    # 'Worker':Work,
+                    'ot_status': ott,
                     'team': Rgtr.OQCB_Team.currentText(),
                 }
                 c_dict = {
@@ -493,18 +523,18 @@ def Register_FN(Rgtr):
                                 select COUNT(*) from register where device_id = '{Rgtr.IQLE_EmpID.text()}' 
                                 ''', False, 'LOE')
                 if check_device_id_exist[0] == 0:
-                    if Rgtr.IQRB_MrdYes.isChecked():
-                        Mar = 'Yes'
-                    else:
-                        Mar = 'No'
+                    # if Rgtr.IQRB_MrdYes.isChecked():
+                    #     Mar = 'Yes'
+                    # else:
+                    #     Mar = 'No'
                     if Rgtr.IQRB_ShiftwrkYes.isChecked():
                         Shift = 'Yes'
                     else:
                         Shift = 'No'
-                    if Rgtr.OQC_OfficeStaff.isChecked():
-                        Office = 'Y'
-                    else:
-                        Office = 'N'
+                    # if Rgtr.OQC_OfficeStaff.isChecked():
+                    #     Office = 'Y'
+                    # else:
+                    #     Office = 'N'
 
                     if Rgtr.IQRB_Male.isChecked():
                         Gnd = "M"
@@ -512,10 +542,20 @@ def Register_FN(Rgtr):
                         Gnd = "F"
                     else:
                         Gnd = "O"
-                    if Rgtr.IQCB_Worker.isChecked():
-                        Work = 'Y'
+
+                    if Rgtr.IQRB_OT.isChecked():
+                        ott = "OT"
+                    elif Rgtr.IQRB_NonOT.isChecked():
+                        ott = "Non-OT"
                     else:
-                        Work = 'N'
+                        ott = "OT-15D"
+
+
+
+                    # if Rgtr.IQCB_Worker.isChecked():
+                    #     Work = 'Y'
+                    # else:
+                    #     Work = 'N'
                     text = Rgtr.IQLE_EmpCode.text()
                     letters = re.sub(r'[^A-Za-z]', '', text)  # Remove all non-letters
 
@@ -547,8 +587,8 @@ def Register_FN(Rgtr):
                         'nominee_name': Rgtr.IQLE_NomineeName.text(),
                         'nominee_phone_no': Rgtr.IQLE_NomineePhNo.text(),
                         # 'ET': PF,
-                        'Worker': Work,
-                        'office_staff': Office,
+                        # 'Worker': Work,
+                        'ot_status': ott,
                         'team': Rgtr.OQCB_Team.currentText(),
                     }
                     DB_Push_Dict( dict, "register", True)
